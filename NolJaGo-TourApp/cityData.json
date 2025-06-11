@@ -1,0 +1,72 @@
+[
+    {
+        "id": 1001,
+        "name": "Seoul",
+        "country": "Korea",
+         "description": "Seoul, the bustling capital of South Korea, seamlessly blends ancient traditions with modern innovation. With a population exceeding 10 million, it's a dynamic metropolis known for its vibrant culture, cutting-edge technology, and delectable cuisine. From historic palaces to futuristic skyscrapers, Seoul offers a captivating mix of old and new, making it a must-visit destination for travelers seeking a unique and immersive experience.",
+        "imageName": "Seoul"
+    },
+    {
+        "id": 1002,
+        "name": "내주변 관광지",
+        "country": "Greece",
+         "description": "Athens, the historic capital of Greece, is a city steeped in ancient mythology and modern charm. Home to iconic landmarks like the Acropolis, Parthenon, and Temple of Olympian Zeus, it's a treasure trove of archaeological wonders. Amidst its rich history, Athens pulsates with energy, boasting lively neighborhoods, bustling markets, and a thriving culinary scene. With its blend of antiquity and contemporary flair, Athens offers visitors an unforgettable journey through time and culture in the heart of the Mediterranean.",
+        "imageName": "Athens"
+    },
+    {
+        "id": 1003,
+       "name": "내주변 숙박시설",
+        "country": "Thailand",
+        "description": "Bangkok, the vibrant capital of Thailand, is a city of contrasts where traditional Thai culture meets modernity. Known for its bustling street life, ornate temples like Wat Arun and Wat Pho, and bustling markets like Chatuchak Weekend Market, Bangkok is a sensory delight. From its world-renowned street food to its luxurious shopping malls, the city offers a diverse range of experiences. With its intricate canal system, towering skyscrapers, and vibrant nightlife, Bangkok is a dynamic city that never fails to captivate visitors from around the globe.",
+        "imageName": "Bangkok"
+    },
+    {
+        "id": 1004,
+       "name": "내주변 음식점",
+        "country": "Germany",
+        "description": "Berlin, the capital of Germany, is a city pulsating with history, culture, and creativity. Renowned for its iconic landmarks like the Berlin Wall, Brandenburg Gate, and Reichstag building, it's a hub of historical significance. Yet, Berlin is also a modern metropolis, boasting cutting-edge art galleries, vibrant street art, and a legendary nightlife scene. With its diverse neighborhoods, green spaces like Tiergarten, and world-class museums, Berlin offers visitors a rich tapestry of experiences that reflect its complex past and dynamic present.",
+        "imageName": "Berlin"
+    },
+    {
+        "id": 1005,
+      "name": "Jerusalem",
+        "country": "Israel",
+        "description": "Jerusalem, the holy city revered by three major religions—Judaism, Christianity, and Islam—is a place of profound spiritual significance and historical importance. Its ancient streets are adorned with sacred sites such as the Western Wall, Church of the Holy Sepulchre, and Dome of the Rock, drawing pilgrims and tourists alike. Beyond its religious heritage, Jerusalem is a vibrant city with a diverse population, bustling markets, and a rich cultural scene. Its Old City, a UNESCO World Heritage Site, is a labyrinth of narrow alleys and hidden treasures, while modern Jerusalem offers modern amenities and a vibrant atmosphere.",
+        "imageName": "Jerusalem"
+    },
+    {
+        "id": 1006,
+       "name": "Lisbon",
+        "country": "Portugal",
+        "description": "Lisbon, the capital city of Portugal, is a captivating blend of old-world charm and modern allure. Perched on hills overlooking the Tagus River, it boasts stunning panoramic views, colorful neighborhoods, and historic monuments like São Jorge Castle and Belém Tower. Lisbon's vibrant street life, lively Fado music scene, and delicious cuisine make it a cultural hub. With its warm climate, beautiful beaches, and vibrant nightlife, Lisbon offers visitors a unique blend of relaxation and excitement in a city brimming with history and charm.",
+        "imageName": "Lisbon"
+    },
+    {
+        "id": 1007,
+        "name": "London",
+        "country": "England",
+        "description": "London, the iconic capital of England and the United Kingdom, is a bustling metropolis brimming with history, culture, and diversity. From world-renowned landmarks like Big Ben, the Tower of London, and Buckingham Palace to its vibrant theater scene in the West End, London offers endless attractions. With its multitude of museums, green spaces like Hyde Park, and bustling markets like Camden Market, there's something for everyone. Add in its diverse culinary scene, thriving nightlife, and eclectic neighborhoods, and London emerges as a dynamic city that never ceases to inspire and enchant visitors from around the globe.",
+        "imageName": "London"
+    },
+    {
+        "id": 1008,
+        "name": "New York",
+        "country": "United State",
+        "description": "New York City, the epitome of the American Dream, is a bustling metropolis teeming with energy, diversity, and opportunity. From the iconic skyline dominated by the Empire State Building and One World Trade Center to the vibrant neighborhoods of Manhattan, Brooklyn, and beyond, NYC pulsates with life. It's a melting pot of cultures, offering world-class dining, theater, art, and entertainment. Central Park provides an oasis in the midst of urban chaos, while the bustling streets offer a glimpse into the city's frenetic pace. With its unparalleled dynamism and endless possibilities, New York City truly is the city that never sleeps.",
+        "imageName": "NewYork"
+    },
+    {
+        "id": 1009,
+       "name": "Paris",
+        "country": "France",
+        "description": "Paris, the City of Light, is a timeless symbol of romance, culture, and elegance. From the iconic Eiffel Tower to the charming cobblestone streets of Montmartre, Paris exudes an undeniable charm. Home to world-renowned museums like the Louvre and Musée d'Orsay, as well as exquisite cuisine and haute couture fashion, it's a city that captivates all the senses. Whether strolling along the Seine River, savoring a café au lait at a sidewalk café, or admiring the breathtaking architecture, Paris offers a quintessentially French experience that enchants visitors from around the world.",
+        "imageName": "Paris"
+    },
+    {
+        "id": 1010,
+       "name": "Sydney",
+        "country": "Australia",
+        "description": "Sydney, the vibrant capital of New South Wales, Australia, is a city of stunning contrasts. Its iconic Sydney Opera House and Harbor Bridge define its skyline, while its pristine beaches like Bondi and Manly offer a laid-back coastal lifestyle. Sydney's bustling CBD is a hub of commerce and culture, with world-class dining, shopping, and entertainment options. The city's diverse neighborhoods, lush parks like the Royal Botanic Garden, and thriving arts scene make it a dynamic and cosmopolitan destination. Whether exploring its historic sites, surfing the waves, or enjoying a harbor cruise, Sydney promises unforgettable experiences against a backdrop of natural beauty.",
+        "imageName": "Sydney"
+    }
+]
