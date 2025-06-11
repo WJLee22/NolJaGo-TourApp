@@ -57,7 +57,7 @@ extension MapViewController{
         let parent = self.parent?.parent as! UITabBarController
         var selectCityName: String?
         for vc in parent.viewControllers!{
-            selectCityName = (vc as? CityViewController)?.getSelectedCity()
+            selectCityName = (vc as? HomeViewController)?.getSelectedCity()
             if selectCityName != nil{
                 break
             }

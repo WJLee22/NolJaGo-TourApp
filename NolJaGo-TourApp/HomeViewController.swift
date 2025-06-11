@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CityViewController: UIViewController {
+class HomeViewController: UIViewController {
     
     @IBOutlet weak var cityPickerView: UIPickerView!
     @IBOutlet weak var descriptionLabel: UILabel!
@@ -33,7 +33,7 @@ class CityViewController: UIViewController {
     
 }
 
-extension CityViewController: UIPickerViewDataSource{
+extension HomeViewController: UIPickerViewDataSource{
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         
@@ -47,7 +47,7 @@ extension CityViewController: UIPickerViewDataSource{
 }
 
 
-extension CityViewController: UIPickerViewDelegate{
+extension HomeViewController: UIPickerViewDelegate{
     
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         let nameLabel = UILabel()
@@ -71,7 +71,7 @@ extension CityViewController: UIPickerViewDelegate{
     
 }
 
-extension CityViewController{
+extension HomeViewController{
 func getSelectedCity() -> String{
 return landmarks[cityPickerView.selectedRow(inComponent: 0)].name
 }
