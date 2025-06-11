@@ -25,6 +25,7 @@ class HomeViewController: UIViewController {
         
         cityPickerView.dataSource = self
         cityPickerView.delegate = self
+        loadStaticTestCourses()
     }
 
     private func checkLocationAuthorization() {
@@ -34,7 +35,10 @@ class HomeViewController: UIViewController {
         case .authorizedWhenInUse, .authorizedAlways:
             locationManager.requestLocation()
         case .denied, .restricted:
-            self.locationLabel.text = "위치 권한이 거부되었습니다."
+            let fallbackLat = 37.582573
+            let fallbackLon = 127.011159
+            self.locationLabel.text = "위치 권한이 거부되어 한성대 상상빌리지로 기본 설정됩니다."
+            self.loadCourses(longitude: fallbackLon, latitude: fallbackLat)
         @unknown default:
             break
         }
@@ -50,10 +54,10 @@ class HomeViewController: UIViewController {
                   let wrapper = try? JSONDecoder().decode(TourResponse.self, from: data) else {
                 return
             }
-            self.courses = wrapper.body.items.item
+            self.courses = wrapper.response.body.items.item
             DispatchQueue.main.async {
                 self.cityPickerView.reloadAllComponents()
-                if !self.courses.isEmpty {
+                if self.courses.indices.contains(0) {
                     self.cityPickerView.selectRow(0, inComponent: 0, animated: false)
                     self.updateDetail(for: 0)
                 }
@@ -61,8 +65,19 @@ class HomeViewController: UIViewController {
         }.resume()
     }
     
+    func loadStaticTestCourses() {
+        // 한성대 상상빌리지 좌표
+        let testLat = 37.582573
+        let testLon = 127.011159
+        loadCourses(longitude: testLon, latitude: testLat)
+    }
+    
     // MARK: - Update Detail Box
     func updateDetail(for index: Int) {
+        guard index >= 0, index < courses.count else {
+            descriptionLabel.text = "코스 정보가 없습니다."
+            return
+        }
         let course = courses[index]
         descriptionLabel.text = "\(course.title)\n거리: \(course.dist ?? "-")m"
     }
@@ -84,13 +99,18 @@ extension HomeViewController: UIPickerViewDelegate {
         let nameLabel = UILabel()
         nameLabel.text = courses[row].title
         let imageView = UIImageView()
-        if let urlStr = courses[row].firstimage, let url = URL(string: urlStr) {
-            // simple async image load
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        if let urlStr = courses[row].firstimage, !urlStr.isEmpty, let url = URL(string: urlStr) {
             URLSession.shared.dataTask(with: url) { data, _, _ in
                 if let d = data, let img = UIImage(data: d) {
-                    DispatchQueue.main.async { imageView.image = img }
+                    DispatchQueue.main.async {
+                        imageView.image = img
+                    }
                 }
             }.resume()
+        } else {
+            imageView.image = UIImage(named: "placeholder") // Assets.xcassets에 추가된 기본 이미지
         }
         let outer = UIStackView(arrangedSubviews: [imageView, nameLabel])
         outer.axis = .vertical
@@ -129,6 +149,15 @@ extension HomeViewController: CLLocationManagerDelegate {
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("위치 가져오기 실패: \(error.localizedDescription)")
+
+        // 📍 한성대 상상빌리지 fallback
+        let fallbackLat = 35.1944
+        let fallbackLon = 129.0593
+
+        DispatchQueue.main.async {
+            self.locationLabel.text = "기본 위치: 한성대학교 상상빌리지"
+            self.loadCourses(longitude: fallbackLon, latitude: fallbackLat)
+        }
     }
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
@@ -138,8 +167,13 @@ extension HomeViewController: CLLocationManagerDelegate {
 
 // MARK: - Models for TourAPI
 struct TourResponse: Decodable {
+    let response: TourInnerResponse
+}
+
+struct TourInnerResponse: Decodable {
     let body: TourBody
 }
+
 struct TourBody: Decodable {
     let items: TourItems
 }
@@ -151,4 +185,3 @@ struct Course: Decodable {
     let firstimage: String?
     let dist: String?
 }
-
