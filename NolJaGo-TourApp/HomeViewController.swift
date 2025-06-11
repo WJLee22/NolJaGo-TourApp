@@ -25,7 +25,6 @@ class HomeViewController: UIViewController {
         
         cityPickerView.dataSource = self
         cityPickerView.delegate = self
-        loadStaticTestCourses()
     }
 
     private func checkLocationAuthorization() {
@@ -57,19 +56,14 @@ class HomeViewController: UIViewController {
             self.courses = wrapper.response.body.items.item
             DispatchQueue.main.async {
                 self.cityPickerView.reloadAllComponents()
-                if self.courses.indices.contains(0) {
+                if self.courses.isEmpty {
+                    self.descriptionLabel.text = "해당 위치에 추천 코스가 없습니다."
+                } else {
                     self.cityPickerView.selectRow(0, inComponent: 0, animated: false)
                     self.updateDetail(for: 0)
                 }
             }
         }.resume()
-    }
-    
-    func loadStaticTestCourses() {
-        // 한성대 상상빌리지 좌표
-        let testLat = 37.582573
-        let testLon = 127.011159
-        loadCourses(longitude: testLon, latitude: testLat)
     }
     
     // MARK: - Update Detail Box
@@ -139,7 +133,7 @@ extension HomeViewController: CLLocationManagerDelegate {
                 let locality = pm.locality ?? ""
                 let sub = pm.subLocality ?? ""
                 DispatchQueue.main.async {
-                    self.locationLabel.text = "\(locality) \(sub)"
+                    self.locationLabel.text = "현재 위치: \(locality) \(sub)"
                 }
             }
         }
