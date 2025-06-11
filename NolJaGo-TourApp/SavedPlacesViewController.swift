@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TableViewController: UIViewController {
+class SavedPlacesViewController: UIViewController {
     
     @IBOutlet weak var cityTableView: UITableView!
     @IBOutlet weak var descriptionLabel: UILabel!
@@ -35,7 +35,7 @@ class TableViewController: UIViewController {
     }
 }
 
-extension TableViewController: UITableViewDataSource{
+extension SavedPlacesViewController: UITableViewDataSource{
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1 // 1의 섹션만 한다.
@@ -57,7 +57,7 @@ extension TableViewController: UITableViewDataSource{
     }
 }
 
-extension TableViewController: UITableViewDelegate{
+extension SavedPlacesViewController: UITableViewDelegate{
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         descriptionLabel.text = cities[indexPath.row].description

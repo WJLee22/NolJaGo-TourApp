@@ -174,10 +174,10 @@
             </objects>
             <point key="canvasLocation" x="-556" y="-575"/>
         </scene>
-        <!--Table View Controller-->
+        <!--Saved Places View Controller-->
         <scene sceneID="p4U-FP-Axg">
             <objects>
-                <viewController id="neM-PY-scm" customClass="TableViewController" customModule="NolJaGo_TourApp" sceneMemberID="viewController">
+                <viewController id="neM-PY-scm" customClass="SavedPlacesViewController" customModule="NolJaGo_TourApp" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="H1r-ch-H80">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
