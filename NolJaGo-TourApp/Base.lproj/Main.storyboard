@@ -101,14 +101,14 @@
                     <connections>
                         <segue destination="5dT-yV-vpk" kind="relationship" relationship="viewControllers" id="ENv-Yz-pT2"/>
                         <segue destination="6b3-X1-o48" kind="relationship" relationship="viewControllers" id="4Fx-iY-SI7"/>
-                        <segue destination="1Iq-HR-kaF" kind="relationship" relationship="viewControllers" id="Aqi-Qu-whI"/>
+                        <segue destination="VVe-l3-69z" kind="relationship" relationship="viewControllers" id="SPt-gY-wYB"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="TQz-gZ-lnq" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-1815" y="-919"/>
         </scene>
-        <!--HOME-->
+        <!--홈 화면-->
         <scene sceneID="aiY-rY-1Q0">
             <objects>
                 <viewController id="5dT-yV-vpk" customClass="HomeViewController" customModule="NolJaGo_TourApp" customModuleProvider="target" sceneMemberID="viewController">
@@ -145,7 +145,7 @@
                             <constraint firstItem="2bm-7C-iOP" firstAttribute="bottom" secondItem="MFr-Ea-aOr" secondAttribute="bottom" constant="10" id="wne-98-rTm"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="HOME" image="house.fill" catalog="system" id="tvd-f6-yze"/>
+                    <tabBarItem key="tabBarItem" title="홈 화면" image="house.fill" catalog="system" id="tvd-f6-yze"/>
                     <connections>
                         <outlet property="cityPickerView" destination="NaB-iG-mKF" id="uG1-gm-g9H"/>
                         <outlet property="descriptionLabel" destination="cuv-Oo-chK" id="HEe-r7-IGn"/>
@@ -155,11 +155,11 @@
             </objects>
             <point key="canvasLocation" x="-556" y="-1263"/>
         </scene>
-        <!--MAP-->
+        <!--맵 화면-->
         <scene sceneID="AXT-kb-cFv">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="6b3-X1-o48" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="MAP" image="map.fill" catalog="system" id="n4q-cO-456"/>
+                    <tabBarItem key="tabBarItem" title="맵 화면" image="map.fill" catalog="system" id="n4q-cO-456"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="F3b-SJ-I8F">
                         <rect key="frame" x="0.0" y="59" width="393" height="44"/>
@@ -174,21 +174,77 @@
             </objects>
             <point key="canvasLocation" x="-556" y="-575"/>
         </scene>
-        <!--SAVED-->
-        <scene sceneID="ezx-ga-Jtx">
+        <!--Table View Controller-->
+        <scene sceneID="p4U-FP-Axg">
             <objects>
-                <viewController id="1Iq-HR-kaF" customClass="SavedViewController" customModule="NolJaGo_TourApp" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="Hb4-UN-eBO">
+                <viewController id="neM-PY-scm" customClass="TableViewController" customModule="NolJaGo_TourApp" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="H1r-ch-H80">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <viewLayoutGuide key="safeArea" id="mBf-Yz-gaP"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="QCi-Vm-AY4">
+                                <rect key="frame" x="10" y="113" width="373" height="646"/>
+                                <subviews>
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="xbB-eL-V3G">
+                                        <rect key="frame" x="0.0" y="0.0" width="373" height="424"/>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                    </tableView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4Sn-VZ-fxQ">
+                                        <rect key="frame" x="0.0" y="434" width="373" height="212"/>
+                                        <color key="backgroundColor" systemColor="systemGreenColor"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="xbB-eL-V3G" firstAttribute="height" secondItem="4Sn-VZ-fxQ" secondAttribute="height" multiplier="2" id="eng-n4-qSw"/>
+                                </constraints>
+                            </stackView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="biX-Lx-wPZ"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="biX-Lx-wPZ" firstAttribute="bottom" secondItem="QCi-Vm-AY4" secondAttribute="bottom" constant="10" id="c9o-Lt-h2j"/>
+                            <constraint firstItem="biX-Lx-wPZ" firstAttribute="trailing" secondItem="QCi-Vm-AY4" secondAttribute="trailing" constant="10" id="i1W-oO-hX6"/>
+                            <constraint firstItem="QCi-Vm-AY4" firstAttribute="top" secondItem="biX-Lx-wPZ" secondAttribute="top" constant="10" id="lT7-ID-djq"/>
+                            <constraint firstItem="QCi-Vm-AY4" firstAttribute="leading" secondItem="biX-Lx-wPZ" secondAttribute="leading" constant="10" id="qvd-bm-Jgm"/>
+                        </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="SAVED" image="heart.fill" catalog="system" id="Qry-af-fuj"/>
+                    <navigationItem key="navigationItem" id="1yh-mn-hWZ">
+                        <barButtonItem key="leftBarButtonItem" title="Edit" id="eXs-kS-F1C">
+                            <connections>
+                                <action selector="editingTableViewRow:" destination="neM-PY-scm" id="Ob0-Th-4Eo"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="cityTableView" destination="xbB-eL-V3G" id="8Xw-ci-EOI"/>
+                        <outlet property="descriptionLabel" destination="4Sn-VZ-fxQ" id="Y17-e1-d6t"/>
+                    </connections>
                 </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="LSg-hM-sdA" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="6YA-zc-aTQ" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-556" y="180"/>
+            <point key="canvasLocation" x="370" y="163"/>
+        </scene>
+        <!--찜한 장소-->
+        <scene sceneID="5VD-MT-1JC">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="VVe-l3-69z" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="찜한 장소" image="heart.fill" catalog="system" id="PEK-ID-guS"/>
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="g97-od-85k">
+                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="neM-PY-scm" kind="relationship" relationship="rootViewController" id="65z-I9-0tP"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="pd5-s6-gjZ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-556" y="163"/>
         </scene>
     </scenes>
     <resources>
@@ -200,6 +256,9 @@
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemGreenColor">
+            <color red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemOrangeColor">
             <color red="1" green="0.58431372550000005" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
