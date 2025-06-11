@@ -56,12 +56,12 @@ extension MapViewController{
     override func viewWillAppear(_ animated: Bool) {
         let parent = self.parent?.parent as! UITabBarController
         var selectCityName: String?
-        for vc in parent.viewControllers!{
-            selectCityName = (vc as? HomeViewController)?.getSelectedCity()
-            if selectCityName != nil{
-                break
-            }
-        }
+//        for vc in parent.viewControllers!{
+//            selectCityName = (vc as? HomeViewController)?.getSelectedCity()
+//            if selectCityName != nil{
+//                break
+//            }
+//        }
         print("selected city = \(selectCityName)")
         
         getCLLocationCoordinate2D(cityName: selectCityName!)

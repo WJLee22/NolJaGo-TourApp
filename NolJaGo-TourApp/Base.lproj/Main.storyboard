@@ -116,39 +116,63 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="MFr-Ea-aOr">
-                                <rect key="frame" x="10" y="69" width="373" height="690"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="MFr-Ea-aOr">
+                                <rect key="frame" x="16" y="75" width="361" height="678"/>
                                 <subviews>
-                                    <pickerView contentMode="center" semanticContentAttribute="playback" translatesAutoresizingMaskIntoConstraints="NO" id="NaB-iG-mKF">
-                                        <rect key="frame" x="0.0" y="0.0" width="373" height="453.33333333333331"/>
-                                        <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
-                                    </pickerView>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="240" verticalHuggingPriority="240" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cuv-Oo-chK">
-                                        <rect key="frame" x="0.0" y="463.33333333333343" width="373" height="226.66666666666669"/>
-                                        <color key="backgroundColor" systemColor="systemOrangeColor"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <nil key="textColor"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="위치 불러오는 중…" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IBb-ry-Io8">
+                                        <rect key="frame" x="0.0" y="0.0" width="361" height="20.333333333333332"/>
+                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
+                                        <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="cmI-wh-BkS">
+                                        <rect key="frame" x="0.0" y="36.333333333333314" width="361" height="641.66666666666674"/>
+                                        <subviews>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="u7h-h6-J53">
+                                                <rect key="frame" x="0.0" y="0.0" width="361" height="417.66666666666669"/>
+                                                <subviews>
+                                                    <pickerView contentMode="center" semanticContentAttribute="playback" translatesAutoresizingMaskIntoConstraints="NO" id="NaB-iG-mKF">
+                                                        <rect key="frame" x="0.0" y="0.0" width="361" height="417.66666666666669"/>
+                                                        <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
+                                                    </pickerView>
+                                                </subviews>
+                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="trailing" secondItem="NaB-iG-mKF" secondAttribute="trailing" id="1nV-c2-wSg"/>
+                                                    <constraint firstItem="NaB-iG-mKF" firstAttribute="leading" secondItem="u7h-h6-J53" secondAttribute="leading" id="AcY-lR-g8h"/>
+                                                    <constraint firstAttribute="bottom" secondItem="NaB-iG-mKF" secondAttribute="bottom" id="Q1S-hP-pwg"/>
+                                                    <constraint firstItem="NaB-iG-mKF" firstAttribute="top" secondItem="u7h-h6-J53" secondAttribute="top" id="UmI-mn-qAA"/>
+                                                </constraints>
+                                            </view>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="240" verticalHuggingPriority="240" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cuv-Oo-chK">
+                                                <rect key="frame" x="0.0" y="432.66666666666674" width="361" height="209"/>
+                                                <color key="backgroundColor" systemColor="systemOrangeColor"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstItem="u7h-h6-J53" firstAttribute="height" secondItem="cuv-Oo-chK" secondAttribute="height" multiplier="2" id="9x6-3v-X1p"/>
+                                        </constraints>
+                                    </stackView>
                                 </subviews>
-                                <constraints>
-                                    <constraint firstItem="cuv-Oo-chK" firstAttribute="height" secondItem="NaB-iG-mKF" secondAttribute="height" multiplier="0.5" id="7Ad-8d-4nh"/>
-                                </constraints>
                             </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="2bm-7C-iOP"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="MFr-Ea-aOr" firstAttribute="top" secondItem="2bm-7C-iOP" secondAttribute="top" constant="10" id="FLZ-Mj-Ax2"/>
-                            <constraint firstItem="MFr-Ea-aOr" firstAttribute="leading" secondItem="2bm-7C-iOP" secondAttribute="leading" constant="10" id="Rjr-aR-JEA"/>
-                            <constraint firstItem="2bm-7C-iOP" firstAttribute="trailing" secondItem="MFr-Ea-aOr" secondAttribute="trailing" constant="10" id="s4Z-VI-wxc"/>
-                            <constraint firstItem="2bm-7C-iOP" firstAttribute="bottom" secondItem="MFr-Ea-aOr" secondAttribute="bottom" constant="10" id="wne-98-rTm"/>
+                            <constraint firstItem="MFr-Ea-aOr" firstAttribute="leading" secondItem="2bm-7C-iOP" secondAttribute="leading" constant="16" id="DPu-ru-FCb"/>
+                            <constraint firstItem="2bm-7C-iOP" firstAttribute="trailing" secondItem="MFr-Ea-aOr" secondAttribute="trailing" constant="16" id="DvR-OR-BGB"/>
+                            <constraint firstItem="MFr-Ea-aOr" firstAttribute="top" secondItem="2bm-7C-iOP" secondAttribute="top" constant="16" id="ayW-b6-neA"/>
+                            <constraint firstItem="2bm-7C-iOP" firstAttribute="bottom" relation="lessThanOrEqual" secondItem="MFr-Ea-aOr" secondAttribute="bottom" constant="16" id="qwj-Wv-E2V"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="홈 화면" image="house.fill" catalog="system" id="tvd-f6-yze"/>
                     <connections>
                         <outlet property="cityPickerView" destination="NaB-iG-mKF" id="uG1-gm-g9H"/>
                         <outlet property="descriptionLabel" destination="cuv-Oo-chK" id="HEe-r7-IGn"/>
+                        <outlet property="locationLabel" destination="IBb-ry-Io8" id="9vo-gS-jYe"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="UBI-Id-Phn" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
