@@ -63,7 +63,7 @@
                                     <segment title="축제/공연/행사"/>
                                 </segments>
                                 <connections>
-                                    <action selector="sgvValueChanged:" destination="cKh-xl-DJX" eventType="valueChanged" id="RGL-rh-kwf"/>
+                                    <action selector="segmentedControlValueChanged:" destination="cKh-xl-DJX" eventType="valueChanged" id="8eX-yZ-aFW"/>
                                 </connections>
                             </segmentedControl>
                         </subviews>
@@ -81,6 +81,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="O72-cV-5rq"/>
                     <connections>
+                        <outlet property="categorySegmentedControl" destination="ngp-2f-bWp" id="lK0-cJ-8c1"/>
                         <outlet property="mapView" destination="oQc-yE-yPP" id="wsl-Pl-w2R"/>
                         <segue destination="9om-G9-NPb" kind="show" identifier="wjlee" id="Sxc-7H-r0p"/>
                     </connections>
