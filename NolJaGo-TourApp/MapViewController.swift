@@ -206,8 +206,15 @@ class MapViewController: UIViewController {
         // 거리 레이블
         let distanceLabel = UILabel(frame: CGRect(x: 145, y: 115, width: cardView.frame.width - 160, height: 20))
         if let dist = course.dist {
-            let distValue = Int(dist)!
-            distanceLabel.text = distValue > 1000 ? String(format: "거리: %.1f km", Double(distValue) / 1000.0) : "거리: \(dist) m"
+            // 안전한 Optional 처리로 변경
+            if let distValue = Int(dist) {
+                distanceLabel.text = distValue > 1000 ? 
+                    String(format: "거리: %.1f km", Double(distValue) / 1000.0) : 
+                    "거리: \(dist) m"
+            } else {
+                // 숫자로 변환할 수 없는 경우
+                distanceLabel.text = "거리: \(dist)"
+            }
         } else {
             distanceLabel.text = "거리 정보 없음"
         }
