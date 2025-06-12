@@ -238,6 +238,11 @@ class MapViewController: UIViewController {
         }
     }
     
+    // 닫기 버튼을 위한 별도 액션 메서드 추가
+    @objc private func closeButtonTapped() {
+        hideInfoCardView()
+    }
+
     @objc private func hideInfoCardView(completion: (() -> Void)? = nil) {
         guard let cardView = infoCardView else {
             completion?()
@@ -323,11 +328,12 @@ class MapViewController: UIViewController {
         favoriteButton.addTarget(self, action: #selector(saveFavorite(_:)), for: .touchUpInside)
         cardView.addSubview(favoriteButton)
         
-        // 닫기 버튼
+        // 닫기 버튼 - 수정된 부분
         let closeButton = UIButton(frame: CGRect(x: cardView.frame.width - 40, y: 10, width: 30, height: 30))
         closeButton.setTitle("✕", for: .normal)
         closeButton.setTitleColor(.darkGray, for: .normal)
-        closeButton.addTarget(self, action: #selector(hideInfoCardView), for: .touchUpInside)
+        // 액션 메서드 변경
+        closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
         cardView.addSubview(closeButton)
         
         // 이미지 로드
