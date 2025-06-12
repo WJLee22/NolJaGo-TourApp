@@ -141,8 +141,16 @@ class HomeViewController: UIViewController {
         
         if let dist = course.dist {
             attributedText.append(NSAttributedString(string: "현재 위치로부터 거리: ", attributes: infoAttributes))
-            let distanceText = Int(dist)! > 1000 ? String(format: "%.1f km", Double(dist)! / 1000.0) : "\(dist) m"
-            attributedText.append(NSAttributedString(string: distanceText, attributes: [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 15), NSAttributedString.Key.foregroundColor: UIColor(red: 0.9, green: 0.5, blue: 0.1, alpha: 1.0)]))
+            
+            // 안전한 Optional 처리
+            if let distInt = Int(dist) {
+                let distanceText = distInt > 1000 ? 
+                    String(format: "%.1f km", Double(distInt) / 1000.0) : 
+                    "\(dist) m"
+                attributedText.append(NSAttributedString(string: distanceText, attributes: [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 15), NSAttributedString.Key.foregroundColor: UIColor(red: 0.9, green: 0.5, blue: 0.1, alpha: 1.0)]))
+            } else {
+                attributedText.append(NSAttributedString(string: "\(dist)", attributes: [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 15), NSAttributedString.Key.foregroundColor: UIColor(red: 0.9, green: 0.5, blue: 0.1, alpha: 1.0)]))
+            }
         }
         
         descriptionLabel.attributedText = attributedText
