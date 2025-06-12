@@ -21,6 +21,7 @@ class MapViewController: UIViewController {
     // 상세 정보를 표시할 팝업 뷰
     private var infoCardView: UIView?
     private var selectedCourse: Course?
+    private var selectedIndex: Int?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -177,19 +178,34 @@ class MapViewController: UIViewController {
     
     // MARK: - 지도 터치 처리
     @objc func handleMapTap(_ gestureRecognizer: UITapGestureRecognizer) {
-        // 먼저 현재 표시된 정보 카드 숨기기
-        hideInfoCardView()
-        
         let tapPoint = gestureRecognizer.location(in: mapView)
         
-        // 탭한 지점에 마커가 있는지 확인
+        // 현재 표시된 정보 카드가 있는지 확인
+        if infoCardView != nil {
+            // 이전 카드를 닫고 새 카드를 열 수 있도록 플래그 설정
+            let shouldShowNewCard = checkForMarkerAtPoint(tapPoint)
+            hideInfoCardView(completion: { [weak self] in
+                if shouldShowNewCard, let self = self {
+                    self.showNewCardForTapPoint(tapPoint)
+                }
+            })
+            return
+        }
+        
+        // 카드가 없는 경우 직접 마커 체크 및 카드 표시
+        showNewCardForTapPoint(tapPoint)
+    }
+    
+    // 탭한 지점에 마커가 있는지 확인하고 해당 마커 정보 저장
+    private func checkForMarkerAtPoint(_ tapPoint: CGPoint) -> Bool {
         for annotation in mapView.annotations {
+            if annotation is MKUserLocation { continue }
+            
             let annotationPoint = mapView.convert(annotation.coordinate, toPointTo: mapView)
             let distance = sqrt(pow(annotationPoint.x - tapPoint.x, 2) + pow(annotationPoint.y - tapPoint.y, 2))
             
             // 마커 주변 영역 (30포인트 이내)을 탭했다면
             if distance <= 30 {
-                // 해당 마커에 대한 정보 표시
                 for (index, course) in courses.enumerated() {
                     guard let mapxStr = course.mapx, let mapyStr = course.mapy,
                           let mapx = Double(mapxStr), let mapy = Double(mapyStr) else {
@@ -198,12 +214,45 @@ class MapViewController: UIViewController {
                     
                     if annotation.coordinate.latitude == mapy && annotation.coordinate.longitude == mapx {
                         selectedCourse = course
-                        showInfoCardForCourse(course, at: index)
-                        break
+                        selectedIndex = index
+                        return true
                     }
                 }
-                break
             }
+        }
+        return false
+    }
+    
+    // 저장된 마커 정보로 새 카드 표시
+    private func showNewCardForTapPoint(_ tapPoint: CGPoint) {
+        // 마커 정보가 없으면 다시 체크
+        if selectedCourse == nil {
+            if !checkForMarkerAtPoint(tapPoint) {
+                return // 탭한 지점에 마커가 없음
+            }
+        }
+        
+        // 마커 정보가 있으면 카드 표시
+        if let course = selectedCourse, let index = selectedIndex {
+            showInfoCardForCourse(course, at: index)
+        }
+    }
+    
+    @objc private func hideInfoCardView(completion: (() -> Void)? = nil) {
+        guard let cardView = infoCardView else {
+            completion?()
+            return
+        }
+        
+        UIView.animate(withDuration: 0.2, animations: {
+            cardView.alpha = 0
+            cardView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+        }) { [weak self] _ in
+            cardView.removeFromSuperview()
+            self?.infoCardView = nil
+            self?.selectedCourse = nil
+            self?.selectedIndex = nil
+            completion?()
         }
     }
     
@@ -305,19 +354,6 @@ class MapViewController: UIViewController {
         UIView.animate(withDuration: 0.3) {
             cardView.alpha = 1
             cardView.transform = .identity
-        }
-    }
-    
-    @objc private func hideInfoCardView() {
-        guard let cardView = infoCardView else { return }
-        
-        UIView.animate(withDuration: 0.2, animations: {
-            cardView.alpha = 0
-            cardView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
-        }) { _ in
-            cardView.removeFromSuperview()
-            self.infoCardView = nil
-            self.selectedCourse = nil
         }
     }
     
