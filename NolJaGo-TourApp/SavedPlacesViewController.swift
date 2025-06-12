@@ -80,11 +80,13 @@ class SavedPlacesViewController: UIViewController {
     private func updateDetailView(for place: FavoritePlace) {
         // 카드 형태의 정보 표시 (HTML 스타일)
         let htmlContent = """
+        <!DOCTYPE html>
         <html>
         <head>
+            <meta charset="UTF-8">
             <style>
                 body {
-                    font-family: -apple-system, 'SF Pro Display';
+                    font-family: -apple-system, 'SF Pro Display', 'AppleSDGothicNeo-Regular', 'Malgun Gothic', sans-serif;
                     margin: 15px;
                     color: #333;
                 }
@@ -125,14 +127,25 @@ class SavedPlacesViewController: UIViewController {
         
         if let htmlData = htmlContent.data(using: .utf8) {
             do {
+                let options: [NSAttributedString.DocumentReadingOptionKey: Any] = [
+                    .documentType: NSAttributedString.DocumentType.html,
+                    .characterEncoding: String.Encoding.utf8.rawValue
+                ]
+                
                 let attributedString = try NSAttributedString(
                     data: htmlData,
-                    options: [.documentType: NSAttributedString.DocumentType.html],
+                    options: options,
                     documentAttributes: nil
                 )
-                descriptionLabel.attributedText = attributedString
+                
+                // 메인 스레드에서 UI 업데이트
+                DispatchQueue.main.async {
+                    self.descriptionLabel.attributedText = attributedString
+                }
             } catch {
-                descriptionLabel.text = "정보를 표시할 수 없습니다."
+                print("HTML 변환 에러: \(error)")
+                // 실패 시 일반 텍스트로 표시
+                descriptionLabel.text = "📍 \(place.title)\n\n카테고리: \(place.category)\n주소: \(place.address)\n저장 날짜: \(formattedDate(place.savedDate))"
             }
         }
     }

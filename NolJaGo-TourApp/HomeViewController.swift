@@ -38,7 +38,7 @@ class HomeViewController: UIViewController {
                 // 📍 한성대 상상빌리지 fallback
                 let fallbackLat = 37.582573
                 let fallbackLon = 127.011159
-                self?.locationLabel.text = "위치 권한이 거부되어 한성대 상상빌리지로 기본 설정됩니다."
+                self?.locationLabel.text = "📍 현재 위치: 서울특별시 삼선동2가"
                 self?.loadCourses(longitude: fallbackLon, latitude: fallbackLat)
             }
         }
@@ -71,7 +71,7 @@ class HomeViewController: UIViewController {
         case .denied, .restricted:
             let fallbackLat = 37.582573
             let fallbackLon = 127.011159
-            self.locationLabel.text = "위치 권한이 거부되어 한성대 상상빌리지로 기본 설정됩니다."
+            self.locationLabel.text = "📍 현재 위치: 서울특별시 삼선동2가"
             self.loadCourses(longitude: fallbackLon, latitude: fallbackLat)
         @unknown default:
             break
@@ -130,30 +130,109 @@ class HomeViewController: UIViewController {
         
         let course = courses[index]
         
-        // 카드 형태의 정보 표시
-        let titleAttributes = [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 18),
-                              NSAttributedString.Key.foregroundColor: UIColor.darkText]
-        let infoAttributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15),
-                             NSAttributedString.Key.foregroundColor: UIColor.darkGray]
+        // HTML 포맷을 사용하여 풍부한 정보 표시
+        let htmlContent = """
+        <html>
+        <head>
+            <style>
+                body {
+                    font-family: -apple-system, 'SF Pro Display';
+                    margin: 0;
+                    padding: 10px;
+                    color: #333;
+                }
+                .title {
+                    font-size: 18px;
+                    font-weight: bold;
+                    color: #333;
+                    margin-bottom: 10px;
+                }
+                .info {
+                    font-size: 14px;
+                    margin: 5px 0;
+                    color: #555;
+                }
+                .highlight {
+                    color: #F60;
+                    font-weight: bold;
+                }
+                .address {
+                    margin-top: 5px;
+                    font-size: 14px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="title">📍 \(course.title)</div>
+        """
         
-        let attributedText = NSMutableAttributedString(string: "📍 ", attributes: titleAttributes)
-        attributedText.append(NSAttributedString(string: "\(course.title)\n\n", attributes: titleAttributes))
+        // 주소 정보 추가
+        var contentHtml = htmlContent
+        if let addr = course.addr1, !addr.isEmpty {
+            contentHtml += "<div class='address'>주소: \(addr)</div>"
+        }
         
+        if let addr2 = course.addr2, !addr2.isEmpty {
+            contentHtml += "<div class='address'>\(addr2)</div>"
+        }
+        
+        // 거리 정보 추가
         if let dist = course.dist {
-            attributedText.append(NSAttributedString(string: "현재 위치로부터 거리: ", attributes: infoAttributes))
-            
-            // 안전한 Optional 처리
             if let distInt = Int(dist) {
                 let distanceText = distInt > 1000 ? 
                     String(format: "%.1f km", Double(distInt) / 1000.0) : 
                     "\(dist) m"
-                attributedText.append(NSAttributedString(string: distanceText, attributes: [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 15), NSAttributedString.Key.foregroundColor: UIColor(red: 0.9, green: 0.5, blue: 0.1, alpha: 1.0)]))
+                contentHtml += "<div class='info'>현재 위치로부터 거리: <span class='highlight'>\(distanceText)</span></div>"
             } else {
-                attributedText.append(NSAttributedString(string: "\(dist)", attributes: [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 15), NSAttributedString.Key.foregroundColor: UIColor(red: 0.9, green: 0.5, blue: 0.1, alpha: 1.0)]))
+                contentHtml += "<div class='info'>거리: \(dist)</div>"
             }
         }
         
-        descriptionLabel.attributedText = attributedText
+        // 전화번호 정보 추가 (있을 경우)
+        if let tel = course.tel, !tel.isEmpty {
+            contentHtml += "<div class='info'>연락처: \(tel)</div>"
+        }
+        
+        // 카테고리 정보 표시 (있을 경우)
+        if let cat3 = course.cat3 {
+            let categoryName = getCategoryName(for: cat3)
+            contentHtml += "<div class='info'>카테고리: <span class='highlight'>\(categoryName)</span></div>"
+        }
+        
+        contentHtml += "</body></html>"
+        
+        // HTML 컨텐츠를 NSAttributedString으로 변환
+        if let htmlData = contentHtml.data(using: .utf8) {
+            do {
+                let attributedString = try NSAttributedString(
+                    data: htmlData,
+                    options: [.documentType: NSAttributedString.DocumentType.html,
+                              .characterEncoding: String.Encoding.utf8.rawValue],
+                    documentAttributes: nil
+                )
+                descriptionLabel.attributedText = attributedString
+            } catch {
+                print("HTML 변환 에러: \(error)")
+                // 실패 시 기본 텍스트로 표시
+                descriptionLabel.text = "📍 \(course.title)"
+            }
+        }
+    }
+    
+    // 카테고리 코드에 따른 이름 반환
+    private func getCategoryName(for categoryCode: String) -> String {
+        switch categoryCode {
+        case "C01110001": return "자연관광지"
+        case "C01120001": return "역사/문화 관광지"
+        case "C01130001": return "휴양/체험 관광지"
+        case "C01140001": return "산업 관광지"
+        case "C01150001": return "건축/조형물"
+        case "C01160001": return "문화시설"
+        case "C01170001": return "축제"
+        case "C01180001": return "공연/행사"
+        case "C01190001": return "레포츠"
+        default: return "기타 관광지"
+        }
     }
 }
 
@@ -255,14 +334,14 @@ extension HomeViewController: CLLocationManagerDelegate {
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("위치 가져오기 실패: \(error.localizedDescription)")
+        //print("위치 가져오기 실패: \(error.localizedDescription)")
 
         // 한성대 상상빌리지 fallback
         let fallbackLat = 37.582573
         let fallbackLon = 127.011159
 
         DispatchQueue.main.async {
-            self.locationLabel.text = "📍 기본 위치: 한성대학교 상상빌리지"
+            self.locationLabel.text = "📍 현재 위치: 서울특별시 삼선동2가"
             self.loadCourses(longitude: fallbackLon, latitude: fallbackLat)
         }
     }
@@ -302,8 +381,10 @@ struct Course: Decodable {
     let mapx: String?
     let mapy: String?
     let dist: String?
+    let tel: String?
+    let cat3: String?
     
     enum CodingKeys: String, CodingKey {
-        case contentid, title, firstimage, firstimage2, addr1, addr2, mapx, mapy, dist
+        case contentid, title, firstimage, firstimage2, addr1, addr2, mapx, mapy, dist, tel, cat3
     }
 }

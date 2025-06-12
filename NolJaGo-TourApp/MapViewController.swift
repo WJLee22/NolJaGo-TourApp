@@ -27,12 +27,49 @@ class MapViewController: UIViewController {
         
         setupUI()
         mapView.delegate = self
-        mapView.showsUserLocation = true
+        mapView.showsUserLocation = true // 사용자 위치 표시 활성화
+        
+        // 현재 위치로 이동하는 버튼 추가
+        addCurrentLocationButton()
         
         // 마커 클릭을 위한 설정
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleMapTap(_:)))
         tapGesture.numberOfTapsRequired = 1
         mapView.addGestureRecognizer(tapGesture)
+    }
+    
+    // 현재 위치로 이동하는 버튼 추가
+    private func addCurrentLocationButton() {
+        let locationButton = UIButton(frame: CGRect(x: view.frame.width - 60, y: view.frame.height - 170, width: 50, height: 50))
+        locationButton.backgroundColor = .white
+        locationButton.layer.cornerRadius = 25
+        locationButton.layer.shadowColor = UIColor.black.cgColor
+        locationButton.layer.shadowOffset = CGSize(width: 0, height: 2)
+        locationButton.layer.shadowOpacity = 0.2
+        locationButton.layer.shadowRadius = 3
+        
+        // SF Symbol 또는 이미지 설정
+        let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .medium)
+        locationButton.setImage(UIImage(systemName: "location.fill", withConfiguration: config), for: .normal)
+        locationButton.tintColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0)
+        
+        locationButton.addTarget(self, action: #selector(moveToCurrentLocation), for: .touchUpInside)
+        view.addSubview(locationButton)
+    }
+    
+    @objc private func moveToCurrentLocation() {
+        if let location = HomeViewController.sharedLocation {
+            moveToLocation(location: location.coordinate)
+            
+            // 애니메이션 효과
+            UIView.animate(withDuration: 0.3, animations: {
+                self.mapView.alpha = 0.7
+            }) { _ in
+                UIView.animate(withDuration: 0.3) {
+                    self.mapView.alpha = 1.0
+                }
+            }
+        }
     }
     
     private func setupUI() {
@@ -350,11 +387,16 @@ class MapViewController: UIViewController {
 // MARK: - MKMapViewDelegate
 extension MapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        // 사용자 현재 위치는 기본 파란점으로 표시
+        // 사용자 현재 위치 마커 커스터마이징
         if annotation is MKUserLocation {
-            return nil
+            let annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: "UserLocation")
+            annotationView.image = UIImage(systemName: "person.circle.fill")?.withTintColor(.systemBlue, renderingMode: .alwaysOriginal).withRenderingMode(.alwaysOriginal)
+            annotationView.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
+            annotationView.centerOffset = CGPoint(x: 0, y: -20) // 위치 조정
+            return annotationView
         }
         
+        // 기존 마커 처리 코드
         let identifier = "PlaceMarker"
         var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
         
