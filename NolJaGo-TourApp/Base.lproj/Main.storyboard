@@ -128,22 +128,10 @@
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="15" translatesAutoresizingMaskIntoConstraints="NO" id="cmI-wh-BkS">
                                         <rect key="frame" x="0.0" y="36.333333333333314" width="361" height="641.66666666666674"/>
                                         <subviews>
-                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="u7h-h6-J53">
+                                            <pickerView contentMode="center" semanticContentAttribute="playback" translatesAutoresizingMaskIntoConstraints="NO" id="NaB-iG-mKF">
                                                 <rect key="frame" x="0.0" y="0.0" width="361" height="417.66666666666669"/>
-                                                <subviews>
-                                                    <pickerView contentMode="center" semanticContentAttribute="playback" translatesAutoresizingMaskIntoConstraints="NO" id="NaB-iG-mKF">
-                                                        <rect key="frame" x="0.0" y="0.0" width="361" height="417.66666666666669"/>
-                                                        <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
-                                                    </pickerView>
-                                                </subviews>
-                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="trailing" secondItem="NaB-iG-mKF" secondAttribute="trailing" id="1nV-c2-wSg"/>
-                                                    <constraint firstItem="NaB-iG-mKF" firstAttribute="leading" secondItem="u7h-h6-J53" secondAttribute="leading" id="AcY-lR-g8h"/>
-                                                    <constraint firstAttribute="bottom" secondItem="NaB-iG-mKF" secondAttribute="bottom" id="Q1S-hP-pwg"/>
-                                                    <constraint firstItem="NaB-iG-mKF" firstAttribute="top" secondItem="u7h-h6-J53" secondAttribute="top" id="UmI-mn-qAA"/>
-                                                </constraints>
-                                            </view>
+                                                <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
+                                            </pickerView>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="240" verticalHuggingPriority="240" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cuv-Oo-chK">
                                                 <rect key="frame" x="0.0" y="432.66666666666674" width="361" height="209"/>
                                                 <color key="backgroundColor" systemColor="systemOrangeColor"/>
@@ -153,7 +141,7 @@
                                             </label>
                                         </subviews>
                                         <constraints>
-                                            <constraint firstItem="u7h-h6-J53" firstAttribute="height" secondItem="cuv-Oo-chK" secondAttribute="height" multiplier="2" id="9x6-3v-X1p"/>
+                                            <constraint firstItem="cuv-Oo-chK" firstAttribute="height" secondItem="NaB-iG-mKF" secondAttribute="height" multiplier="0.5" id="IDd-K0-LgX"/>
                                         </constraints>
                                     </stackView>
                                 </subviews>
@@ -276,16 +264,16 @@
         <image name="house.fill" catalog="system" width="128" height="104"/>
         <image name="map.fill" catalog="system" width="128" height="110"/>
         <systemColor name="secondarySystemBackgroundColor">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGreenColor">
-            <color red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.20392156862745098" green="0.7803921568627451" blue="0.34901960784313724" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemOrangeColor">
-            <color red="1" green="0.58431372550000005" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.58431372549019611" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

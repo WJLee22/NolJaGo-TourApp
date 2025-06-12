@@ -149,7 +149,7 @@ extension HomeViewController: CLLocationManagerDelegate {
         let fallbackLon = 129.0593
 
         DispatchQueue.main.async {
-            self.locationLabel.text = "기본 위치: 한성대학교 상상빌리지"
+            self.locationLabel.text = "기본 위치: 한성대학교 상상빌리지(부산)"
             self.loadCourses(longitude: fallbackLon, latitude: fallbackLat)
         }
     }
