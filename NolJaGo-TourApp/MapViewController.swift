@@ -282,8 +282,8 @@ class MapViewController: UIViewController {
         activityIndicator.startAnimating()
         imageView.addSubview(activityIndicator)
         
-        // 제목 레이블 - 더 큰 폰트와 강조된 스타일
-        let titleLabel = UILabel(frame: CGRect(x: 165, y: 20, width: cardView.frame.width - 185, height: 55))
+        // 제목 레이블 - 닫기 버튼과 겹치지 않도록 너비 조정
+        let titleLabel = UILabel(frame: CGRect(x: 165, y: 20, width: cardView.frame.width - 220, height: 55))
         titleLabel.text = course.title
         titleLabel.font = UIFont.boldSystemFont(ofSize: 18)
         titleLabel.numberOfLines = 2
@@ -420,13 +420,13 @@ class MapViewController: UIViewController {
         directionButton.addTarget(self, action: #selector(openDirections), for: .touchUpInside)
         buttonStackView.addArrangedSubview(directionButton)
         
-        // 닫기 버튼 - 더 큰 터치 영역과 명확한 디자인
-        let closeButton = UIButton(frame: CGRect(x: cardView.frame.width - 45, y: 15, width: 35, height: 35))
+        // 닫기 버튼 - 더 우측 상단으로 이동하고 크기 조정
+        let closeButton = UIButton(frame: CGRect(x: cardView.frame.width - 50, y: 10, width: 40, height: 40))
         closeButton.setTitle("✕", for: .normal)
         closeButton.setTitleColor(UIColor(red: 0.6, green: 0.6, blue: 0.6, alpha: 1.0), for: .normal)
-        closeButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+        closeButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
         closeButton.backgroundColor = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0)
-        closeButton.layer.cornerRadius = 17
+        closeButton.layer.cornerRadius = 20
         closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
         cardView.addSubview(closeButton)
         
