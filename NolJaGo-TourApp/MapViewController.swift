@@ -77,11 +77,23 @@ class MapViewController: UIViewController {
     }
     
     private func setupUI() {
-        // 세그먼트 컨트롤 스타일 설정
-        categorySegmentedControl.backgroundColor = UIColor(red: 1.0, green: 0.93, blue: 0.85, alpha: 1.0)
+        // 세그먼트 컨트롤 스타일 설정 - 더 매력적으로
+        categorySegmentedControl.backgroundColor = UIColor(red: 1.0, green: 0.95, blue: 0.88, alpha: 1.0)
         categorySegmentedControl.selectedSegmentTintColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0)
-        categorySegmentedControl.setTitleTextAttributes([.foregroundColor: UIColor.darkGray], for: .normal)
-        categorySegmentedControl.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
+        categorySegmentedControl.setTitleTextAttributes([
+            .foregroundColor: UIColor.darkGray,
+            .font: UIFont.systemFont(ofSize: 14, weight: .medium)
+        ], for: .normal)
+        categorySegmentedControl.setTitleTextAttributes([
+            .foregroundColor: UIColor.white,
+            .font: UIFont.systemFont(ofSize: 14, weight: .bold)
+        ], for: .selected)
+        
+        // 세그먼트 컨트롤에 그림자 효과 추가
+        categorySegmentedControl.layer.shadowColor = UIColor.black.cgColor
+        categorySegmentedControl.layer.shadowOffset = CGSize(width: 0, height: 1)
+        categorySegmentedControl.layer.shadowOpacity = 0.1
+        categorySegmentedControl.layer.shadowRadius = 3
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -233,205 +245,221 @@ class MapViewController: UIViewController {
 
     // MARK: - 장소 정보 카드 표시
     private func showInfoCardForCourse(_ course: Course, at index: Int) {
-        // 카드 뷰 생성 - 높이를 줄여서 공유 버튼 공간 제거
-        let cardView = UIView(frame: CGRect(x: 20, y: 140, width: view.frame.width - 40, height: 280))
+        // 카드 뷰 생성 - 더 세련된 디자인
+        let cardView = UIView(frame: CGRect(x: 15, y: 140, width: view.frame.width - 30, height: 290))
         cardView.backgroundColor = .white
-        cardView.layer.cornerRadius = 15
+        cardView.layer.cornerRadius = 20
         cardView.layer.shadowColor = UIColor.black.cgColor
-        cardView.layer.shadowOffset = CGSize(width: 0, height: 2)
-        cardView.layer.shadowOpacity = 0.2
-        cardView.layer.shadowRadius = 4
+        cardView.layer.shadowOffset = CGSize(width: 0, height: 4)
+        cardView.layer.shadowOpacity = 0.15
+        cardView.layer.shadowRadius = 8
         
-        // 초기 상태 설정 - 투명하고 약간 작게
+        // 초기 상태 설정
         cardView.alpha = 0
         cardView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
         
-        // 이미지 뷰
-        let imageView = UIImageView(frame: CGRect(x: 15, y: 15, width: 120, height: 120))
+        // 이미지 뷰 - 더 큰 이미지로
+        let imageView = UIImageView(frame: CGRect(x: 20, y: 20, width: 130, height: 130))
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 10
+        imageView.layer.cornerRadius = 15
+        imageView.backgroundColor = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0)
         cardView.addSubview(imageView)
         
-        // 로딩 인디케이터 추가
+        // 로딩 인디케이터
         let activityIndicator = UIActivityIndicatorView(style: .medium)
         activityIndicator.center = CGPoint(x: imageView.bounds.midX, y: imageView.bounds.midY)
-        activityIndicator.color = .darkGray
+        activityIndicator.color = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0)
         activityIndicator.startAnimating()
         imageView.addSubview(activityIndicator)
         
-        // 제목 레이블
-        let titleLabel = UILabel(frame: CGRect(x: 145, y: 15, width: cardView.frame.width - 160, height: 50))
+        // 제목 레이블 - 더 큰 폰트와 강조된 스타일
+        let titleLabel = UILabel(frame: CGRect(x: 165, y: 20, width: cardView.frame.width - 185, height: 55))
         titleLabel.text = course.title
-        titleLabel.font = UIFont.boldSystemFont(ofSize: 16)
+        titleLabel.font = UIFont.boldSystemFont(ofSize: 18)
         titleLabel.numberOfLines = 2
+        titleLabel.textColor = UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1.0)
         cardView.addSubview(titleLabel)
         
-        // 카테고리 배지
-        let categoryBadge = UIView(frame: CGRect(x: 145, y: 70, width: 60, height: 20))
+        // 카테고리 배지 - 더 크고 명확하게
+        let categoryBadgeWidth: CGFloat = getCategoryName(for: selectedContentTypeId) == "축제/공연/행사" ? 80 : 70
+        let categoryBadge = UIView(frame: CGRect(x: 165, y: 80, width: categoryBadgeWidth, height: 24))
         categoryBadge.backgroundColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 0.2)
-        categoryBadge.layer.cornerRadius = 10
+        categoryBadge.layer.cornerRadius = 12
+        categoryBadge.layer.borderWidth = 1
+        categoryBadge.layer.borderColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 0.4).cgColor
         cardView.addSubview(categoryBadge)
         
-        let categoryLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 60, height: 20))
-        categoryLabel.text = getCategoryName(for: selectedContentTypeId)
-        categoryLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+        let categoryLabel = UILabel(frame: CGRect(x: 0, y: 0, width: categoryBadgeWidth, height: 24))
+        let categoryText = getCategoryName(for: selectedContentTypeId)
+        categoryLabel.text = categoryText == "축제/공연/행사" ? "행사/공연" : categoryText
+        categoryLabel.font = UIFont.systemFont(ofSize: 12, weight: .bold)
         categoryLabel.textColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0)
         categoryLabel.textAlignment = .center
         categoryBadge.addSubview(categoryLabel)
         
-        // 주소 레이블 (아이콘 추가)
-        let addressIcon = UILabel(frame: CGRect(x: 145, y: 100, width: 15, height: 15))
+        // 주소 레이블 - 더 명확한 아이콘과 스타일
+        let addressIcon = UILabel(frame: CGRect(x: 165, y: 115, width: 20, height: 20))
         addressIcon.text = "📍"
-        addressIcon.font = UIFont.systemFont(ofSize: 12)
+        addressIcon.font = UIFont.systemFont(ofSize: 14)
         cardView.addSubview(addressIcon)
         
-        let addressLabel = UILabel(frame: CGRect(x: 165, y: 95, width: cardView.frame.width - 180, height: 40))
-        // addr2가 있으면 함께 표시
+        let addressLabel = UILabel(frame: CGRect(x: 190, y: 115, width: cardView.frame.width - 210, height: 35))
         var fullAddress = course.addr1 ?? "주소 정보 없음"
         if let addr2 = course.addr2, !addr2.isEmpty {
             fullAddress += " \(addr2)"
         }
         addressLabel.text = fullAddress
-        addressLabel.font = UIFont.systemFont(ofSize: 13)
-        addressLabel.textColor = .darkGray
+        addressLabel.font = UIFont.systemFont(ofSize: 13, weight: .medium)
+        addressLabel.textColor = UIColor(red: 0.4, green: 0.4, blue: 0.4, alpha: 1.0)
         addressLabel.numberOfLines = 2
         cardView.addSubview(addressLabel)
         
-        // 거리 정보 (아이콘 추가) - 개선된 포맷팅
-        let distanceIcon = UILabel(frame: CGRect(x: 15, y: 145, width: 15, height: 15))
+        // 거리 정보 - 더 돋보이는 스타일
+        let distanceIcon = UILabel(frame: CGRect(x: 20, y: 165, width: 20, height: 20))
         distanceIcon.text = "📏"
-        distanceIcon.font = UIFont.systemFont(ofSize: 12)
+        distanceIcon.font = UIFont.systemFont(ofSize: 14)
         cardView.addSubview(distanceIcon)
         
-        let distanceLabel = UILabel(frame: CGRect(x: 35, y: 145, width: 120, height: 20))
+        let distanceLabel = UILabel(frame: CGRect(x: 45, y: 165, width: 100, height: 20))
         if let dist = course.dist, let distValue = Double(dist) {
             if distValue >= 1000 {
-                // 1km 이상일 때는 km 단위로 표시 (소수점 1자리)
                 distanceLabel.text = String(format: "%.1f km", distValue / 1000.0)
             } else {
-                // 1km 미만일 때는 m 단위로 표시 (정수)
                 distanceLabel.text = String(format: "%.0f m", distValue)
             }
         } else {
             distanceLabel.text = "거리 정보 없음"
         }
-        distanceLabel.font = UIFont.systemFont(ofSize: 13, weight: .medium)
+        distanceLabel.font = UIFont.systemFont(ofSize: 14, weight: .bold)
         distanceLabel.textColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0)
         cardView.addSubview(distanceLabel)
         
-        // 전화번호 (있는 경우)
+        // 전화번호 (있는 경우) - 더 명확한 표시
         if let tel = course.tel, !tel.isEmpty {
-            let phoneIcon = UILabel(frame: CGRect(x: 145, y: 145, width: 15, height: 15))
+            let phoneIcon = UILabel(frame: CGRect(x: 160, y: 165, width: 20, height: 20))
             phoneIcon.text = "📞"
-            phoneIcon.font = UIFont.systemFont(ofSize: 12)
+            phoneIcon.font = UIFont.systemFont(ofSize: 14)
             cardView.addSubview(phoneIcon)
             
-            let phoneLabel = UILabel(frame: CGRect(x: 165, y: 145, width: cardView.frame.width - 180, height: 20))
+            let phoneLabel = UILabel(frame: CGRect(x: 185, y: 165, width: cardView.frame.width - 205, height: 20))
             phoneLabel.text = tel
-            phoneLabel.font = UIFont.systemFont(ofSize: 13)
-            phoneLabel.textColor = .darkGray
+            phoneLabel.font = UIFont.systemFont(ofSize: 13, weight: .medium)
+            phoneLabel.textColor = UIColor(red: 0.4, green: 0.4, blue: 0.4, alpha: 1.0)
             cardView.addSubview(phoneLabel)
         }
         
-        // 지역 정보 표시 - areacode 대신 다른 정보로 대체
-        let locationIcon = UILabel(frame: CGRect(x: 15, y: 170, width: 15, height: 15))
-        locationIcon.text = "ℹ️"
-        locationIcon.font = UIFont.systemFont(ofSize: 12)
-        cardView.addSubview(locationIcon)
+        // 정보 제공처 - 더 작고 세련되게
+        let infoIcon = UILabel(frame: CGRect(x: 20, y: 190, width: 16, height: 16))
+        infoIcon.text = "ℹ️"
+        infoIcon.font = UIFont.systemFont(ofSize: 12)
+        cardView.addSubview(infoIcon)
         
-        let locationLabel = UILabel(frame: CGRect(x: 35, y: 170, width: cardView.frame.width - 50, height: 20))
-        locationLabel.text = "한국관광공사 제공 정보"
-        locationLabel.font = UIFont.systemFont(ofSize: 11)
-        locationLabel.textColor = .lightGray
-        cardView.addSubview(locationLabel)
+        let infoLabel = UILabel(frame: CGRect(x: 40, y: 190, width: cardView.frame.width - 60, height: 16))
+        infoLabel.text = "한국관광공사 제공"
+        infoLabel.font = UIFont.systemFont(ofSize: 10, weight: .medium)
+        infoLabel.textColor = UIColor(red: 0.6, green: 0.6, blue: 0.6, alpha: 1.0)
+        cardView.addSubview(infoLabel)
         
-        // 구분선
-        let separatorView = UIView(frame: CGRect(x: 15, y: 200, width: cardView.frame.width - 30, height: 1))
-        separatorView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
+        // 구분선 - 더 세련된 스타일
+        let separatorView = UIView(frame: CGRect(x: 20, y: 220, width: cardView.frame.width - 40, height: 1))
+        separatorView.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 1.0)
         cardView.addSubview(separatorView)
         
-        // 버튼 컨테이너 - 위치 조정
-        let buttonStackView = UIStackView(frame: CGRect(x: 20, y: 220, width: cardView.frame.width - 40, height: 40))
+        // 버튼 컨테이너 - 더 큰 버튼들
+        let buttonStackView = UIStackView(frame: CGRect(x: 20, y: 235, width: cardView.frame.width - 40, height: 45))
         buttonStackView.axis = .horizontal
         buttonStackView.distribution = .fillEqually
-        buttonStackView.spacing = 10
+        buttonStackView.spacing = 15
         cardView.addSubview(buttonStackView)
         
-        // 즐겨찾기 버튼
+        // 즐겨찾기 버튼 - 더 매력적인 디자인
         let favoriteButton = UIButton()
         favoriteButton.setTitle("❤️ 찜하기", for: .normal)
         favoriteButton.setTitleColor(.white, for: .normal)
         favoriteButton.backgroundColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0)
-        favoriteButton.layer.cornerRadius = 20
-        favoriteButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        favoriteButton.layer.cornerRadius = 22
+        favoriteButton.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .bold)
+        favoriteButton.layer.shadowColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 0.4).cgColor
+        favoriteButton.layer.shadowOffset = CGSize(width: 0, height: 2)
+        favoriteButton.layer.shadowOpacity = 1.0
+        favoriteButton.layer.shadowRadius = 4
         favoriteButton.tag = index
         favoriteButton.addTarget(self, action: #selector(saveFavorite(_:)), for: .touchUpInside)
         buttonStackView.addArrangedSubview(favoriteButton)
         
-        // 길찾기 버튼
+        // 길찾기 버튼 - 더 매력적인 디자인
         let directionButton = UIButton()
-        directionButton.setTitle("🔎 길찾기", for: .normal)
+        directionButton.setTitle("🗺️ 길찾기", for: .normal)
         directionButton.setTitleColor(UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0), for: .normal)
-        directionButton.backgroundColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 0.1)
-        directionButton.layer.cornerRadius = 20
-        directionButton.layer.borderWidth = 1
-        directionButton.layer.borderColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 0.3).cgColor
-        directionButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        directionButton.backgroundColor = UIColor.white
+        directionButton.layer.cornerRadius = 22
+        directionButton.layer.borderWidth = 2
+        directionButton.layer.borderColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0).cgColor
+        directionButton.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .bold)
+        directionButton.layer.shadowColor = UIColor.lightGray.cgColor
+        directionButton.layer.shadowOffset = CGSize(width: 0, height: 2)
+        directionButton.layer.shadowOpacity = 0.3
+        directionButton.layer.shadowRadius = 4
         directionButton.addTarget(self, action: #selector(openDirections), for: .touchUpInside)
         buttonStackView.addArrangedSubview(directionButton)
         
-        // 닫기 버튼
-        let closeButton = UIButton(frame: CGRect(x: cardView.frame.width - 40, y: 10, width: 30, height: 30))
+        // 닫기 버튼 - 더 큰 터치 영역과 명확한 디자인
+        let closeButton = UIButton(frame: CGRect(x: cardView.frame.width - 45, y: 15, width: 35, height: 35))
         closeButton.setTitle("✕", for: .normal)
-        closeButton.setTitleColor(.darkGray, for: .normal)
+        closeButton.setTitleColor(UIColor(red: 0.6, green: 0.6, blue: 0.6, alpha: 1.0), for: .normal)
+        closeButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+        closeButton.backgroundColor = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0)
+        closeButton.layer.cornerRadius = 17
         closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
         cardView.addSubview(closeButton)
         
-        // 카드를 먼저 화면에 추가
+        // 카드를 화면에 추가
         view.addSubview(cardView)
         infoCardView = cardView
         
-        // 세련된 등장 애니메이션: 페이드 인 + 약간의 스케일 변화
-        UIView.animate(withDuration: 0.25, delay: 0, options: [.curveEaseOut], animations: {
+        // 등장 애니메이션
+        UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5, options: [.curveEaseOut], animations: {
             cardView.alpha = 1.0
             cardView.transform = CGAffineTransform.identity
         })
         
-        // 이미지는 카드 표시 후 비동기 로드
+        // 이미지 로드
         if let urlStr = course.firstimage, !urlStr.isEmpty, let url = URL(string: urlStr) {
             let task = URLSession.shared.dataTask(with: url) { data, _, _ in
                 if let d = data, let img = UIImage(data: d) {
                     DispatchQueue.main.async {
-                        // 인디케이터 제거
                         activityIndicator.stopAnimating()
                         activityIndicator.removeFromSuperview()
                         
-                        // 이미지 페이드인 애니메이션
                         imageView.alpha = 0
                         imageView.image = img
-                        UIView.animate(withDuration: 0.3) {
+                        UIView.animate(withDuration: 0.4) {
                             imageView.alpha = 1
                         }
                     }
                 } else {
                     DispatchQueue.main.async {
-                        // 이미지 로드 실패 시
                         activityIndicator.stopAnimating()
                         activityIndicator.removeFromSuperview()
-                        imageView.image = UIImage(systemName: "photo")
-                        imageView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
+                        
+                        let placeholderConfig = UIImage.SymbolConfiguration(pointSize: 40, weight: .light)
+                        imageView.image = UIImage(systemName: "photo", withConfiguration: placeholderConfig)
+                        imageView.tintColor = UIColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)
+                        imageView.contentMode = .center
                     }
                 }
             }
             task.resume()
         } else {
-            // URL이 없을 경우 즉시 기본 이미지 표시
             DispatchQueue.main.async {
                 activityIndicator.stopAnimating()
                 activityIndicator.removeFromSuperview()
-                imageView.image = UIImage(systemName: "photo")
-                imageView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
+                
+                let placeholderConfig = UIImage.SymbolConfiguration(pointSize: 40, weight: .light)
+                imageView.image = UIImage(systemName: "photo", withConfiguration: placeholderConfig)
+                imageView.tintColor = UIColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)
+                imageView.contentMode = .center
             }
         }
     }
@@ -457,20 +485,18 @@ class MapViewController: UIViewController {
             return
         }
         
-        // 세련된 퇴장 애니메이션: 페이드 아웃 + 약간의 스케일 변화
-        UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseIn], animations: {
+        // 퇴장 애니메이션
+        UIView.animate(withDuration: 0.25, delay: 0, options: [.curveEaseIn], animations: {
             cardView.alpha = 0
-            cardView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+            cardView.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
         }, completion: { _ in
             cardView.removeFromSuperview()
             
-            // 마커 강조 효과 해제
             if let annotation = self.selectedAnnotation {
                 self.mapView.deselectAnnotation(annotation, animated: true)
                 self.selectedAnnotation = nil
             }
             
-            // 상태 초기화
             self.infoCardView = nil
             self.selectedCourse = nil
             self.selectedIndex = nil

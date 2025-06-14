@@ -60,7 +60,7 @@
                                     <segment title="관광지"/>
                                     <segment title="숙박 시설"/>
                                     <segment title="음식점"/>
-                                    <segment title="축제/공연/행사"/>
+                                    <segment title="축제/행사"/>
                                 </segments>
                                 <connections>
                                     <action selector="segmentedControlValueChanged:" destination="cKh-xl-DJX" eventType="valueChanged" id="8eX-yZ-aFW"/>
