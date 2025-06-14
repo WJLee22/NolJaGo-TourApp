@@ -392,6 +392,107 @@ extension MapViewController: MKMapViewDelegate {
             }
         }
     }
+    
+    // MARK: - 장소 정보 카드 표시 (이 메서드가 누락되었습니다)
+    private func showInfoCardForCourse(_ course: Course, at index: Int) {
+        // 카드 뷰 생성
+        let cardView = UIView(frame: CGRect(x: 20, y: 100, width: view.frame.width - 40, height: 250))
+        cardView.backgroundColor = .white
+        cardView.layer.cornerRadius = 15
+        cardView.layer.shadowColor = UIColor.black.cgColor
+        cardView.layer.shadowOffset = CGSize(width: 0, height: 2)
+        cardView.layer.shadowOpacity = 0.2
+        cardView.layer.shadowRadius = 4
+        
+        // 이미지 뷰
+        let imageView = UIImageView(frame: CGRect(x: 15, y: 15, width: 120, height: 120))
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 10
+        cardView.addSubview(imageView)
+        
+        // 제목 레이블
+        let titleLabel = UILabel(frame: CGRect(x: 145, y: 15, width: cardView.frame.width - 160, height: 50))
+        titleLabel.text = course.title
+        titleLabel.font = UIFont.boldSystemFont(ofSize: 16)
+        titleLabel.numberOfLines = 2
+        cardView.addSubview(titleLabel)
+        
+        // 주소 레이블
+        let addressLabel = UILabel(frame: CGRect(x: 145, y: 70, width: cardView.frame.width - 160, height: 40))
+        addressLabel.text = course.addr1 ?? "주소 정보 없음"
+        addressLabel.font = UIFont.systemFont(ofSize: 14)
+        addressLabel.textColor = .darkGray
+        addressLabel.numberOfLines = 2
+        cardView.addSubview(addressLabel)
+        
+        // 거리 레이블
+        let distanceLabel = UILabel(frame: CGRect(x: 145, y: 115, width: cardView.frame.width - 160, height: 20))
+        if let dist = course.dist {
+            // 안전한 Optional 처리로 변경
+            if let distValue = Int(dist) {
+                distanceLabel.text = distValue > 1000 ? 
+                    String(format: "거리: %.1f km", Double(distValue) / 1000.0) : 
+                    "거리: \(dist) m"
+            } else {
+                // 숫자로 변환할 수 없는 경우
+                distanceLabel.text = "거리: \(dist)"
+            }
+        } else {
+            distanceLabel.text = "거리 정보 없음"
+        }
+        distanceLabel.font = UIFont.systemFont(ofSize: 14)
+        distanceLabel.textColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0)
+        cardView.addSubview(distanceLabel)
+        
+        // 구분선
+        let separatorView = UIView(frame: CGRect(x: 15, y: 150, width: cardView.frame.width - 30, height: 1))
+        separatorView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
+        cardView.addSubview(separatorView)
+        
+        // 즐겨찾기 버튼
+        let favoriteButton = UIButton(frame: CGRect(x: cardView.frame.width / 2 - 75, y: 165, width: 150, height: 40))
+        favoriteButton.setTitle("❤️ 찜하기", for: .normal)
+        favoriteButton.setTitleColor(.white, for: .normal)
+        favoriteButton.backgroundColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0)
+        favoriteButton.layer.cornerRadius = 20
+        favoriteButton.tag = index
+        favoriteButton.addTarget(self, action: #selector(saveFavorite(_:)), for: .touchUpInside)
+        cardView.addSubview(favoriteButton)
+        
+        // 닫기 버튼
+        let closeButton = UIButton(frame: CGRect(x: cardView.frame.width - 40, y: 10, width: 30, height: 30))
+        closeButton.setTitle("✕", for: .normal)
+        closeButton.setTitleColor(.darkGray, for: .normal)
+        closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
+        cardView.addSubview(closeButton)
+        
+        // 이미지 로드
+        if let urlStr = course.firstimage, !urlStr.isEmpty, let url = URL(string: urlStr) {
+            URLSession.shared.dataTask(with: url) { data, _, _ in
+                if let d = data, let img = UIImage(data: d) {
+                    DispatchQueue.main.async {
+                        imageView.image = img
+                    }
+                }
+            }.resume()
+        } else {
+            imageView.image = UIImage(named: "placeholder") ?? UIImage(systemName: "photo")
+            imageView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
+        }
+        
+        view.addSubview(cardView)
+        infoCardView = cardView
+        
+        // 애니메이션 효과
+        cardView.alpha = 0
+        cardView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+        
+        UIView.animate(withDuration: 0.3) {
+            cardView.alpha = 1
+            cardView.transform = .identity
+        }
+    }
 }
 
 // MARK: - UIGestureRecognizerDelegate
