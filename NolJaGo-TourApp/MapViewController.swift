@@ -36,11 +36,9 @@ class MapViewController: UIViewController {
         // 현재 위치로 이동하는 버튼 추가
         addCurrentLocationButton()
         
-        // 지도 배경 클릭을 위한 설정 (마커 영역 제외)
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleMapBackgroundTap(_:)))
+        // 마커 클릭을 위한 설정 - 이전 코드 방식으로 변경
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleMapTap(_:)))
         tapGesture.numberOfTapsRequired = 1
-        // MKMapView의 기본 제스처와 충돌하지 않도록 설정
-        tapGesture.delegate = self
         mapView.addGestureRecognizer(tapGesture)
     }
     
@@ -181,60 +179,218 @@ class MapViewController: UIViewController {
         mapView.addAnnotations(annotations)
     }
     
-    // 지도 배경 탭 처리 (마커가 아닌 영역 탭)
-    @objc func handleMapBackgroundTap(_ gestureRecognizer: UITapGestureRecognizer) {
-        // 탭한 위치
+    // MARK: - 지도 터치 처리 (이전 코드 방식)
+    @objc func handleMapTap(_ gestureRecognizer: UITapGestureRecognizer) {
         let tapPoint = gestureRecognizer.location(in: mapView)
         
-        // 마커 영역을 탭했는지 확인
-        let tappedOnMarker = checkIfTappedOnMarker(at: tapPoint)
-        
-        // 마커를 탭하지 않았을 때만 정보 카드 닫기
-        if !tappedOnMarker && infoCardView != nil {
-            hideInfoCardView()
+        // 기존 정보 카드 즉시 제거
+        if let existingCard = infoCardView {
+            existingCard.removeFromSuperview()
+            infoCardView = nil
+            // 선택된 어노테이션 해제
+            if let annotation = selectedAnnotation {
+                mapView.deselectAnnotation(annotation, animated: false) // 애니메이션 없이 즉시 해제
+                selectedAnnotation = nil
+            }
+            selectedCourse = nil
+            selectedIndex = nil
         }
-    }
 
-    // 특정 위치에 마커가 있는지 확인하는 함수
-    private func checkIfTappedOnMarker(at point: CGPoint) -> Bool {
+        // 탭한 위치에 마커가 있는지 확인
         for annotation in mapView.annotations {
-            if annotation is MKUserLocation { continue }
+            if annotation is MKUserLocation { continue } // 사용자 위치 마커는 무시
             
-            let annotationPoint = mapView.convert(annotation.coordinate, toPointTo: mapView)
-            let distance = sqrt(pow(annotationPoint.x - point.x, 2) + pow(annotationPoint.y - point.y, 2))
-            
-            // 마커 주변 영역 (30포인트 이내)을 탭했다면
-            if distance <= 30 {
-                return true
+            // 어노테이션 뷰를 가져와서 탭 위치와 비교
+            if let annotationView = mapView.view(for: annotation) {
+                let annotationViewPoint = gestureRecognizer.location(in: annotationView)
+                if annotationView.bounds.contains(annotationViewPoint) {
+                    // 마커가 탭된 경우
+                    let annotationCoord = annotation.coordinate // 직접 사용
+                    
+                    for (index, course) in courses.enumerated() {
+                        guard let mapxStr = course.mapx, let mapyStr = course.mapy,
+                              let mapx = Double(mapxStr), let mapy = Double(mapyStr) else {
+                            continue
+                        }
+                        
+                        let latDiff = abs(annotationCoord.latitude - mapy)
+                        let lonDiff = abs(annotationCoord.longitude - mapx)
+                        
+                        if latDiff < 0.000001 && lonDiff < 0.000001 {
+                            selectedCourse = course
+                            selectedIndex = index
+                            selectedAnnotation = annotation // 현재 선택된 어노테이션 저장
+                            mapView.selectAnnotation(annotation, animated: true) // 마커 선택 효과
+                            showInfoCardForCourse(course, at: index) // 이 메서드를 호출
+                            return // 일치하는 마커를 찾으면 더 이상 반복하지 않음
+                        }
+                    }
+                }
             }
         }
-        return false
+        // 마커가 아닌 배경을 탭한 경우 (기존 카드가 이미 위에서 제거됨)
     }
 
-    // 모든 카드 닫기 확실히 처리
+    // MARK: - 장소 정보 카드 표시
+    private func showInfoCardForCourse(_ course: Course, at index: Int) {
+        // 카드 뷰 생성 - 화면에 맞게 위치시킴
+        let cardView = UIView(frame: CGRect(x: 20, y: 100, width: view.frame.width - 40, height: 250))
+        cardView.backgroundColor = .white
+        cardView.layer.cornerRadius = 15
+        cardView.layer.shadowColor = UIColor.black.cgColor
+        cardView.layer.shadowOffset = CGSize(width: 0, height: 2)
+        cardView.layer.shadowOpacity = 0.2
+        cardView.layer.shadowRadius = 4
+        
+        // 초기 상태 설정 - 투명하고 약간 작게
+        cardView.alpha = 0
+        cardView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+        
+        // 이미지 뷰
+        let imageView = UIImageView(frame: CGRect(x: 15, y: 15, width: 120, height: 120))
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 10
+        cardView.addSubview(imageView)
+        
+        // 로딩 인디케이터 추가
+        let activityIndicator = UIActivityIndicatorView(style: .medium)
+        activityIndicator.center = CGPoint(x: imageView.bounds.midX, y: imageView.bounds.midY)
+        activityIndicator.color = .darkGray
+        activityIndicator.startAnimating()
+        imageView.addSubview(activityIndicator)
+        
+        // 제목 레이블
+        let titleLabel = UILabel(frame: CGRect(x: 145, y: 15, width: cardView.frame.width - 160, height: 50))
+        titleLabel.text = course.title
+        titleLabel.font = UIFont.boldSystemFont(ofSize: 16)
+        titleLabel.numberOfLines = 2
+        cardView.addSubview(titleLabel)
+        
+        // 주소 레이블
+        let addressLabel = UILabel(frame: CGRect(x: 145, y: 70, width: cardView.frame.width - 160, height: 40))
+        addressLabel.text = course.addr1 ?? "주소 정보 없음"
+        addressLabel.font = UIFont.systemFont(ofSize: 14)
+        addressLabel.textColor = .darkGray
+        addressLabel.numberOfLines = 2
+        cardView.addSubview(addressLabel)
+        
+        // 거리 레이블
+        let distanceLabel = UILabel(frame: CGRect(x: 145, y: 115, width: cardView.frame.width - 160, height: 20))
+        if let dist = course.dist {
+            if let distValue = Int(dist) {
+                distanceLabel.text = distValue > 1000 ? 
+                    String(format: "거리: %.1f km", Double(distValue) / 1000.0) : 
+                    "거리: \(dist) m"
+            } else {
+                distanceLabel.text = "거리: \(dist)"
+            }
+        } else {
+            distanceLabel.text = "거리 정보 없음"
+        }
+        distanceLabel.font = UIFont.systemFont(ofSize: 14)
+        distanceLabel.textColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0)
+        cardView.addSubview(distanceLabel)
+        
+        // 구분선
+        let separatorView = UIView(frame: CGRect(x: 15, y: 150, width: cardView.frame.width - 30, height: 1))
+        separatorView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
+        cardView.addSubview(separatorView)
+        
+        // 즐겨찾기 버튼
+        let favoriteButton = UIButton(frame: CGRect(x: cardView.frame.width / 2 - 75, y: 165, width: 150, height: 40))
+        favoriteButton.setTitle("❤️ 찜하기", for: .normal)
+        favoriteButton.setTitleColor(.white, for: .normal)
+        favoriteButton.backgroundColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0)
+        favoriteButton.layer.cornerRadius = 20
+        favoriteButton.tag = index
+        favoriteButton.addTarget(self, action: #selector(saveFavorite(_:)), for: .touchUpInside)
+        cardView.addSubview(favoriteButton)
+        
+        // 닫기 버튼
+        let closeButton = UIButton(frame: CGRect(x: cardView.frame.width - 40, y: 10, width: 30, height: 30))
+        closeButton.setTitle("✕", for: .normal)
+        closeButton.setTitleColor(.darkGray, for: .normal)
+        closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
+        cardView.addSubview(closeButton)
+        
+        // 카드를 먼저 화면에 추가
+        view.addSubview(cardView)
+        infoCardView = cardView
+        
+        // 세련된 등장 애니메이션: 페이드 인 + 약간의 스케일 변화
+        UIView.animate(withDuration: 0.25, delay: 0, options: [.curveEaseOut], animations: {
+            cardView.alpha = 1.0
+            cardView.transform = CGAffineTransform.identity
+        })
+        
+        // 이미지는 카드 표시 후 비동기 로드
+        if let urlStr = course.firstimage, !urlStr.isEmpty, let url = URL(string: urlStr) {
+            // 이미지를 백그라운드에서 로드
+            let task = URLSession.shared.dataTask(with: url) { data, _, _ in
+                if let d = data, let img = UIImage(data: d) {
+                    DispatchQueue.main.async {
+                        // 인디케이터 제거
+                        activityIndicator.stopAnimating()
+                        activityIndicator.removeFromSuperview()
+                        
+                        // 이미지 페이드인 애니메이션
+                        imageView.alpha = 0
+                        imageView.image = img
+                        UIView.animate(withDuration: 0.3) {
+                            imageView.alpha = 1
+                        }
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        // 이미지 로드 실패 시
+                        activityIndicator.stopAnimating()
+                        activityIndicator.removeFromSuperview()
+                        imageView.image = UIImage(systemName: "photo")
+                        imageView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
+                    }
+                }
+            }
+            task.resume()
+        } else {
+            // URL이 없을 경우 즉시 기본 이미지 표시
+            DispatchQueue.main.async {
+                activityIndicator.stopAnimating()
+                activityIndicator.removeFromSuperview()
+                imageView.image = UIImage(systemName: "photo")
+                imageView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
+            }
+        }
+    }
+
     @objc private func hideInfoCardView(completion: (() -> Void)? = nil) {
-        // 모든 카드 뷰 찾아서 제거
-        for subview in view.subviews {
-            if subview == infoCardView || (subview.layer.cornerRadius == 15 && subview.backgroundColor == .white) {
-                subview.removeFromSuperview()
+        guard let cardView = infoCardView else {
+            completion?()
+            return
+        }
+        
+        // 세련된 퇴장 애니메이션: 페이드 아웃 + 약간의 스케일 변화
+        UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseIn], animations: {
+            cardView.alpha = 0
+            cardView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+        }, completion: { _ in
+            cardView.removeFromSuperview()
+            
+            // 마커 강조 효과 해제
+            if let annotation = self.selectedAnnotation {
+                self.mapView.deselectAnnotation(annotation, animated: true)
+                self.selectedAnnotation = nil
             }
-        }
-        
-        // 마커 강조 효과 해제
-        if let annotation = selectedAnnotation {
-            mapView.deselectAnnotation(annotation, animated: true)
-            selectedAnnotation = nil
-        }
-        
-        // 상태 초기화
-        infoCardView = nil
-        selectedCourse = nil
-        selectedIndex = nil
-        
-        completion?()
+            
+            // 상태 초기화
+            self.infoCardView = nil
+            self.selectedCourse = nil
+            self.selectedIndex = nil
+            
+            completion?()
+        })
     }
 
-    // 닫기 버튼을 위한 별도 액션 메서드 추가
     @objc private func closeButtonTapped() {
         hideInfoCardView()
     }
@@ -305,9 +461,9 @@ class MapViewController: UIViewController {
 // MARK: - MKMapViewDelegate
 extension MapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        // 사용자 현재 위치는 기본 파란점으로 표시 (nil 반환)
+        // 사용자 현재 위치는 기본 파란점으로 표시
         if annotation is MKUserLocation {
-            return nil // 기본 파란색 점 마커 사용
+            return nil
         }
         
         // 기존 마커 처리 코드
@@ -316,13 +472,12 @@ extension MapViewController: MKMapViewDelegate {
         
         if annotationView == nil {
             annotationView = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
-            annotationView?.canShowCallout = true
         } else {
             annotationView?.annotation = annotation
         }
         
-        // 마커 색상 설정 (카테고리별 다른 색상)
         if let markerView = annotationView as? MKMarkerAnnotationView {
+            // 카테고리별 마커 스타일 설정
             switch selectedContentTypeId {
             case "12": // 관광지
                 markerView.markerTintColor = .systemBlue
@@ -343,160 +498,10 @@ extension MapViewController: MKMapViewDelegate {
         
         return annotationView
     }
-    
-    // 마커 선택 시 호출되는 메서드
-    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        // 사용자 위치 마커는 처리하지 않음
-        if view.annotation is MKUserLocation { return }
-        
-        // 지도 제스처와 충돌하지 않도록 비동기 처리
-        DispatchQueue.main.async { [weak self] in
-            self?.processSelectedAnnotation(view)
-        }
-    }
-    
-    // 마커 강조 및 상세 정보 표시를 위한 메서드 (didSelect 콜백용)
-    private func processSelectedAnnotation(_ annotation: MKAnnotationView) {
-        // 이미 정보 카드가 표시된 상태라면 먼저 닫기
-        if infoCardView != nil {
-            hideInfoCardView(completion: { [weak self] in
-                self?.showCardForAnnotation(annotation)
-            })
-            return
-        }
-        
-        // 정보 카드 표시
-        showCardForAnnotation(annotation)
-    }
-
-    // 선택된 마커에 대한 정보 카드 표시
-    private func showCardForAnnotation(_ annotation: MKAnnotationView) {
-        // 사용자 위치 마커는 처리하지 않음
-        if annotation.annotation is MKUserLocation { return }
-        
-        // 마커에 해당하는 코스 찾기
-        for (index, course) in courses.enumerated() {
-            guard let mapxStr = course.mapx, let mapyStr = course.mapy,
-                  let mapx = Double(mapxStr), let mapy = Double(mapyStr),
-                  let annotationCoord = annotation.annotation?.coordinate else {
-                continue
-            }
-            
-            if annotationCoord.latitude == mapy && annotationCoord.longitude == mapx {
-                selectedCourse = course
-                selectedIndex = index
-                selectedAnnotation = annotation.annotation
-                showInfoCardForCourse(course, at: index)
-                break
-            }
-        }
-    }
-    
-    // MARK: - 장소 정보 카드 표시 (이 메서드가 누락되었습니다)
-    private func showInfoCardForCourse(_ course: Course, at index: Int) {
-        // 카드 뷰 생성
-        let cardView = UIView(frame: CGRect(x: 20, y: 100, width: view.frame.width - 40, height: 250))
-        cardView.backgroundColor = .white
-        cardView.layer.cornerRadius = 15
-        cardView.layer.shadowColor = UIColor.black.cgColor
-        cardView.layer.shadowOffset = CGSize(width: 0, height: 2)
-        cardView.layer.shadowOpacity = 0.2
-        cardView.layer.shadowRadius = 4
-        
-        // 이미지 뷰
-        let imageView = UIImageView(frame: CGRect(x: 15, y: 15, width: 120, height: 120))
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 10
-        cardView.addSubview(imageView)
-        
-        // 제목 레이블
-        let titleLabel = UILabel(frame: CGRect(x: 145, y: 15, width: cardView.frame.width - 160, height: 50))
-        titleLabel.text = course.title
-        titleLabel.font = UIFont.boldSystemFont(ofSize: 16)
-        titleLabel.numberOfLines = 2
-        cardView.addSubview(titleLabel)
-        
-        // 주소 레이블
-        let addressLabel = UILabel(frame: CGRect(x: 145, y: 70, width: cardView.frame.width - 160, height: 40))
-        addressLabel.text = course.addr1 ?? "주소 정보 없음"
-        addressLabel.font = UIFont.systemFont(ofSize: 14)
-        addressLabel.textColor = .darkGray
-        addressLabel.numberOfLines = 2
-        cardView.addSubview(addressLabel)
-        
-        // 거리 레이블
-        let distanceLabel = UILabel(frame: CGRect(x: 145, y: 115, width: cardView.frame.width - 160, height: 20))
-        if let dist = course.dist {
-            // 안전한 Optional 처리로 변경
-            if let distValue = Int(dist) {
-                distanceLabel.text = distValue > 1000 ? 
-                    String(format: "거리: %.1f km", Double(distValue) / 1000.0) : 
-                    "거리: \(dist) m"
-            } else {
-                // 숫자로 변환할 수 없는 경우
-                distanceLabel.text = "거리: \(dist)"
-            }
-        } else {
-            distanceLabel.text = "거리 정보 없음"
-        }
-        distanceLabel.font = UIFont.systemFont(ofSize: 14)
-        distanceLabel.textColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0)
-        cardView.addSubview(distanceLabel)
-        
-        // 구분선
-        let separatorView = UIView(frame: CGRect(x: 15, y: 150, width: cardView.frame.width - 30, height: 1))
-        separatorView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
-        cardView.addSubview(separatorView)
-        
-        // 즐겨찾기 버튼
-        let favoriteButton = UIButton(frame: CGRect(x: cardView.frame.width / 2 - 75, y: 165, width: 150, height: 40))
-        favoriteButton.setTitle("❤️ 찜하기", for: .normal)
-        favoriteButton.setTitleColor(.white, for: .normal)
-        favoriteButton.backgroundColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0)
-        favoriteButton.layer.cornerRadius = 20
-        favoriteButton.tag = index
-        favoriteButton.addTarget(self, action: #selector(saveFavorite(_:)), for: .touchUpInside)
-        cardView.addSubview(favoriteButton)
-        
-        // 닫기 버튼
-        let closeButton = UIButton(frame: CGRect(x: cardView.frame.width - 40, y: 10, width: 30, height: 30))
-        closeButton.setTitle("✕", for: .normal)
-        closeButton.setTitleColor(.darkGray, for: .normal)
-        closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
-        cardView.addSubview(closeButton)
-        
-        // 이미지 로드
-        if let urlStr = course.firstimage, !urlStr.isEmpty, let url = URL(string: urlStr) {
-            URLSession.shared.dataTask(with: url) { data, _, _ in
-                if let d = data, let img = UIImage(data: d) {
-                    DispatchQueue.main.async {
-                        imageView.image = img
-                    }
-                }
-            }.resume()
-        } else {
-            imageView.image = UIImage(named: "placeholder") ?? UIImage(systemName: "photo")
-            imageView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
-        }
-        
-        view.addSubview(cardView)
-        infoCardView = cardView
-        
-        // 애니메이션 효과
-        cardView.alpha = 0
-        cardView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
-        
-        UIView.animate(withDuration: 0.3) {
-            cardView.alpha = 1
-            cardView.transform = .identity
-        }
-    }
 }
 
 // MARK: - UIGestureRecognizerDelegate
 extension MapViewController: UIGestureRecognizerDelegate {
-    // 지도의 다른 제스처와 충돌하지 않도록 함
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
