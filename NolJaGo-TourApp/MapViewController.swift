@@ -305,13 +305,9 @@ class MapViewController: UIViewController {
 // MARK: - MKMapViewDelegate
 extension MapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        // 사용자 현재 위치 마커 커스터마이징
+        // 사용자 현재 위치는 기본 파란점으로 표시 (nil 반환)
         if annotation is MKUserLocation {
-            let annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: "UserLocation")
-            annotationView.image = UIImage(systemName: "person.circle.fill")?.withTintColor(.systemBlue, renderingMode: .alwaysOriginal).withRenderingMode(.alwaysOriginal)
-            annotationView.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-            annotationView.centerOffset = CGPoint(x: 0, y: -20) // 위치 조정
-            return annotationView
+            return nil // 기본 파란색 점 마커 사용
         }
         
         // 기존 마커 처리 코드
@@ -350,6 +346,9 @@ extension MapViewController: MKMapViewDelegate {
     
     // 마커 선택 시 호출되는 메서드
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        // 사용자 위치 마커는 처리하지 않음
+        if view.annotation is MKUserLocation { return }
+        
         // 지도 제스처와 충돌하지 않도록 비동기 처리
         DispatchQueue.main.async { [weak self] in
             self?.processSelectedAnnotation(view)
