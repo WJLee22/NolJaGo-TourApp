@@ -233,8 +233,8 @@ class MapViewController: UIViewController {
 
     // MARK: - 장소 정보 카드 표시
     private func showInfoCardForCourse(_ course: Course, at index: Int) {
-        // 카드 뷰 생성 - 화면에 맞게 위치시킴
-        let cardView = UIView(frame: CGRect(x: 20, y: 100, width: view.frame.width - 40, height: 250))
+        // 카드 뷰 생성 - 세그먼트 컨트롤 아래로 위치 조정
+        let cardView = UIView(frame: CGRect(x: 20, y: 140, width: view.frame.width - 40, height: 250))
         cardView.backgroundColor = .white
         cardView.layer.cornerRadius = 15
         cardView.layer.shadowColor = UIColor.black.cgColor
