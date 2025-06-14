@@ -23,6 +23,9 @@ class MapViewController: UIViewController {
     private var selectedCourse: Course?
     private var selectedIndex: Int?
     
+    // 선택된 어노테이션을 추적하기 위한 변수
+    private var selectedAnnotation: MKAnnotation?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -215,6 +218,11 @@ class MapViewController: UIViewController {
                     if annotation.coordinate.latitude == mapy && annotation.coordinate.longitude == mapx {
                         selectedCourse = course
                         selectedIndex = index
+                        
+                        // 즉시 마커 선택 상태로 설정 (강조 효과)
+                        selectedAnnotation = annotation
+                        mapView.selectAnnotation(annotation, animated: true)
+                        
                         return true
                     }
                 }
@@ -247,6 +255,12 @@ class MapViewController: UIViewController {
         guard let cardView = infoCardView else {
             completion?()
             return
+        }
+        
+        // 마커 강조 효과 해제
+        if let annotation = selectedAnnotation {
+            mapView.deselectAnnotation(annotation, animated: true)
+            selectedAnnotation = nil
         }
         
         UIView.animate(withDuration: 0.2, animations: {
@@ -470,6 +484,31 @@ extension MapViewController: MKMapViewDelegate {
         }
         
         return annotationView
+    }
+    
+    func mapView(_ mapView: MKMapView, didSelect annotation: MKAnnotationView) {
+        // 이미 정보 카드가 표시된 상태라면 추가 처리 방지
+        if infoCardView != nil { return }
+        
+        // 사용자 위치 마커는 처리하지 않음
+        if annotation.annotation is MKUserLocation { return }
+        
+        // 마커에 해당하는 코스 찾기
+        for (index, course) in courses.enumerated() {
+            guard let mapxStr = course.mapx, let mapyStr = course.mapy,
+                  let mapx = Double(mapxStr), let mapy = Double(mapyStr),
+                  let annotationCoord = annotation.annotation?.coordinate else {
+                continue
+            }
+            
+            if annotationCoord.latitude == mapy && annotationCoord.longitude == mapx {
+                selectedCourse = course
+                selectedIndex = index
+                selectedAnnotation = annotation.annotation
+                showInfoCardForCourse(course, at: index)
+                break
+            }
+        }
     }
 }
 
