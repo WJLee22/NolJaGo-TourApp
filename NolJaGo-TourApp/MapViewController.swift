@@ -254,17 +254,26 @@ class MapViewController: UIViewController {
         cardView.layer.shadowOpacity = 0.15
         cardView.layer.shadowRadius = 8
         
-        // 초기 상태 설정
+        // 초기 상태 설정 - 투명하고 약간 작게
         cardView.alpha = 0
         cardView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
         
-        // 이미지 뷰 - 더 큰 이미지로
-        let imageView = UIImageView(frame: CGRect(x: 20, y: 20, width: 130, height: 130))
+        // 이미지 컨테이너 - 그림자 효과를 위한 컨테이너
+        let imageContainer = UIView(frame: CGRect(x: 20, y: 20, width: 130, height: 130))
+        imageContainer.backgroundColor = .clear
+        imageContainer.layer.shadowColor = UIColor.black.cgColor
+        imageContainer.layer.shadowOffset = CGSize(width: 0, height: 2)
+        imageContainer.layer.shadowOpacity = 0.1
+        imageContainer.layer.shadowRadius = 4
+        cardView.addSubview(imageContainer)
+        
+        // 이미지 뷰 - 컨테이너 내부에 배치
+        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 130, height: 130))
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 15
         imageView.backgroundColor = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0)
-        cardView.addSubview(imageView)
+        imageContainer.addSubview(imageView)
         
         // 로딩 인디케이터
         let activityIndicator = UIActivityIndicatorView(style: .medium)
@@ -281,8 +290,8 @@ class MapViewController: UIViewController {
         titleLabel.textColor = UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1.0)
         cardView.addSubview(titleLabel)
         
-        // 카테고리 배지 - 더 크고 명확하게
-        let categoryBadgeWidth: CGFloat = getCategoryName(for: selectedContentTypeId) == "축제/공연/행사" ? 80 : 70
+        // 카테고리 배지 - 더 세련된 디자인
+        let categoryBadgeWidth: CGFloat = 70
         let categoryBadge = UIView(frame: CGRect(x: 165, y: 80, width: categoryBadgeWidth, height: 24))
         categoryBadge.backgroundColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 0.2)
         categoryBadge.layer.cornerRadius = 12
@@ -292,7 +301,8 @@ class MapViewController: UIViewController {
         
         let categoryLabel = UILabel(frame: CGRect(x: 0, y: 0, width: categoryBadgeWidth, height: 24))
         let categoryText = getCategoryName(for: selectedContentTypeId)
-        categoryLabel.text = categoryText == "축제/공연/행사" ? "행사/공연" : categoryText
+        // 축제/공연/행사 → 축제/행사로 변경
+        categoryLabel.text = categoryText == "축제/공연/행사" ? "축제/행사" : categoryText
         categoryLabel.font = UIFont.systemFont(ofSize: 12, weight: .bold)
         categoryLabel.textColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0)
         categoryLabel.textAlignment = .center
@@ -349,17 +359,23 @@ class MapViewController: UIViewController {
             cardView.addSubview(phoneLabel)
         }
         
-        // 정보 제공처 - 더 작고 세련되게
-        let infoIcon = UILabel(frame: CGRect(x: 20, y: 190, width: 16, height: 16))
+        // 정보 제공처 - 더 크고 잘 보이게 개선
+        let infoContainer = UIView(frame: CGRect(x: 20, y: 190, width: cardView.frame.width - 40, height: 22))
+        infoContainer.backgroundColor = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0)
+        infoContainer.layer.cornerRadius = 11
+        cardView.addSubview(infoContainer)
+        
+        let infoIcon = UILabel(frame: CGRect(x: 10, y: 3, width: 16, height: 16))
         infoIcon.text = "ℹ️"
         infoIcon.font = UIFont.systemFont(ofSize: 12)
-        cardView.addSubview(infoIcon)
+        infoContainer.addSubview(infoIcon)
         
-        let infoLabel = UILabel(frame: CGRect(x: 40, y: 190, width: cardView.frame.width - 60, height: 16))
-        infoLabel.text = "한국관광공사 제공"
-        infoLabel.font = UIFont.systemFont(ofSize: 10, weight: .medium)
-        infoLabel.textColor = UIColor(red: 0.6, green: 0.6, blue: 0.6, alpha: 1.0)
-        cardView.addSubview(infoLabel)
+        let infoLabel = UILabel(frame: CGRect(x: 30, y: 3, width: infoContainer.frame.width - 40, height: 16))
+        infoLabel.text = "한국관광공사 제공 정보"
+        infoLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+        infoLabel.textColor = UIColor(red: 0.4, green: 0.4, blue: 0.4, alpha: 1.0)
+        infoLabel.textAlignment = .left
+        infoContainer.addSubview(infoLabel)
         
         // 구분선 - 더 세련된 스타일
         let separatorView = UIView(frame: CGRect(x: 20, y: 220, width: cardView.frame.width - 40, height: 1))
@@ -390,7 +406,7 @@ class MapViewController: UIViewController {
         
         // 길찾기 버튼 - 더 매력적인 디자인
         let directionButton = UIButton()
-        directionButton.setTitle("🗺️ 길찾기", for: .normal)
+        directionButton.setTitle("🔎 길찾기", for: .normal)
         directionButton.setTitleColor(UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0), for: .normal)
         directionButton.backgroundColor = UIColor.white
         directionButton.layer.cornerRadius = 22
@@ -418,8 +434,8 @@ class MapViewController: UIViewController {
         view.addSubview(cardView)
         infoCardView = cardView
         
-        // 등장 애니메이션
-        UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5, options: [.curveEaseOut], animations: {
+        // 이전 버전의 애니메이션으로 롤백 - 페이드 인 + 스케일 변화
+        UIView.animate(withDuration: 0.25, delay: 0, options: [.curveEaseOut], animations: {
             cardView.alpha = 1.0
             cardView.transform = CGAffineTransform.identity
         })
@@ -434,7 +450,7 @@ class MapViewController: UIViewController {
                         
                         imageView.alpha = 0
                         imageView.image = img
-                        UIView.animate(withDuration: 0.4) {
+                        UIView.animate(withDuration: 0.3) {
                             imageView.alpha = 1
                         }
                     }
@@ -485,10 +501,10 @@ class MapViewController: UIViewController {
             return
         }
         
-        // 퇴장 애니메이션
-        UIView.animate(withDuration: 0.25, delay: 0, options: [.curveEaseIn], animations: {
+        // 이전 버전의 퇴장 애니메이션으로 롤백
+        UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseIn], animations: {
             cardView.alpha = 0
-            cardView.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
+            cardView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
         }, completion: { _ in
             cardView.removeFromSuperview()
             
@@ -537,7 +553,7 @@ class MapViewController: UIViewController {
         case "12": return "관광지"
         case "32": return "숙박"
         case "39": return "음식점"
-        case "15": return "축제/공연/행사"
+        case "15": return "축제/행사"  // 변경: 축제/공연/행사 → 축제/행사
         default: return "기타"
         }
     }
@@ -580,34 +596,44 @@ extension MapViewController: MKMapViewDelegate {
             return nil
         }
         
-        // 기존 마커 처리 코드
+        // 마커 처리 코드 개선
         let identifier = "PlaceMarker"
         var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
         
         if annotationView == nil {
-            annotationView = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            let markerView = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            markerView.canShowCallout = false
+            annotationView = markerView
         } else {
             annotationView?.annotation = annotation
         }
         
         if let markerView = annotationView as? MKMarkerAnnotationView {
-            // 카테고리별 마커 스타일 설정
+            // 카테고리별 마커 스타일 설정 - 더 명확하고 세련되게
             switch selectedContentTypeId {
             case "12": // 관광지
-                markerView.markerTintColor = .systemBlue
+                markerView.markerTintColor = UIColor(red: 0.2, green: 0.6, blue: 1.0, alpha: 1.0)
                 markerView.glyphImage = UIImage(systemName: "mountain.2")
+                markerView.glyphTintColor = .white
             case "32": // 숙박시설
-                markerView.markerTintColor = .systemPurple
+                markerView.markerTintColor = UIColor(red: 0.7, green: 0.3, blue: 1.0, alpha: 1.0)
                 markerView.glyphImage = UIImage(systemName: "bed.double")
+                markerView.glyphTintColor = .white
             case "39": // 음식점
-                markerView.markerTintColor = .systemRed
+                markerView.markerTintColor = UIColor(red: 1.0, green: 0.3, blue: 0.3, alpha: 1.0)
                 markerView.glyphImage = UIImage(systemName: "fork.knife")
-            case "15": // 축제/공연/행사
-                markerView.markerTintColor = .systemGreen
+                markerView.glyphTintColor = .white
+            case "15": // 축제/행사
+                markerView.markerTintColor = UIColor(red: 0.3, green: 0.8, blue: 0.4, alpha: 1.0)
                 markerView.glyphImage = UIImage(systemName: "music.note")
+                markerView.glyphTintColor = .white
             default:
-                markerView.markerTintColor = .systemOrange
+                markerView.markerTintColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0)
+                markerView.glyphTintColor = .white
             }
+            
+            // 마커 효과 추가
+            markerView.animatesWhenAdded = true
         }
         
         return annotationView
