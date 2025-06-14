@@ -12,6 +12,7 @@ class MapViewController: UIViewController {
     
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var categorySegmentedControl: UISegmentedControl!
+    @IBOutlet weak var locationLabel: UILabel!
     
     // 현재 선택된 카테고리
     private var selectedContentTypeId: String = "12" // 기본값: 관광지
@@ -40,6 +41,9 @@ class MapViewController: UIViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleMapTap(_:)))
         tapGesture.numberOfTapsRequired = 1
         mapView.addGestureRecognizer(tapGesture)
+        
+        // 위치 레이블 업데이트
+        updateLocationLabel()
     }
     
     // 현재 위치로 이동하는 버튼 추가
@@ -96,8 +100,18 @@ class MapViewController: UIViewController {
         categorySegmentedControl.layer.shadowRadius = 3
     }
     
+    private func updateLocationLabel() {
+        if let locationName = HomeViewController.sharedLocationName {
+            locationLabel.text = "📍 현재 위치: \(locationName)"
+        } else {
+            locationLabel.text = "📍 현재 위치를 확인하는 중..."
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        updateLocationLabel()
         
         // 홈 화면에서 저장된 위치 정보 활용
         if let location = HomeViewController.sharedLocation {
@@ -138,7 +152,8 @@ class MapViewController: UIViewController {
         let lon = location.coordinate.longitude
         
         let serviceKey = "JaFInBZVqUQWbu41s8hN/sSLKXH57dqeTBSPpDSUrodv85m5BZqXrVl6xT15V5SsFMvHaz3a2VbyWRIDJlhIyQ=="
-        let urlStr = "https://apis.data.go.kr/B551011/KorService2/locationBasedList2?serviceKey=\(serviceKey)&mapX=\(lon)&mapY=\(lat)&radius=10000&MobileOS=IOS&MobileApp=NolJaGo&_type=json&arrange=E&contentTypeId=\(selectedContentTypeId)"
+        // numOfRows=100 추가로 더 많은 장소 표시
+        let urlStr = "https://apis.data.go.kr/B551011/KorService2/locationBasedList2?serviceKey=\(serviceKey)&mapX=\(lon)&mapY=\(lat)&radius=10000&MobileOS=IOS&MobileApp=NolJaGo&_type=json&arrange=E&contentTypeId=\(selectedContentTypeId)&numOfRows=30"
         
         guard let url = URL(string: urlStr.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!) else { return }
         
@@ -163,6 +178,7 @@ class MapViewController: UIViewController {
             }
             
             self.courses = wrapper.response.body.items.item
+            print("맵에서 로드된 장소 수: \(self.courses.count)") // 디버깅용
             DispatchQueue.main.async {
                 self.updateMapAnnotations()
             }
