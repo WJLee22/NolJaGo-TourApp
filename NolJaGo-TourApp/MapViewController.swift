@@ -371,7 +371,7 @@ class MapViewController: UIViewController {
         
         // 길찾기 버튼
         let directionButton = UIButton()
-        directionButton.setTitle("🗺️ 길찾기", for: .normal)
+        directionButton.setTitle("🔎 길찾기", for: .normal)
         directionButton.setTitleColor(UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0), for: .normal)
         directionButton.backgroundColor = UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 0.1)
         directionButton.layer.cornerRadius = 20
