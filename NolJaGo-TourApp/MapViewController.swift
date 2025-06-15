@@ -193,7 +193,7 @@ class MapViewController: UIViewController {
     
     // MARK: - 지도 터치 처리 (이전 코드 방식)
     @objc func handleMapTap(_ gestureRecognizer: UITapGestureRecognizer) {
-        let tapPoint = gestureRecognizer.location(in: mapView)
+        //let tapPoint = gestureRecognizer.location(in: mapView)
         
         // 기존 정보 카드 즉시 제거
         if let existingCard = infoCardView {
