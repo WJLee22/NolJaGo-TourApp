@@ -319,13 +319,50 @@ extension HomeViewController: CLLocationManagerDelegate {
 
         CLGeocoder().reverseGeocodeLocation(loc) { placemarks, error in
             if let pm = placemarks?.first {
-                let locality = pm.locality ?? ""
-                let sub = pm.subLocality ?? ""
-                let locationName = "\(locality) \(sub)".trimmingCharacters(in: .whitespaces)
-                HomeViewController.sharedLocationName = locationName
+                // 단순한 전체 주소 구성 (중복 제거)
+                var addressComponents: [String] = []
+                
+                // 시/도 (예: 서울특별시)
+                if let administrativeArea = pm.administrativeArea, !administrativeArea.isEmpty {
+                    addressComponents.append(administrativeArea)
+                }
+                
+                // 구/군 (예: 성북구)
+                if let subAdministrativeArea = pm.subAdministrativeArea, !subAdministrativeArea.isEmpty {
+                    addressComponents.append(subAdministrativeArea)
+                }
+                
+                // 동/읍/면 (예: 삼선동2가) - thoroughfare와 중복 체크
+                var localityAdded = false
+                if let subLocality = pm.subLocality, !subLocality.isEmpty {
+                    addressComponents.append(subLocality)
+                    localityAdded = true
+                }
+                
+                // 번지/도로명 (예: 298-2) - subLocality와 중복되지 않는 경우만 추가
+                if let thoroughfare = pm.thoroughfare, !thoroughfare.isEmpty {
+                    // thoroughfare가 이미 추가된 subLocality와 다른 경우에만 추가
+                    if !localityAdded || thoroughfare != pm.subLocality {
+                        if let subThoroughfare = pm.subThoroughfare, !subThoroughfare.isEmpty {
+                            addressComponents.append("\(thoroughfare) \(subThoroughfare)")
+                        } else {
+                            addressComponents.append(thoroughfare)
+                        }
+                    } else if let subThoroughfare = pm.subThoroughfare, !subThoroughfare.isEmpty {
+                        // thoroughfare는 중복이지만 subThoroughfare(번지)만 추가
+                        addressComponents.append(subThoroughfare)
+                    }
+                } else if let subThoroughfare = pm.subThoroughfare, !subThoroughfare.isEmpty {
+                    addressComponents.append(subThoroughfare)
+                }
+                
+                // 최종 주소
+                let finalAddress = addressComponents.isEmpty ? "위치 확인 중..." : addressComponents.joined(separator: " ")
+                
+                HomeViewController.sharedLocationName = finalAddress
                 
                 DispatchQueue.main.async {
-                    self.locationLabel.text = "📍 현재 위치: \(locationName)"
+                    self.locationLabel.text = "📍 현재 위치: \(finalAddress)"
                 }
             }
         }
@@ -334,14 +371,61 @@ extension HomeViewController: CLLocationManagerDelegate {
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        //print("위치 가져오기 실패: \(error.localizedDescription)")
+        print("위치 가져오기 실패: \(error.localizedDescription)")
 
         // 한성대 상상빌리지 fallback
         let fallbackLat = 37.582573
         let fallbackLon = 127.011159
+        
+        // fallback 위치에 대해서도 역지오코딩 시도
+        let fallbackLocation = CLLocation(latitude: fallbackLat, longitude: fallbackLon)
+        CLGeocoder().reverseGeocodeLocation(fallbackLocation) { placemarks, error in
+            var fallbackAddress = "서울특별시 성북구 삼선동2가"
+            
+            if let pm = placemarks?.first {
+                var addressComponents: [String] = []
+                
+                if let administrativeArea = pm.administrativeArea, !administrativeArea.isEmpty {
+                    addressComponents.append(administrativeArea)
+                }
+                
+                if let subAdministrativeArea = pm.subAdministrativeArea, !subAdministrativeArea.isEmpty {
+                    addressComponents.append(subAdministrativeArea)
+                }
+                
+                var localityAdded = false
+                if let subLocality = pm.subLocality, !subLocality.isEmpty {
+                    addressComponents.append(subLocality)
+                    localityAdded = true
+                }
+                
+                if let thoroughfare = pm.thoroughfare, !thoroughfare.isEmpty {
+                    if !localityAdded || thoroughfare != pm.subLocality {
+                        if let subThoroughfare = pm.subThoroughfare, !subThoroughfare.isEmpty {
+                            addressComponents.append("\(thoroughfare) \(subThoroughfare)")
+                        } else {
+                            addressComponents.append(thoroughfare)
+                        }
+                    } else if let subThoroughfare = pm.subThoroughfare, !subThoroughfare.isEmpty {
+                        addressComponents.append(subThoroughfare)
+                    }
+                } else if let subThoroughfare = pm.subThoroughfare, !subThoroughfare.isEmpty {
+                    addressComponents.append(subThoroughfare)
+                }
+                
+                if !addressComponents.isEmpty {
+                    fallbackAddress = addressComponents.joined(separator: " ")
+                }
+            }
+            
+            HomeViewController.sharedLocationName = fallbackAddress
+            DispatchQueue.main.async {
+                self.locationLabel.text = "📍 현재 위치: \(fallbackAddress)"
+            }
+        }
 
         DispatchQueue.main.async {
-            self.locationLabel.text = "📍 현재 위치: 서울특별시 삼선동2가"
+            self.locationLabel.text = "📍 현재 위치: 위치 확인 중..."
             self.loadCourses(longitude: fallbackLon, latitude: fallbackLat)
         }
     }

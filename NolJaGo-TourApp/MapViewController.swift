@@ -149,7 +149,20 @@ class MapViewController: UIViewController {
         if let locationName = HomeViewController.sharedLocationName {
             // 애니메이션과 함께 텍스트 업데이트
             UIView.transition(with: locationLabel, duration: 0.3, options: .transitionCrossDissolve) {
-                self.locationLabel.text = "📍 \(locationName)"
+                // 위치명이 너무 길면 줄바꿈 처리
+                if locationName.count > 25 {
+                    let components = locationName.components(separatedBy: ", ")
+                    if components.count > 1 {
+                        let firstLine = components[0]
+                        let remainingComponents = Array(components.dropFirst())
+                        let secondLine = remainingComponents.joined(separator: ", ")
+                        self.locationLabel.text = "📍 \(firstLine)\n\(secondLine)"
+                    } else {
+                        self.locationLabel.text = "📍 \(locationName)"
+                    }
+                } else {
+                    self.locationLabel.text = "📍 \(locationName)"
+                }
             }
             
             // 펄스 애니메이션 효과
@@ -192,6 +205,7 @@ class MapViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        // 위치 정보가 업데이트되었을 수 있으므로 다시 확인
         updateLocationLabel()
         
         // 홈 화면에서 저장된 위치 정보 활용
@@ -204,6 +218,51 @@ class MapViewController: UIViewController {
             let fallbackLon = 127.011159
             let coordinate = CLLocationCoordinate2D(latitude: fallbackLat, longitude: fallbackLon)
             moveToLocation(location: coordinate)
+            
+            // fallback 위치에 대한 간단한 주소 정보 가져오기 (중복 제거)
+            let fallbackLocation = CLLocation(latitude: fallbackLat, longitude: fallbackLon)
+            CLGeocoder().reverseGeocodeLocation(fallbackLocation) { placemarks, error in
+                if let pm = placemarks?.first {
+                    var addressComponents: [String] = []
+                    
+                    if let administrativeArea = pm.administrativeArea, !administrativeArea.isEmpty {
+                        addressComponents.append(administrativeArea)
+                    }
+                    
+                    if let subAdministrativeArea = pm.subAdministrativeArea, !subAdministrativeArea.isEmpty {
+                        addressComponents.append(subAdministrativeArea)
+                    }
+                    
+                    var localityAdded = false
+                    if let subLocality = pm.subLocality, !subLocality.isEmpty {
+                        addressComponents.append(subLocality)
+                        localityAdded = true
+                    }
+                    
+                    if let thoroughfare = pm.thoroughfare, !thoroughfare.isEmpty {
+                        if !localityAdded || thoroughfare != pm.subLocality {
+                            if let subThoroughfare = pm.subThoroughfare, !subThoroughfare.isEmpty {
+                                addressComponents.append("\(thoroughfare) \(subThoroughfare)")
+                            } else {
+                                addressComponents.append(thoroughfare)
+                            }
+                        } else if let subThoroughfare = pm.subThoroughfare, !subThoroughfare.isEmpty {
+                            addressComponents.append(subThoroughfare)
+                        }
+                    } else if let subThoroughfare = pm.subThoroughfare, !subThoroughfare.isEmpty {
+                        addressComponents.append(subThoroughfare)
+                    }
+                    
+                    if !addressComponents.isEmpty {
+                        let fallbackAddress = addressComponents.joined(separator: " ")
+                        HomeViewController.sharedLocationName = fallbackAddress
+                        
+                        DispatchQueue.main.async {
+                            self.updateLocationLabel()
+                        }
+                    }
+                }
+            }
         }
     }
     
