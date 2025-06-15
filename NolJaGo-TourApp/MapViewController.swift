@@ -42,8 +42,9 @@ class MapViewController: UIViewController {
         tapGesture.numberOfTapsRequired = 1
         mapView.addGestureRecognizer(tapGesture)
         
-        // 위치 레이블 업데이트
+        // 위치 레이블 업데이트 및 스타일 설정
         updateLocationLabel()
+        setupLocationLabelStyle()
     }
     
     // 현재 위치로 이동하는 버튼 추가
@@ -98,14 +99,94 @@ class MapViewController: UIViewController {
         categorySegmentedControl.layer.shadowOffset = CGSize(width: 0, height: 1)
         categorySegmentedControl.layer.shadowOpacity = 0.1
         categorySegmentedControl.layer.shadowRadius = 3
+        categorySegmentedControl.layer.cornerRadius = 15
+    }
+    
+    private func setupLocationLabelStyle() {
+        // 위치 레이블 컨테이너 뷰 스타일링
+        if let containerView = locationLabel.superview {
+            // 그라디언트 배경 생성
+            let gradientLayer = CAGradientLayer()
+            gradientLayer.frame = containerView.bounds
+            gradientLayer.colors = [
+                UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0).cgColor,
+                UIColor(red: 1.0, green: 0.7, blue: 0.3, alpha: 1.0).cgColor
+            ]
+            gradientLayer.startPoint = CGPoint(x: 0, y: 0)
+            gradientLayer.endPoint = CGPoint(x: 1, y: 0)
+            gradientLayer.cornerRadius = 25
+            
+            // 기존 배경색 제거하고 그라디언트 추가
+            containerView.backgroundColor = UIColor.clear
+            containerView.layer.insertSublayer(gradientLayer, at: 0)
+            
+            // 컨테이너 뷰 스타일링
+            containerView.layer.cornerRadius = 25
+            containerView.layer.shadowColor = UIColor.black.cgColor
+            containerView.layer.shadowOffset = CGSize(width: 0, height: 3)
+            containerView.layer.shadowOpacity = 0.2
+            containerView.layer.shadowRadius = 5
+            
+            // 테두리 효과
+            containerView.layer.borderWidth = 1
+            containerView.layer.borderColor = UIColor.white.withAlphaComponent(0.3).cgColor
+        }
+        
+        // 위치 레이블 텍스트 스타일링
+        locationLabel.textColor = .white
+        locationLabel.font = UIFont.systemFont(ofSize: 16, weight: .bold)
+        locationLabel.textAlignment = .center
+        locationLabel.numberOfLines = 2
+        
+        // 텍스트 그림자 효과
+        locationLabel.layer.shadowColor = UIColor.black.cgColor
+        locationLabel.layer.shadowOffset = CGSize(width: 0, height: 1)
+        locationLabel.layer.shadowOpacity = 0.3
+        locationLabel.layer.shadowRadius = 2
     }
     
     private func updateLocationLabel() {
         if let locationName = HomeViewController.sharedLocationName {
-            locationLabel.text = "📍 현재 위치: \(locationName)"
+            // 애니메이션과 함께 텍스트 업데이트
+            UIView.transition(with: locationLabel, duration: 0.3, options: .transitionCrossDissolve) {
+                self.locationLabel.text = "📍 \(locationName)"
+            }
+            
+            // 펄스 애니메이션 효과
+            addPulseAnimation()
         } else {
             locationLabel.text = "📍 현재 위치를 확인하는 중..."
+            
+            // 로딩 애니메이션
+            addLoadingAnimation()
         }
+    }
+    
+    private func addPulseAnimation() {
+        guard let containerView = locationLabel.superview else { return }
+        
+        let pulseAnimation = CABasicAnimation(keyPath: "transform.scale")
+        pulseAnimation.duration = 1.5
+        pulseAnimation.fromValue = 1.0
+        pulseAnimation.toValue = 1.05
+        pulseAnimation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        pulseAnimation.autoreverses = true
+        pulseAnimation.repeatCount = 2
+        
+        containerView.layer.add(pulseAnimation, forKey: "pulse")
+    }
+    
+    private func addLoadingAnimation() {
+        guard let containerView = locationLabel.superview else { return }
+        
+        let shimmerAnimation = CABasicAnimation(keyPath: "opacity")
+        shimmerAnimation.duration = 1.0
+        shimmerAnimation.fromValue = 0.7
+        shimmerAnimation.toValue = 1.0
+        shimmerAnimation.autoreverses = true
+        shimmerAnimation.repeatCount = .infinity
+        
+        containerView.layer.add(shimmerAnimation, forKey: "loading")
     }
     
     override func viewWillAppear(_ animated: Bool) {
