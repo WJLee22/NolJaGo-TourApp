@@ -9,7 +9,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Map View Controller-->
+        <!--맵 화면-->
         <scene sceneID="736-Du-dR5">
             <objects>
                 <viewController id="cKh-xl-DJX" customClass="MapViewController" customModule="NolJaGo_TourApp" sceneMemberID="viewController">
@@ -25,8 +25,8 @@
                                 <rect key="frame" x="15" y="59" width="363" height="50"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="📍 현재 위치를 확인하는 중..." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8hK-gL-dCf">
-                                        <rect key="frame" x="10" y="8" width="343" height="34"/>
-                                        <fontDescription key="fontDescription" type="system" weight="bold" pointSize="16"/>
+                                        <rect key="frame" x="10" y="15.333333333333327" width="343" height="19.333333333333329"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="16"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
@@ -67,6 +67,7 @@
                             <constraint firstItem="2rL-fH-8pd" firstAttribute="top" secondItem="xPh-bk-CEe" secondAttribute="top" id="zXE-MJ-g4X"/>
                         </constraints>
                     </view>
+                    <tabBarItem key="tabBarItem" title="맵 화면" image="map.fill" catalog="system" id="S0Z-tN-MDm"/>
                     <navigationItem key="navigationItem" id="O72-cV-5rq"/>
                     <connections>
                         <outlet property="categorySegmentedControl" destination="ngp-2f-bWp" id="lK0-cJ-8c1"/>
@@ -76,7 +77,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8UZ-Zy-JN4" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="286" y="-575"/>
+            <point key="canvasLocation" x="-556" y="-558"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="SAS-3B-sAK">
@@ -89,7 +90,7 @@
                     </tabBar>
                     <connections>
                         <segue destination="5dT-yV-vpk" kind="relationship" relationship="viewControllers" id="ENv-Yz-pT2"/>
-                        <segue destination="6b3-X1-o48" kind="relationship" relationship="viewControllers" id="4Fx-iY-SI7"/>
+                        <segue destination="cKh-xl-DJX" kind="relationship" relationship="viewControllers" id="7q8-dk-0lJ"/>
                         <segue destination="VVe-l3-69z" kind="relationship" relationship="viewControllers" id="SPt-gY-wYB"/>
                     </connections>
                 </tabBarController>
@@ -155,25 +156,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="UBI-Id-Phn" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-556" y="-1263"/>
-        </scene>
-        <!--맵 화면-->
-        <scene sceneID="AXT-kb-cFv">
-            <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="6b3-X1-o48" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="맵 화면" image="map.fill" catalog="system" id="n4q-cO-456"/>
-                    <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="F3b-SJ-I8F">
-                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
-                    <connections>
-                        <segue destination="cKh-xl-DJX" kind="relationship" relationship="rootViewController" id="g3e-sv-cKv"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="aQH-8F-MF9" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-556" y="-575"/>
         </scene>
         <!--Saved Places View Controller-->
         <scene sceneID="p4U-FP-Axg">
