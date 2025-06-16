@@ -85,7 +85,7 @@ class HomeViewController: UIViewController {
         appLogoImageView.layer.cornerRadius = 15
         appLogoImageView.clipsToBounds = true
         
-        appTitleLabel.text = "NolJaGo"
+        appTitleLabel.text = "No Plans? NolJaGo!"
         appTitleLabel.font = UIFont(name: "AvenirNext-DemiBold", size: 24) ?? UIFont.boldSystemFont(ofSize: 24)
         appTitleLabel.textColor = UITheme.primaryOrange
         
