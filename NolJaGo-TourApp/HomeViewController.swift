@@ -319,23 +319,34 @@ class HomeViewController: UIViewController {
             courseImage.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
         }
         
-        // DetailIntro 정보 업데이트
-        if let detailIntro = course.detailIntro {
-            courseDistance.text = "🚶 거리: \(detailIntro.distance)"
-            courseTaketime.text = "⏱ 소요시간: \(detailIntro.taketime)"
-            
-            // 테마 필터링 (일부 API 응답에서는 "----지자체-----" 같은 형태로 옴)
-            let theme = detailIntro.theme
-            if theme.contains("----") || theme.isEmpty {
-                courseTheme.text = "   여행 코스   "
-            } else {
-                courseTheme.text = "   \(theme)   "
-            }
-        } else {
-            courseDistance.text = "🚶 거리: 정보 없음"
-            courseTaketime.text = "⏱ 소요시간: 정보 없음"
-            courseTheme.text = "   여행 코스   "
+    // DetailIntro 정보 업데이트 부분 수정
+    if let detailIntro = course.detailIntro {
+        courseDistance.text = "🚶 코스 길이: \(detailIntro.distance)"
+        courseTaketime.text = "⏱ 소요시간: \(detailIntro.taketime)"
+    
+        // cat2 코드로 코스 유형 결정
+        let courseType = getCourseTypeText(cat2: course.cat2)
+        courseTheme.text = "   \(courseType)   "
+    } else {
+        courseDistance.text = "🚶 거리: 정보 없음"
+        courseTaketime.text = "⏱ 소요시간: 정보 없음"
+        courseTheme.text = "   추천코스   "
+    }
+
+    // 코스 유형 변환 함수 추가
+    func getCourseTypeText(cat2: String?) -> String {
+        guard let cat2 = cat2 else { return "추천코스" }
+    
+        switch cat2 {
+        case "C0112": return "가족코스"
+        case "C0113": return "나홀로코스"
+        case "C0114": return "힐링코스"
+        case "C0115": return "도보코스"
+        case "C0116": return "캠핑코스" 
+        case "C0117": return "맛코스"
+        default: return "추천코스"
         }
+    }
         
         // 주소 및 기타 정보로 설명 레이블 업데이트
         var addressInfo = ""

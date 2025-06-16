@@ -13,13 +13,14 @@ struct Course: Decodable {
     let dist: String?
     let tel: String?
     let cat3: String?
+    let cat2: String?  // 코스 유형 분류 코드 추가
     
     // 추가 상세 정보 (API 호출 후 추가될 정보)
     var detailIntro: CourseDetailIntro?
     var subPlaces: [CourseSubPlace]?
     
     enum CodingKeys: String, CodingKey {
-        case contentid, title, firstimage, firstimage2, addr1, addr2, mapx, mapy, dist, tel, cat3
+        case contentid, title, firstimage, firstimage2, addr1, addr2, mapx, mapy, dist, tel, cat3, cat2
     }
 }
 
@@ -60,87 +61,124 @@ struct CourseSubPlace {
 }
 
 // XML 파싱 유틸리티 클래스
+// XML 파싱 유틸리티 클래스 전면 개선
 class XMLParserHelper: NSObject, XMLParserDelegate {
+    // DetailIntro 파싱용 변수
+    private var introResult = [String: String]()
     private var currentElement = ""
     private var currentValue = ""
-    private var result: [String: String] = [:]
+    private var isInIntroItem = false
     
+    // DetailInfo 파싱용 변수
+    private var subPlaces = [CourseSubPlace]()
+    private var currentSubPlace = [String: String]()
+    private var isInInfoItem = false
+    private var parsingMode = ""  // 현재 파싱 모드 구분 (intro 또는 info)
+    
+    // MARK: - DetailIntro 파싱 (거리, 소요시간 등)
     func parseDetailIntro(data: Data) -> CourseDetailIntro? {
+        parsingMode = "intro"
         let parser = XMLParser(data: data)
         parser.delegate = self
-        result = [:]
+        
+        // 초기화
+        introResult.removeAll()
+        isInIntroItem = false
+        currentElement = ""
+        currentValue = ""
         
         if parser.parse() {
+            //print("DetailIntro 파싱 결과: \(introResult)")
+            
             return CourseDetailIntro(
-                distance: result["distance"] ?? "정보 없음",
-                taketime: result["taketime"] ?? "정보 없음",
-                schedule: result["schedule"] ?? "정보 없음",
-                theme: result["theme"] ?? "정보 없음"
+                distance: introResult["distance"] ?? "정보 없음",
+                taketime: introResult["taketime"] ?? "정보 없음",
+                schedule: introResult["schedule"] ?? "정보 없음",
+                theme: introResult["theme"] ?? "정보 없음"
             )
         }
         return nil
     }
     
-    private var subPlaces: [CourseSubPlace] = []
-    private var currentSubPlace: [String: String] = [:]
-    private var isInItem = false
-    
+    // MARK: - DetailInfo 파싱 (코스 내부 장소들)
     func parseDetailInfo(data: Data) -> [CourseSubPlace] {
+        parsingMode = "info"
         let parser = XMLParser(data: data)
         parser.delegate = self
-        subPlaces = []
-        currentSubPlace = [:]
-        isInItem = false
+        
+        // 초기화
+        subPlaces.removeAll()
+        currentSubPlace.removeAll()
+        isInInfoItem = false
+        currentElement = ""
+        currentValue = ""
         
         if parser.parse() {
+            //print("DetailInfo 파싱 결과: \(subPlaces.count)개 장소 파싱됨")
             return subPlaces
         }
         return []
     }
     
-    // MARK: - XMLParserDelegate
+    // MARK: - XMLParserDelegate 메서드
     
     func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String: String] = [:]) {
         currentElement = elementName
         
         if elementName == "item" {
-            isInItem = true
-            currentSubPlace = [:]
-        } else if isInItem {
+            if parsingMode == "intro" {
+                isInIntroItem = true
+            } else if parsingMode == "info" {
+                isInInfoItem = true
+                currentSubPlace = [:]  // 새 아이템 시작시 초기화
+            }
+            currentValue = ""
+        } else if (isInIntroItem || isInInfoItem) && !currentElement.isEmpty {
             currentValue = ""
         }
     }
     
     func parser(_ parser: XMLParser, foundCharacters string: String) {
-        if isInItem && !currentElement.isEmpty {
+        if (isInIntroItem || isInInfoItem) && !currentElement.isEmpty {
             currentValue += string
         }
     }
     
     func parser(_ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?) {
         if elementName == "item" {
-            isInItem = false
-            
-            // detailInfo일 경우 subPlace 추가
-            if currentSubPlace["subname"] != nil {
-                let subPlace = CourseSubPlace(
-                    subnum: Int(currentSubPlace["subnum"] ?? "0") ?? 0,
-                    subname: currentSubPlace["subname"] ?? "",
-                    subdetailoverview: currentSubPlace["subdetailoverview"] ?? "",
-                    subdetailimg: currentSubPlace["subdetailimg"],
-                    subdetailalt: currentSubPlace["subdetailalt"]
-                )
-                subPlaces.append(subPlace)
+            // 아이템 종료 처리
+            if parsingMode == "intro" {
+                isInIntroItem = false
+            } else if parsingMode == "info" {
+                isInInfoItem = false
+                
+                // subPlace 객체 생성 및 추가
+                if let subnumStr = currentSubPlace["subnum"], 
+                   let subnum = Int(subnumStr),
+                   let subname = currentSubPlace["subname"] {
+                    
+                    let subPlace = CourseSubPlace(
+                        subnum: subnum,
+                        subname: subname,
+                        subdetailoverview: currentSubPlace["subdetailoverview"] ?? "",
+                        subdetailimg: currentSubPlace["subdetailimg"],
+                        subdetailalt: currentSubPlace["subdetailalt"]
+                    )
+                    subPlaces.append(subPlace)
+                    print("장소 추가: \(subname)")
+                }
             }
-        } else if isInItem {
+        } else if isInIntroItem && parsingMode == "intro" {
+            // DetailIntro 파싱 중 요소 값 저장
+            let trimmedValue = currentValue.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmedValue.isEmpty {
+                introResult[elementName] = trimmedValue
+            }
+        } else if isInInfoItem && parsingMode == "info" {
+            // DetailInfo 파싱 중 요소 값 저장
             let trimmedValue = currentValue.trimmingCharacters(in: .whitespacesAndNewlines)
             if !trimmedValue.isEmpty {
                 currentSubPlace[elementName] = trimmedValue
-            }
-        } else {
-            let trimmedValue = currentValue.trimmingCharacters(in: .whitespacesAndNewlines)
-            if !trimmedValue.isEmpty {
-                result[elementName] = trimmedValue
             }
         }
         
