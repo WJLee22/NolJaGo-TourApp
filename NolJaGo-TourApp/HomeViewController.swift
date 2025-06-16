@@ -74,10 +74,10 @@ class HomeViewController: UIViewController {
         UITheme.applyShadow(to: headerView, opacity: 0.1, radius: 4, offset: CGSize(width: 0, height: 2))
         
         // 로고 이미지 명시적 설정 (Asset 카탈로그 확인)
-        if let logoImage = UIImage(named: "appLogo") {
+        if let logoImage = UIImage(named: "AppLogo") { // 대소문자 수정
             appLogoImageView.image = logoImage
         } else {
-            print("Warning: appLogo image not found in asset catalog")
+            print("Warning: AppLogo image not found in asset catalog")
             appLogoImageView.backgroundColor = UITheme.lightOrange
         }
         
@@ -114,10 +114,10 @@ class HomeViewController: UIViewController {
         placesCollectionView.dataSource = self
         placesCollectionView.delegate = self
         
-        // 레이아웃 설정
+        // 레이아웃 설정 - 셀 높이 축소
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
-        layout.itemSize = CGSize(width: 180, height: 240)
+        layout.itemSize = CGSize(width: 150, height: 160) // 셀 크기 축소
         layout.minimumLineSpacing = 15
         layout.sectionInset = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15)
         placesCollectionView.collectionViewLayout = layout
@@ -152,10 +152,11 @@ class HomeViewController: UIViewController {
         courseInfoView.clipsToBounds = true
         courseInfoView.backgroundColor = .white
         
-        // 레이블 스타일링
+        // 레이블 스타일링 - 타이틀을 1줄로 제한
         courseTitle.font = UITheme.titleFont
         courseTitle.textColor = UITheme.textGray
-        courseTitle.numberOfLines = 2
+        courseTitle.numberOfLines = 1 // 1줄로 제한
+        courseTitle.lineBreakMode = .byTruncatingTail // 넘치는 텍스트는 ... 처리
         
         courseDistance.font = UITheme.captionFont
         courseDistance.textColor = UITheme.primaryOrange
@@ -724,7 +725,7 @@ class CourseSubPlaceCell: UICollectionViewCell {
     private let imageView = UIImageView()
     private let nameLabel = UILabel()
     private let numberLabel = UILabel()
-    private let descriptionLabel = UILabel()
+    // 설명 레이블 제거
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -769,14 +770,7 @@ class CourseSubPlaceCell: UICollectionViewCell {
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         containerView.addSubview(nameLabel)
         
-        // 설명 라벨 설정
-        descriptionLabel.font = UIFont.systemFont(ofSize: 12)
-        descriptionLabel.textColor = UITheme.secondaryTextGray
-        descriptionLabel.numberOfLines = 2
-        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
-        containerView.addSubview(descriptionLabel)
-        
-        // 레이아웃 설정
+        // 간소화된 레이아웃 설정
         NSLayoutConstraint.activate([
             containerView.topAnchor.constraint(equalTo: contentView.topAnchor),
             containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -786,7 +780,7 @@ class CourseSubPlaceCell: UICollectionViewCell {
             imageView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
             imageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10),
             imageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10),
-            imageView.heightAnchor.constraint(equalToConstant: 140),
+            imageView.heightAnchor.constraint(equalToConstant: 100), // 이미지 높이 축소
             
             numberLabel.topAnchor.constraint(equalTo: imageView.topAnchor, constant: 5),
             numberLabel.leadingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: 5),
@@ -796,11 +790,7 @@ class CourseSubPlaceCell: UICollectionViewCell {
             nameLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 8),
             nameLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10),
             nameLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10),
-            
-            descriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
-            descriptionLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10),
-            descriptionLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10),
-            descriptionLabel.bottomAnchor.constraint(lessThanOrEqualTo: containerView.bottomAnchor, constant: -10)
+            nameLabel.bottomAnchor.constraint(lessThanOrEqualTo: containerView.bottomAnchor, constant: -10)
         ])
     }
     
@@ -809,22 +799,11 @@ class CourseSubPlaceCell: UICollectionViewCell {
         imageView.image = nil
         nameLabel.text = nil
         numberLabel.text = nil
-        descriptionLabel.text = nil
     }
     
     func configure(with subPlace: CourseSubPlace) {
         nameLabel.text = subPlace.subname
         numberLabel.text = "\(subPlace.subnum + 1)"
-        
-        // 설명 텍스트 처리 - 길이 제한
-        let maxLength = 50
-        let overview = subPlace.subdetailoverview
-        if overview.count > maxLength {
-            let index = overview.index(overview.startIndex, offsetBy: maxLength)
-            descriptionLabel.text = overview[..<index] + "..."
-        } else {
-            descriptionLabel.text = overview
-        }
         
         // 이미지 로드
         if let imageUrl = subPlace.subdetailimg, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
