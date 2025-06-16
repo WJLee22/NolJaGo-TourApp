@@ -13,10 +13,21 @@ class HomeViewController: UIViewController {
     @IBOutlet weak var cityPickerView: UIPickerView!
     @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var locationLabel: UILabel!
+    @IBOutlet weak var placesCollectionView: UICollectionView!
+    @IBOutlet weak var courseInfoView: UIView!
+    @IBOutlet weak var courseTitle: UILabel!
+    @IBOutlet weak var courseImage: UIImageView!
+    @IBOutlet weak var courseDistance: UILabel!
+    @IBOutlet weak var courseTaketime: UILabel!
+    @IBOutlet weak var courseTheme: UILabel!
+    @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var courseInfoContainer: UIView!
     
     // courses array populated from TourAPI
     var courses: [Course] = []
     private let locationManager = CLLocationManager()
+    private let xmlParser = XMLParserHelper()
+    private var selectedCourseIndex = 0
     
     // 현재 위치 정보를 앱 전역에서 공유할 수 있게 싱글톤 사용
     static var sharedLocation: CLLocation?
@@ -25,12 +36,17 @@ class HomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupCollectionView()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        checkLocationAuthorization()
+        
+        // 초기 상태에서는 코스 정보 숨기기
+        courseInfoContainer.isHidden = true
         
         cityPickerView.dataSource = self
         cityPickerView.delegate = self
+        
+        checkLocationAuthorization()
         
         // 위치를 못 찾을 경우 5초 후 타임아웃으로 기본값 표시
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
@@ -38,10 +54,29 @@ class HomeViewController: UIViewController {
                 // 📍 한성대 상상빌리지 fallback
                 let fallbackLat = 37.582573
                 let fallbackLon = 127.011159
-                self?.locationLabel.text = "📍 현재 위치: 서울특별시 삼선동2가"
+                self?.locationLabel.text = "📍 현재 위치: 서울특별시 성북구 삼선동2가"
                 self?.loadCourses(longitude: fallbackLon, latitude: fallbackLat)
             }
         }
+    }
+    
+    private func setupCollectionView() {
+        // 컬렉션뷰 등록 및 설정
+        placesCollectionView.register(CourseSubPlaceCell.self, forCellWithReuseIdentifier: "CourseSubPlaceCell")
+        placesCollectionView.dataSource = self
+        placesCollectionView.delegate = self
+        
+        // 레이아웃 설정
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.itemSize = CGSize(width: 180, height: 220)
+        layout.minimumLineSpacing = 15
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15)
+        placesCollectionView.collectionViewLayout = layout
+        
+        // 디자인 설정
+        placesCollectionView.backgroundColor = .clear
+        placesCollectionView.showsHorizontalScrollIndicator = false
     }
     
     private func setupUI() {
@@ -49,10 +84,44 @@ class HomeViewController: UIViewController {
         cityPickerView.layer.cornerRadius = 15
         cityPickerView.backgroundColor = UIColor(red: 1.0, green: 0.95, blue: 0.9, alpha: 1.0)
         
+        // 상세 정보 컨테이너 스타일링
+        courseInfoContainer.layer.cornerRadius = 20
+        courseInfoContainer.clipsToBounds = true
+        UITheme.applyShadow(to: courseInfoContainer, opacity: 0.2, radius: 8)
+        
+        // 코스 정보 뷰 스타일링
+        courseInfoView.layer.cornerRadius = 15
+        courseInfoView.clipsToBounds = true
+        
+        // 코스 이미지 스타일링
+        courseImage.layer.cornerRadius = 10
+        courseImage.clipsToBounds = true
+        courseImage.contentMode = .scaleAspectFill
+        
+        // 레이블 스타일링
+        courseTitle.font = UITheme.titleFont
+        courseTitle.textColor = UITheme.textGray
+        
+        courseDistance.font = UITheme.captionFont
+        courseDistance.textColor = UITheme.primaryOrange
+        
+        courseTaketime.font = UITheme.captionFont
+        courseTaketime.textColor = UITheme.primaryOrange
+        
+        courseTheme.font = UITheme.captionFont
+        courseTheme.textColor = UITheme.secondaryTextGray
+        courseTheme.backgroundColor = UITheme.lightOrange
+        courseTheme.layer.cornerRadius = 8
+        courseTheme.clipsToBounds = true
+        courseTheme.textAlignment = .center
+        
+        // 컬렉션뷰 스타일링
+        placesCollectionView.backgroundColor = UITheme.backgroundGray
+        
         // 설명 레이블 스타일 설정
         descriptionLabel.layer.cornerRadius = 15
         descriptionLabel.clipsToBounds = true
-        descriptionLabel.backgroundColor = UIColor(red: 1.0, green: 0.85, blue: 0.7, alpha: 1.0)
+        descriptionLabel.backgroundColor = UIColor(red: 0.95, green: 0.95, blue: 0.97, alpha: 1.0)
         descriptionLabel.textColor = .darkGray
         descriptionLabel.font = UIFont.systemFont(ofSize: 16)
         descriptionLabel.textAlignment = .center
@@ -60,6 +129,10 @@ class HomeViewController: UIViewController {
         // 위치 레이블 스타일 설정
         locationLabel.font = UIFont.boldSystemFont(ofSize: 17)
         locationLabel.textColor = UIColor(red: 0.9, green: 0.5, blue: 0.1, alpha: 1.0)
+        
+        // 로딩 인디케이터 설정
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.color = UITheme.primaryOrange
     }
 
     private func checkLocationAuthorization() {
@@ -71,7 +144,7 @@ class HomeViewController: UIViewController {
         case .denied, .restricted:
             let fallbackLat = 37.582573
             let fallbackLon = 127.011159
-            self.locationLabel.text = "📍 현재 위치: 서울특별시 삼선동2가"
+            self.locationLabel.text = "📍 현재 위치: 서울특별시 성북구 삼선동2가"
             self.loadCourses(longitude: fallbackLon, latitude: fallbackLat)
         @unknown default:
             break
@@ -82,160 +155,213 @@ class HomeViewController: UIViewController {
     func loadCourses(longitude lon: Double, latitude lat: Double) {
         HomeViewController.sharedLocation = CLLocation(latitude: lat, longitude: lon)
         
-        let serviceKey = "JaFInBZVqUQWbu41s8hN/sSLKXH57dqeTBSPpDSUrodv85m5BZqXrVl6xT15V5SsFMvHaz3a2VbyWRIDJlhIyQ=="
-        let urlStr = "https://apis.data.go.kr/B551011/KorService2/locationBasedList2?serviceKey=\(serviceKey)&mapX=\(lon)&mapY=\(lat)&radius=10000&MobileOS=IOS&MobileApp=NolJaGo&_type=json&arrange=E&contentTypeId=25"
-        guard let url = URL(string: urlStr.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!) else { return }
+        loadingIndicator.startAnimating()
+        courseInfoContainer.isHidden = true
         
-        // 로딩 표시
-        let activityIndicator = UIActivityIndicatorView(style: .large)
-        activityIndicator.center = self.view.center
-        activityIndicator.color = .orange
-        self.view.addSubview(activityIndicator)
-        activityIndicator.startAnimating()
+        let serviceKey = "JaFInBZVqUQWbu41s8hN/sSLKXH57dqeTBSPpDSUrodv85m5BZqXrVl6xT15V5SsFMvHaz3a2VbyWRIDJlhIyQ=="
+        let urlStr = "https://apis.data.go.kr/B551011/KorService2/locationBasedList2?serviceKey=\(serviceKey)&mapX=\(lon)&mapY=\(lat)&radius=10000&MobileOS=IOS&MobileApp=NolJaGo&_type=json&arrange=E&contentTypeId=25&numOfRows=20"
+        guard let url = URL(string: urlStr.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!) else { return }
         
         URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
             guard let self = self else { return }
             
-            DispatchQueue.main.async {
-                activityIndicator.stopAnimating()
-                activityIndicator.removeFromSuperview()
-            }
-            
             guard let data = data, error == nil,
                   let wrapper = try? JSONDecoder().decode(TourResponse.self, from: data) else {
                 DispatchQueue.main.async {
+                    self.loadingIndicator.stopAnimating()
                     self.descriptionLabel.text = "데이터를 불러오는데 실패했습니다. 다시 시도해주세요."
                 }
                 return
             }
+            
+            // 먼저 데이터를 안전하게 저장
             self.courses = wrapper.response.body.items.item
+            
             DispatchQueue.main.async {
                 self.cityPickerView.reloadAllComponents()
+                
                 if self.courses.isEmpty {
+                    self.loadingIndicator.stopAnimating()
                     self.descriptionLabel.text = "해당 위치에 추천 코스가 없습니다. 다른 위치에서 시도해보세요."
+                    self.courseInfoContainer.isHidden = true
                 } else {
+                    self.selectedCourseIndex = 0
                     self.cityPickerView.selectRow(0, inComponent: 0, animated: false)
-                    self.updateDetail(for: 0)
+                    self.loadCourseDetails(for: 0)
                 }
             }
         }.resume()
     }
     
-    // MARK: - Update Detail Box
-    func updateDetail(for index: Int) {
-        guard index >= 0, index < courses.count else {
+    // MARK: - Load Course Details
+    private func loadCourseDetails(for index: Int) {
+        // 안전 체크
+        guard !courses.isEmpty, 
+              index >= 0, 
+              index < courses.count, 
+              let contentId = courses[index].contentid else {
+            DispatchQueue.main.async {
+                self.loadingIndicator.stopAnimating()
+                self.courseInfoContainer.isHidden = true
+                self.descriptionLabel.text = "코스 정보를 불러올 수 없습니다."
+            }
+            return
+        }
+        
+        let group = DispatchGroup()
+        
+        // 1. Load DetailIntro (코스 소요시간, 거리 정보)
+        group.enter()
+        loadDetailIntro(contentId: contentId) { [weak self] detailIntro in
+            defer { group.leave() }
+            guard let self = self, !self.courses.isEmpty, index < self.courses.count else { return }
+            
+            DispatchQueue.main.async {
+                self.courses[index].detailIntro = detailIntro
+            }
+        }
+        
+        // 2. Load DetailInfo (코스 내부 장소들 정보)
+        group.enter()
+        loadDetailInfo(contentId: contentId) { [weak self] subPlaces in
+            defer { group.leave() }
+            guard let self = self, !self.courses.isEmpty, index < self.courses.count else { return }
+            
+            DispatchQueue.main.async {
+                self.courses[index].subPlaces = subPlaces
+            }
+        }
+        
+        // 모든 API 호출이 완료되면 UI 업데이트
+        group.notify(queue: .main) { [weak self] in
+            guard let self = self, !self.courses.isEmpty, index < self.courses.count else { 
+                self?.loadingIndicator.stopAnimating()
+                self?.courseInfoContainer.isHidden = true
+                return 
+            }
+            
+            self.updateDetailUI(for: index)
+            self.loadingIndicator.stopAnimating()
+            self.courseInfoContainer.isHidden = false
+            
+            // 컬렉션뷰 리로드
+            self.placesCollectionView.reloadData()
+        }
+    }
+    
+    private func loadDetailIntro(contentId: String, completion: @escaping (CourseDetailIntro?) -> Void) {
+        let serviceKey = "JaFInBZVqUQWbu41s8hN/sSLKXH57dqeTBSPpDSUrodv85m5BZqXrVl6xT15V5SsFMvHaz3a2VbyWRIDJlhIyQ=="
+        let urlStr = "https://apis.data.go.kr/B551011/KorService2/detailIntro2?serviceKey=\(serviceKey)&contentId=\(contentId)&contentTypeId=25&MobileOS=IOS&MobileApp=NolJaGo&_type=xml"
+        
+        guard let url = URL(string: urlStr.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!) else {
+            completion(nil)
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
+            guard let self = self, let data = data, error == nil else {
+                completion(nil)
+                return
+            }
+            
+            let detailIntro = self.xmlParser.parseDetailIntro(data: data)
+            completion(detailIntro)
+        }.resume()
+    }
+    
+    private func loadDetailInfo(contentId: String, completion: @escaping ([CourseSubPlace]) -> Void) {
+        let serviceKey = "JaFInBZVqUQWbu41s8hN/sSLKXH57dqeTBSPpDSUrodv85m5BZqXrVl6xT15V5SsFMvHaz3a2VbyWRIDJlhIyQ=="
+        let urlStr = "https://apis.data.go.kr/B551011/KorService2/detailInfo2?serviceKey=\(serviceKey)&contentId=\(contentId)&contentTypeId=25&MobileOS=IOS&MobileApp=NolJaGo&_type=xml"
+        
+        guard let url = URL(string: urlStr.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!) else {
+            completion([])
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
+            guard let self = self, let data = data, error == nil else {
+                completion([])
+                return
+            }
+            
+            let subPlaces = self.xmlParser.parseDetailInfo(data: data)
+            completion(subPlaces)
+        }.resume()
+    }
+    
+    // MARK: - Update Detail UI
+    private func updateDetailUI(for index: Int) {
+        // 안전 체크
+        guard !courses.isEmpty, index >= 0, index < courses.count else {
             descriptionLabel.text = "코스 정보가 없습니다."
+            courseInfoContainer.isHidden = true
             return
         }
         
         let course = courses[index]
         
-        // HTML 포맷을 사용하여 풍부한 정보 표시
-        let htmlContent = """
-        <html>
-        <head>
-            <style>
-                body {
-                    font-family: -apple-system, 'SF Pro Display';
-                    margin: 0;
-                    padding: 10px;
-                    color: #333;
-                }
-                .title {
-                    font-size: 18px;
-                    font-weight: bold;
-                    color: #333;
-                    margin-bottom: 10px;
-                }
-                .info {
-                    font-size: 14px;
-                    margin: 5px 0;
-                    color: #555;
-                }
-                .highlight {
-                    color: #F60;
-                    font-weight: bold;
-                }
-                .address {
-                    margin-top: 5px;
-                    font-size: 14px;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="title">📍 \(course.title)</div>
-        """
+        // 코스 기본 정보 업데이트
+        courseTitle.text = course.title
         
-        // 주소 정보 추가
-        var contentHtml = htmlContent
-        if let addr = course.addr1, !addr.isEmpty {
-            contentHtml += "<div class='address'>주소: \(addr)</div>"
+        // 이미지 설정
+        if let urlStr = course.firstimage, !urlStr.isEmpty, let url = URL(string: urlStr) {
+            courseImage.image = UIImage(named: "placeholder") ?? UIImage(systemName: "photo")
+            
+            URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
+                if let d = data, let img = UIImage(data: d) {
+                    DispatchQueue.main.async {
+                        self?.courseImage.image = img
+                    }
+                }
+            }.resume()
+        } else {
+            courseImage.image = UIImage(named: "placeholder") ?? UIImage(systemName: "photo")
+            courseImage.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
         }
         
-        if let addr2 = course.addr2, !addr2.isEmpty {
-            contentHtml += "<div class='address'>\(addr2)</div>"
-        }
-        
-        // 거리 정보 추가
-        if let dist = course.dist {
-            if let distInt = Int(dist) {
-                let distanceText = distInt > 1000 ? 
-                    String(format: "%.1f km", Double(distInt) / 1000.0) : 
-                    "\(dist) m"
-                contentHtml += "<div class='info'>현재 위치로부터 거리: <span class='highlight'>\(distanceText)</span></div>"
+        // DetailIntro 정보 업데이트
+        if let detailIntro = course.detailIntro {
+            courseDistance.text = "🚶 거리: \(detailIntro.distance)"
+            courseTaketime.text = "⏱ 소요시간: \(detailIntro.taketime)"
+            
+            // 테마 필터링 (일부 API 응답에서는 "----지자체-----" 같은 형태로 옴)
+            let theme = detailIntro.theme
+            if theme.contains("----") || theme.isEmpty {
+                courseTheme.text = "   여행 코스   "
             } else {
-                contentHtml += "<div class='info'>거리: \(dist)</div>"
+                courseTheme.text = "   \(theme)   "
+            }
+        } else {
+            courseDistance.text = "🚶 거리: 정보 없음"
+            courseTaketime.text = "⏱ 소요시간: 정보 없음"
+            courseTheme.text = "   여행 코스   "
+        }
+        
+        // 주소 및 기타 정보로 설명 레이블 업데이트
+        var addressInfo = ""
+        if let addr1 = course.addr1, !addr1.isEmpty {
+            addressInfo += "📍 주소: \(addr1)"
+            
+            if let addr2 = course.addr2, !addr2.isEmpty {
+                addressInfo += " \(addr2)"
             }
         }
         
-        // 전화번호 정보 추가 (있을 경우)
         if let tel = course.tel, !tel.isEmpty {
-            contentHtml += "<div class='info'>연락처: \(tel)</div>"
+            addressInfo += "\n☎️ 연락처: \(tel)"
         }
         
-        // 카테고리 정보 표시 (있을 경우)
-        if let cat3 = course.cat3 {
-            let categoryName = getCategoryName(for: cat3)
-            contentHtml += "<div class='info'>카테고리: <span class='highlight'>\(categoryName)</span></div>"
-        }
+        // 서브 플레이스 개수 정보 추가
+        let placeCount = course.subPlaces?.count ?? 0
+        let placeCountText = placeCount > 0 ? 
+            "\n🔍 이 코스에는 \(placeCount)개의 장소가 포함되어 있습니다." : 
+            "\n🔍 이 코스의 세부 장소 정보가 없습니다."
         
-        contentHtml += "</body></html>"
-        
-        // HTML 컨텐츠를 NSAttributedString으로 변환
-        if let htmlData = contentHtml.data(using: .utf8) {
-            do {
-                let attributedString = try NSAttributedString(
-                    data: htmlData,
-                    options: [.documentType: NSAttributedString.DocumentType.html,
-                              .characterEncoding: String.Encoding.utf8.rawValue],
-                    documentAttributes: nil
-                )
-                descriptionLabel.attributedText = attributedString
-            } catch {
-                print("HTML 변환 에러: \(error)")
-                // 실패 시 기본 텍스트로 표시
-                descriptionLabel.text = "📍 \(course.title)"
-            }
-        }
-    }
-    
-    // 카테고리 코드에 따른 이름 반환
-    private func getCategoryName(for categoryCode: String) -> String {
-        switch categoryCode {
-        case "C01110001": return "자연관광지"
-        case "C01120001": return "역사/문화 관광지"
-        case "C01130001": return "휴양/체험 관광지"
-        case "C01140001": return "산업 관광지"
-        case "C01150001": return "건축/조형물"
-        case "C01160001": return "문화시설"
-        case "C01170001": return "축제"
-        case "C01180001": return "공연/행사"
-        case "C01190001": return "레포츠"
-        default: return "기타 관광지"
-        }
+        descriptionLabel.text = addressInfo.isEmpty ? placeCountText : addressInfo + placeCountText
     }
 }
 
+// MARK: - UIPickerViewDataSource & UIPickerViewDelegate
 extension HomeViewController: UIPickerViewDataSource {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
@@ -246,19 +372,22 @@ extension HomeViewController: UIPickerViewDataSource {
     }
 }
 
-
 extension HomeViewController: UIPickerViewDelegate {
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
+        // 안전 체크
+        guard !courses.isEmpty, row < courses.count else {
+            let emptyView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.8, height: 200))
+            emptyView.backgroundColor = .clear
+            return emptyView
+        }
+        
         let containerView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.8, height: 200))
         
         // 카드 효과를 위한 배경 뷰
         let cardView = UIView(frame: CGRect(x: 20, y: 10, width: containerView.frame.width - 40, height: containerView.frame.height - 20))
         cardView.backgroundColor = .white
         cardView.layer.cornerRadius = 15
-        cardView.layer.shadowColor = UIColor.black.cgColor
-        cardView.layer.shadowOffset = CGSize(width: 0, height: 2)
-        cardView.layer.shadowOpacity = 0.2
-        cardView.layer.shadowRadius = 4
+        UITheme.applyShadow(to: cardView)
         
         // 이미지뷰
         let imageView = UIImageView(frame: CGRect(x: 10, y: 10, width: cardView.frame.width - 20, height: 130))
@@ -302,10 +431,63 @@ extension HomeViewController: UIPickerViewDelegate {
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        updateDetail(for: row)
+        // 안전 체크
+        guard !courses.isEmpty, row < courses.count else { return }
+        
+        selectedCourseIndex = row
+        loadingIndicator.startAnimating()
+        courseInfoContainer.isHidden = true
+        loadCourseDetails(for: row)
     }
 }
 
+// MARK: - UICollectionViewDataSource & UICollectionViewDelegate
+extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        // 안전 체크 - 중요!
+        guard !courses.isEmpty, selectedCourseIndex < courses.count else {
+            return 0
+        }
+        return courses[selectedCourseIndex].subPlaces?.count ?? 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CourseSubPlaceCell", for: indexPath) as! CourseSubPlaceCell
+        
+        // 안전 체크
+        guard !courses.isEmpty, 
+              selectedCourseIndex < courses.count,
+              let subPlaces = courses[selectedCourseIndex].subPlaces,
+              indexPath.item < subPlaces.count else {
+            return cell
+        }
+        
+        let subPlace = subPlaces[indexPath.item]
+        cell.configure(with: subPlace)
+        
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // 안전 체크
+        guard !courses.isEmpty,
+              selectedCourseIndex < courses.count,
+              let subPlaces = courses[selectedCourseIndex].subPlaces,
+              indexPath.item < subPlaces.count else {
+            return
+        }
+        
+        let subPlace = subPlaces[indexPath.item]
+        showSubPlaceDetail(subPlace)
+    }
+    
+    private func showSubPlaceDetail(_ subPlace: CourseSubPlace) {
+        // 장소 상세 정보를 보여주는 팝업 또는 알림 표시
+        let alert = UIAlertController(title: subPlace.subname, message: subPlace.subdetailoverview, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
+    }
+}
 
 // MARK: - CLLocationManagerDelegate
 extension HomeViewController: CLLocationManagerDelegate {
@@ -317,7 +499,9 @@ extension HomeViewController: CLLocationManagerDelegate {
         // 전역 위치 저장
         HomeViewController.sharedLocation = loc
 
-        CLGeocoder().reverseGeocodeLocation(loc) { placemarks, error in
+        CLGeocoder().reverseGeocodeLocation(loc) { [weak self] placemarks, error in
+            guard let self = self else { return }
+            
             if let pm = placemarks?.first {
                 // 단순한 전체 주소 구성 (중복 제거)
                 var addressComponents: [String] = []
@@ -379,7 +563,9 @@ extension HomeViewController: CLLocationManagerDelegate {
         
         // fallback 위치에 대해서도 역지오코딩 시도
         let fallbackLocation = CLLocation(latitude: fallbackLat, longitude: fallbackLon)
-        CLGeocoder().reverseGeocodeLocation(fallbackLocation) { placemarks, error in
+        CLGeocoder().reverseGeocodeLocation(fallbackLocation) { [weak self] placemarks, error in
+            guard let self = self else { return }
+            
             var fallbackAddress = "서울특별시 성북구 삼선동2가"
             
             if let pm = placemarks?.first {
@@ -424,7 +610,8 @@ extension HomeViewController: CLLocationManagerDelegate {
             }
         }
 
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
             self.locationLabel.text = "📍 현재 위치: 위치 확인 중..."
             self.loadCourses(longitude: fallbackLon, latitude: fallbackLat)
         }
@@ -435,40 +622,125 @@ extension HomeViewController: CLLocationManagerDelegate {
     }
 }
 
-// MARK: - Models for TourAPI
-struct TourResponse: Decodable {
-    let response: TourInnerResponse
-}
-
-struct TourInnerResponse: Decodable {
-    let body: TourBody
-}
-
-struct TourBody: Decodable {
-    let items: TourItems
-    let numOfRows: Int?
-    let pageNo: Int?
-    let totalCount: Int?
-}
-
-struct TourItems: Decodable {
-    let item: [Course]
-}
-
-struct Course: Decodable {
-    let contentid: String?
-    let title: String
-    let firstimage: String?
-    let firstimage2: String?
-    let addr1: String?
-    let addr2: String?
-    let mapx: String?
-    let mapy: String?
-    let dist: String?
-    let tel: String?
-    let cat3: String?
+// MARK: - CourseSubPlaceCell
+class CourseSubPlaceCell: UICollectionViewCell {
+    private let containerView = UIView()
+    private let imageView = UIImageView()
+    private let nameLabel = UILabel()
+    private let numberLabel = UILabel()
+    private let descriptionLabel = UILabel()
     
-    enum CodingKeys: String, CodingKey {
-        case contentid, title, firstimage, firstimage2, addr1, addr2, mapx, mapy, dist, tel, cat3
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupCell()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupCell()
+    }
+    
+    private func setupCell() {
+        // 컨테이너 뷰 설정
+        containerView.backgroundColor = .white
+        containerView.layer.cornerRadius = 12
+        UITheme.applyShadow(to: containerView)
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(containerView)
+        
+        // 이미지 뷰 설정
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 10
+        imageView.backgroundColor = UITheme.placeholderGray
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        containerView.addSubview(imageView)
+        
+        // 번호 라벨 설정
+        numberLabel.textAlignment = .center
+        numberLabel.textColor = .white
+        numberLabel.font = UIFont.boldSystemFont(ofSize: 12)
+        numberLabel.backgroundColor = UITheme.primaryOrange
+        numberLabel.layer.cornerRadius = 10
+        numberLabel.clipsToBounds = true
+        numberLabel.translatesAutoresizingMaskIntoConstraints = false
+        containerView.addSubview(numberLabel)
+        
+        // 이름 라벨 설정
+        nameLabel.font = UIFont.boldSystemFont(ofSize: 14)
+        nameLabel.textColor = UITheme.textGray
+        nameLabel.numberOfLines = 2
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        containerView.addSubview(nameLabel)
+        
+        // 설명 라벨 설정
+        descriptionLabel.font = UIFont.systemFont(ofSize: 12)
+        descriptionLabel.textColor = UITheme.secondaryTextGray
+        descriptionLabel.numberOfLines = 2
+        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
+        containerView.addSubview(descriptionLabel)
+        
+        // 레이아웃 설정
+        NSLayoutConstraint.activate([
+            containerView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            
+            imageView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
+            imageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10),
+            imageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10),
+            imageView.heightAnchor.constraint(equalToConstant: 120),
+            
+            numberLabel.topAnchor.constraint(equalTo: imageView.topAnchor, constant: 5),
+            numberLabel.leadingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: 5),
+            numberLabel.widthAnchor.constraint(equalToConstant: 20),
+            numberLabel.heightAnchor.constraint(equalToConstant: 20),
+            
+            nameLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 8),
+            nameLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10),
+            nameLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10),
+            
+            descriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
+            descriptionLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10),
+            descriptionLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10),
+            descriptionLabel.bottomAnchor.constraint(lessThanOrEqualTo: containerView.bottomAnchor, constant: -10)
+        ])
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        imageView.image = nil
+        nameLabel.text = nil
+        numberLabel.text = nil
+        descriptionLabel.text = nil
+    }
+    
+    func configure(with subPlace: CourseSubPlace) {
+        nameLabel.text = subPlace.subname
+        numberLabel.text = "\(subPlace.subnum + 1)"
+        
+        // 설명 텍스트 처리 - 길이 제한
+        let maxLength = 50
+        let overview = subPlace.subdetailoverview
+        if overview.count > maxLength {
+            let index = overview.index(overview.startIndex, offsetBy: maxLength)
+            descriptionLabel.text = overview[..<index] + "..."
+        } else {
+            descriptionLabel.text = overview
+        }
+        
+        // 이미지 로드
+        if let imageUrl = subPlace.subdetailimg, !imageUrl.isEmpty, let url = URL(string: imageUrl) {
+            URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
+                if let data = data, let image = UIImage(data: data) {
+                    DispatchQueue.main.async {
+                        self?.imageView.image = image
+                    }
+                }
+            }.resume()
+        } else {
+            imageView.image = UIImage(systemName: "photo")
+        }
     }
 }
