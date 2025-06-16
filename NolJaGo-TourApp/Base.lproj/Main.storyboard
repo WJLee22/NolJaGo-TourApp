@@ -161,11 +161,21 @@
                                 <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NaB-iG-mKF">
-                                <rect key="frame" x="20" y="191" width="353" height="220"/>
-                                <color key="backgroundColor" red="1" green="0.94999999999999996" blue="0.90000000000000002" alpha="0.69999999999999996" colorSpace="custom" customColorSpace="sRGB"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NaB-container">
+                                <rect key="frame" x="20" y="191" width="353" height="240"/>
+                                <subviews>
+                                    <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NaB-iG-mKF">
+                                        <rect key="frame" x="0.0" y="0.0" width="353" height="240"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </pickerView>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="0.90000000000000002" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="220" id="Qgc-bK-8O0"/>
+                                    <constraint firstAttribute="bottom" secondItem="NaB-iG-mKF" secondAttribute="bottom" id="1dE-ae-Haa"/>
+                                    <constraint firstItem="NaB-iG-mKF" firstAttribute="top" secondItem="NaB-container" secondAttribute="top" id="FrT-9b-gVl"/>
+                                    <constraint firstAttribute="trailing" secondItem="NaB-iG-mKF" secondAttribute="trailing" id="IzW-c4-nJv"/>
+                                    <constraint firstAttribute="height" constant="240" id="Qgc-bK-8O0"/>
+                                    <constraint firstItem="NaB-iG-mKF" firstAttribute="leading" secondItem="NaB-container" secondAttribute="leading" id="tUH-oc-xg5"/>
                                 </constraints>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
@@ -181,9 +191,9 @@
                                         <size key="value" width="0.0" height="2"/>
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
-                            </pickerView>
+                            </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fZl-YS-z1S" userLabel="Course Info Container">
-                                <rect key="frame" x="20" y="426" width="353" height="110"/>
+                                <rect key="frame" x="20" y="446" width="353" height="110"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fTD-BG-z1T" userLabel="Course Info View">
                                         <rect key="frame" x="0.0" y="0.0" width="353" height="110"/>
@@ -269,7 +279,7 @@
                                 </userDefinedRuntimeAttributes>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="k9X-y7-HoX" userLabel="Places Section Header View">
-                                <rect key="frame" x="20" y="551" width="353" height="40"/>
+                                <rect key="frame" x="20" y="571" width="353" height="40"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="🔍 코스 포함 장소" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vMJ-mR-NTA">
                                         <rect key="frame" x="15" y="10" width="323" height="20"/>
@@ -293,7 +303,7 @@
                                 </userDefinedRuntimeAttributes>
                             </view>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="dSR-4Q-hBg">
-                                <rect key="frame" x="0.0" y="601" width="393" height="168"/>
+                                <rect key="frame" x="0.0" y="616" width="393" height="153"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" relation="lessThanOrEqual" constant="240" id="wjB-e7-55P"/>
@@ -306,7 +316,7 @@
                                 </collectionViewFlowLayout>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="CourseSubPlaceCell" id="Nqf-xq-MZH" customClass="CourseSubPlaceCell" customModule="NolJaGo_TourApp" customModuleProvider="target">
-                                        <rect key="frame" x="15" y="4" width="150" height="160"/>
+                                        <rect key="frame" x="15" y="-3.6666666666666665" width="150" height="160"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="Pxb-S6-4l2">
                                             <rect key="frame" x="0.0" y="0.0" width="150" height="160"/>
@@ -317,7 +327,7 @@
                                 </cells>
                             </collectionView>
                             <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="Ejz-JG-xw1">
-                                <rect key="frame" x="178" y="462.66666666666669" width="37" height="37"/>
+                                <rect key="frame" x="178" y="482.66666666666669" width="37" height="37.000000000000057"/>
                                 <color key="color" red="1" green="0.59999999999999998" blue="0.20000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </activityIndicatorView>
                         </subviews>
@@ -332,7 +342,7 @@
                             <constraint firstItem="IBb-ry-Io8" firstAttribute="leading" secondItem="2bm-7C-iOP" secondAttribute="leading" constant="20" id="dVd-ac-Amd"/>
                             <constraint firstItem="2bm-7C-iOP" firstAttribute="trailing" secondItem="fZl-YS-z1S" secondAttribute="trailing" constant="20" id="dwL-jG-uUL"/>
                             <constraint firstItem="Hp1-3j-pMX" firstAttribute="leading" secondItem="2bm-7C-iOP" secondAttribute="leading" id="fVe-0j-s6k"/>
-                            <constraint firstItem="dSR-4Q-hBg" firstAttribute="top" secondItem="k9X-y7-HoX" secondAttribute="bottom" constant="10" id="ges-RJ-Qk9"/>
+                            <constraint firstItem="dSR-4Q-hBg" firstAttribute="top" secondItem="k9X-y7-HoX" secondAttribute="bottom" constant="5" id="ges-RJ-Qk9"/>
                             <constraint firstItem="Ejz-JG-xw1" firstAttribute="centerY" secondItem="fZl-YS-z1S" secondAttribute="centerY" id="j9I-d9-Qrc"/>
                             <constraint firstItem="k9X-y7-HoX" firstAttribute="top" secondItem="fZl-YS-z1S" secondAttribute="bottom" constant="15" id="jAf-QD-zrV"/>
                             <constraint firstItem="2bm-7C-iOP" firstAttribute="trailing" secondItem="Hp1-3j-pMX" secondAttribute="trailing" id="kfP-Rb-YHr"/>
