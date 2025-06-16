@@ -496,29 +496,21 @@ func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent co
     cardView.backgroundColor = .white
     cardView.layer.cornerRadius = 15
     
-    // 선택 여부에 따른 스타일 변경 (테두리 대신 그림자 차별화)
-    if pickerView.selectedRow(inComponent: 0) == row {
-        // 선택된 카드는 더 강한 그림자와 약간 확대
-        UITheme.applyShadow(to: cardView, opacity: 0.3, radius: 8, offset: CGSize(width: 0, height: 2))
-        
-        // 약간 위로 올라온 효과 (Y축 위치 조정)
-        cardView.frame.origin.y = 2
-    } else {
-        // 선택되지 않은 카드는 약한 그림자
-        UITheme.applyShadow(to: cardView, opacity: 0.15, radius: 4)
-    }
+    // 모든 카드에 동일한 기본 그림자만 적용 (특별한 강조 없음)
+    UITheme.applyShadow(to: cardView, opacity: 0.2, radius: 5)
     
     // 이미지뷰 설정
     let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: cardView.frame.width, height: 85))
-    imageView.contentMode = .scaleAspectFill
+    imageView.contentMode = .scaleAspectFit // 이미지 비율 유지
+    imageView.backgroundColor = UIColor(white: 0.95, alpha: 1.0)
     imageView.clipsToBounds = true
     imageView.layer.cornerRadius = 15
     imageView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
     
-    // 기본 이미지 설정
-    let defaultImage = UIImage(named: "placeholder") ?? UIImage(systemName: "photo.fill")
+    // 더 적합한 기본 이미지 설정
+    let defaultImage = UIImage(systemName: "photo.on.rectangle") ?? UIImage(systemName: "photo")
     imageView.image = defaultImage
-    imageView.backgroundColor = UIColor(white: 0.95, alpha: 1.0)
+    imageView.tintColor = UIColor.darkGray.withAlphaComponent(0.7)
     
     // 코스 유형 태그 추가
     let tagLabel = UILabel(frame: CGRect(x: 10, y: 10, width: 70, height: 22))
@@ -534,7 +526,7 @@ func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent co
     let titleLabel = UILabel(frame: CGRect(x: 5, y: imageView.frame.maxY, width: cardView.frame.width - 10, height: 25))
     titleLabel.text = courses[row].title
     titleLabel.textAlignment = .center
-    titleLabel.font = UIFont.boldSystemFont(ofSize: 11) 
+    titleLabel.font = UIFont.boldSystemFont(ofSize: 12) // 글자 크기 약간 키움
     titleLabel.textColor = .black
     titleLabel.numberOfLines = 1
     titleLabel.lineBreakMode = .byTruncatingTail
@@ -545,6 +537,7 @@ func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent co
             if let d = data, let img = UIImage(data: d) {
                 DispatchQueue.main.async {
                     imageView.image = img
+                    imageView.contentMode = .scaleAspectFill // 이미지 로드 후 채우기 모드로 변경
                 }
             }
         }.resume()
