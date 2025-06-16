@@ -9,12 +9,14 @@ struct UITheme {
     static let secondaryTextGray = UIColor(red: 0.4, green: 0.4, blue: 0.4, alpha: 1.0)
     static let placeholderGray = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0)
     
+    // 추가: 진한 텍스트 색상
+    static let primaryTextDark = UIColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0)
+    
     // MARK: - Category Colors
     static let tourismBlue = UIColor(red: 0.2, green: 0.6, blue: 1.0, alpha: 1.0)
     static let accommodationPurple = UIColor(red: 0.7, green: 0.3, blue: 1.0, alpha: 1.0)
     static let restaurantRed = UIColor(red: 1.0, green: 0.3, blue: 0.3, alpha: 1.0)
     static let festivalGreen = UIColor(red: 0.3, green: 0.8, blue: 0.4, alpha: 1.0)
-    
     // MARK: - Fonts
     static let titleFont = UIFont.boldSystemFont(ofSize: 20)
     static let subtitleFont = UIFont.systemFont(ofSize: 16, weight: .medium)

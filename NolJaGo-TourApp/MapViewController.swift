@@ -156,19 +156,19 @@ class MapViewController: UIViewController {
                         let firstLine = components[0]
                         let remainingComponents = Array(components.dropFirst())
                         let secondLine = remainingComponents.joined(separator: ", ")
-                        self.locationLabel.text = "📍 \(firstLine)\n\(secondLine)"
+                        self.locationLabel.text = "🌏 \(firstLine)\n\(secondLine)"
                     } else {
-                        self.locationLabel.text = "📍 \(locationName)"
+                        self.locationLabel.text = "🌏 \(locationName)"
                     }
                 } else {
-                    self.locationLabel.text = "📍 \(locationName)"
+                    self.locationLabel.text = "🌏 \(locationName)"
                 }
             }
             
             // 펄스 애니메이션 효과
             addPulseAnimation()
         } else {
-            locationLabel.text = "📍 현재 위치를 확인하는 중..."
+            locationLabel.text = "🌏 현재 위치를 확인하는 중..."
             
             // 로딩 애니메이션
             addLoadingAnimation()
@@ -466,7 +466,7 @@ class MapViewController: UIViewController {
         
         // 주소 레이블 - 더 명확한 아이콘과 스타일
         let addressIcon = UILabel(frame: CGRect(x: 165, y: 115, width: 20, height: 20))
-        addressIcon.text = "📍"
+        addressIcon.text = "🌏"
         addressIcon.font = UIFont.systemFont(ofSize: 14)
         cardView.addSubview(addressIcon)
         
