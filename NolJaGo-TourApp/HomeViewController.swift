@@ -11,7 +11,6 @@ import CoreLocation
 class HomeViewController: UIViewController {
     
     @IBOutlet weak var cityPickerView: UIPickerView!
-    @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var locationLabel: UILabel!
     @IBOutlet weak var placesCollectionView: UICollectionView!
     @IBOutlet weak var courseInfoView: UIView!
@@ -22,6 +21,14 @@ class HomeViewController: UIViewController {
     @IBOutlet weak var courseTheme: UILabel!
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
     @IBOutlet weak var courseInfoContainer: UIView!
+    
+    // 새로 추가된 아웃렛
+    @IBOutlet weak var headerView: UIView!
+    @IBOutlet weak var appLogoImageView: UIImageView!
+    @IBOutlet weak var appTitleLabel: UILabel!
+    @IBOutlet weak var nearbyCoursesTitleLabel: UILabel!
+    @IBOutlet weak var courseIncludedPlacesTitleLabel: UILabel!
+    @IBOutlet weak var placesSectionHeaderView: UIView!
     
     // courses array populated from TourAPI
     var courses: [Course] = []
@@ -35,6 +42,7 @@ class HomeViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupBranding()
         setupUI()
         setupCollectionView()
         locationManager.delegate = self
@@ -60,6 +68,27 @@ class HomeViewController: UIViewController {
         }
     }
     
+    private func setupBranding() {
+        // 상단 앱 로고 및 타이틀 설정
+        headerView.backgroundColor = UIColor.white
+        UITheme.applyShadow(to: headerView, opacity: 0.1, radius: 4, offset: CGSize(width: 0, height: 2))
+        
+        appLogoImageView.image = UIImage(named: "appLogo")
+        appLogoImageView.contentMode = .scaleAspectFit
+        appLogoImageView.layer.cornerRadius = 15
+        appLogoImageView.clipsToBounds = true
+        
+        appTitleLabel.text = "NolJaGo"
+        appTitleLabel.font = UIFont(name: "AvenirNext-DemiBold", size: 24) ?? UIFont.boldSystemFont(ofSize: 24)
+        appTitleLabel.textColor = UITheme.primaryOrange
+        
+        // 네비게이션 바 숨기기
+        navigationController?.setNavigationBarHidden(true, animated: false)
+        
+        // 배경색 설정
+        view.backgroundColor = UIColor(white: 0.98, alpha: 1.0)
+    }
+    
     private func setupCollectionView() {
         // 컬렉션뷰 등록 및 설정
         placesCollectionView.register(CourseSubPlaceCell.self, forCellWithReuseIdentifier: "CourseSubPlaceCell")
@@ -69,7 +98,7 @@ class HomeViewController: UIViewController {
         // 레이아웃 설정
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
-        layout.itemSize = CGSize(width: 180, height: 220)
+        layout.itemSize = CGSize(width: 180, height: 240)
         layout.minimumLineSpacing = 15
         layout.sectionInset = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15)
         placesCollectionView.collectionViewLayout = layout
@@ -77,12 +106,27 @@ class HomeViewController: UIViewController {
         // 디자인 설정
         placesCollectionView.backgroundColor = .clear
         placesCollectionView.showsHorizontalScrollIndicator = false
+        
+        // 섹션 헤더 스타일링
+        placesSectionHeaderView.backgroundColor = UIColor(white: 0.95, alpha: 1.0)
+        placesSectionHeaderView.layer.cornerRadius = 10
+        placesSectionHeaderView.clipsToBounds = true
+        
+        courseIncludedPlacesTitleLabel.text = "🔍 코스 포함 장소"
+        courseIncludedPlacesTitleLabel.font = UIFont.boldSystemFont(ofSize: 17)
+        courseIncludedPlacesTitleLabel.textColor = UITheme.primaryOrange
     }
     
     private func setupUI() {
+        // 주변 코스 섹션 제목 설정
+        nearbyCoursesTitleLabel.text = "📍 내 주변 추천 여행 코스"
+        nearbyCoursesTitleLabel.font = UIFont.boldSystemFont(ofSize: 18)
+        nearbyCoursesTitleLabel.textColor = UITheme.textGray
+        
         // 피커뷰 스타일 설정
         cityPickerView.layer.cornerRadius = 15
         cityPickerView.backgroundColor = UIColor(red: 1.0, green: 0.95, blue: 0.9, alpha: 1.0)
+        UITheme.applyShadow(to: cityPickerView, opacity: 0.1, radius: 5)
         
         // 상세 정보 컨테이너 스타일링
         courseInfoContainer.layer.cornerRadius = 20
@@ -92,6 +136,7 @@ class HomeViewController: UIViewController {
         // 코스 정보 뷰 스타일링
         courseInfoView.layer.cornerRadius = 15
         courseInfoView.clipsToBounds = true
+        courseInfoView.backgroundColor = .white
         
         // 코스 이미지 스타일링
         courseImage.layer.cornerRadius = 10
@@ -114,17 +159,6 @@ class HomeViewController: UIViewController {
         courseTheme.layer.cornerRadius = 8
         courseTheme.clipsToBounds = true
         courseTheme.textAlignment = .center
-        
-        // 컬렉션뷰 스타일링
-        placesCollectionView.backgroundColor = UITheme.backgroundGray
-        
-        // 설명 레이블 스타일 설정
-        descriptionLabel.layer.cornerRadius = 15
-        descriptionLabel.clipsToBounds = true
-        descriptionLabel.backgroundColor = UIColor(red: 0.95, green: 0.95, blue: 0.97, alpha: 1.0)
-        descriptionLabel.textColor = .darkGray
-        descriptionLabel.font = UIFont.systemFont(ofSize: 16)
-        descriptionLabel.textAlignment = .center
         
         // 위치 레이블 스타일 설정
         locationLabel.font = UIFont.boldSystemFont(ofSize: 17)
@@ -169,7 +203,7 @@ class HomeViewController: UIViewController {
                   let wrapper = try? JSONDecoder().decode(TourResponse.self, from: data) else {
                 DispatchQueue.main.async {
                     self.loadingIndicator.stopAnimating()
-                    self.descriptionLabel.text = "데이터를 불러오는데 실패했습니다. 다시 시도해주세요."
+                    self.showEmptyStateMessage("데이터를 불러오는데 실패했습니다. 다시 시도해주세요.")
                 }
                 return
             }
@@ -182,7 +216,7 @@ class HomeViewController: UIViewController {
                 
                 if self.courses.isEmpty {
                     self.loadingIndicator.stopAnimating()
-                    self.descriptionLabel.text = "해당 위치에 추천 코스가 없습니다. 다른 위치에서 시도해보세요."
+                    self.showEmptyStateMessage("해당 위치에 추천 코스가 없습니다. 다른 위치에서 시도해보세요.")
                     self.courseInfoContainer.isHidden = true
                 } else {
                     self.selectedCourseIndex = 0
@@ -191,6 +225,43 @@ class HomeViewController: UIViewController {
                 }
             }
         }.resume()
+    }
+    
+    private func showEmptyStateMessage(_ message: String) {
+        let emptyStateLabel = UILabel()
+        emptyStateLabel.text = message
+        emptyStateLabel.textAlignment = .center
+        emptyStateLabel.numberOfLines = 0
+        emptyStateLabel.font = UIFont.systemFont(ofSize: 16)
+        emptyStateLabel.textColor = UITheme.secondaryTextGray
+        emptyStateLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        let emptyStateView = UIView()
+        emptyStateView.backgroundColor = UIColor(white: 0.95, alpha: 1.0)
+        emptyStateView.layer.cornerRadius = 15
+        emptyStateView.tag = 100 // 태그로 식별
+        emptyStateView.translatesAutoresizingMaskIntoConstraints = false
+        
+        emptyStateView.addSubview(emptyStateLabel)
+        view.addSubview(emptyStateView)
+        
+        NSLayoutConstraint.activate([
+            emptyStateView.centerXAnchor.constraint(equalTo: courseInfoContainer.centerXAnchor),
+            emptyStateView.centerYAnchor.constraint(equalTo: courseInfoContainer.centerYAnchor),
+            emptyStateView.widthAnchor.constraint(equalTo: courseInfoContainer.widthAnchor),
+            emptyStateView.heightAnchor.constraint(equalTo: courseInfoContainer.heightAnchor),
+            
+            emptyStateLabel.centerXAnchor.constraint(equalTo: emptyStateView.centerXAnchor),
+            emptyStateLabel.centerYAnchor.constraint(equalTo: emptyStateView.centerYAnchor),
+            emptyStateLabel.leadingAnchor.constraint(equalTo: emptyStateView.leadingAnchor, constant: 20),
+            emptyStateLabel.trailingAnchor.constraint(equalTo: emptyStateView.trailingAnchor, constant: -20)
+        ])
+    }
+    
+    private func removeEmptyStateMessage() {
+        if let emptyStateView = view.viewWithTag(100) {
+            emptyStateView.removeFromSuperview()
+        }
     }
     
     // MARK: - Load Course Details
@@ -203,7 +274,7 @@ class HomeViewController: UIViewController {
             DispatchQueue.main.async {
                 self.loadingIndicator.stopAnimating()
                 self.courseInfoContainer.isHidden = true
-                self.descriptionLabel.text = "코스 정보를 불러올 수 없습니다."
+                self.showEmptyStateMessage("코스 정보를 불러올 수 없습니다.")
             }
             return
         }
@@ -240,13 +311,41 @@ class HomeViewController: UIViewController {
                 return 
             }
             
+            self.removeEmptyStateMessage()
             self.updateDetailUI(for: index)
             self.loadingIndicator.stopAnimating()
             self.courseInfoContainer.isHidden = false
             
+            // 장소 섹션 타이틀 업데이트
+            let placeCount = self.courses[index].subPlaces?.count ?? 0
+            self.courseIncludedPlacesTitleLabel.text = "🔍 코스 포함 장소 (\(placeCount)개)"
+            
+            // 컬렉션뷰가 비어있으면 안내 메시지 표시
+            if placeCount == 0 {
+                self.showEmptyPlacesMessage()
+            } else {
+                self.removeEmptyPlacesMessage()
+            }
+            
             // 컬렉션뷰 리로드
             self.placesCollectionView.reloadData()
         }
+    }
+    
+    private func showEmptyPlacesMessage() {
+        let emptyPlacesLabel = UILabel()
+        emptyPlacesLabel.text = "이 코스에는 등록된 장소가 없습니다."
+        emptyPlacesLabel.textAlignment = .center
+        emptyPlacesLabel.font = UIFont.systemFont(ofSize: 16)
+        emptyPlacesLabel.textColor = UITheme.secondaryTextGray
+        emptyPlacesLabel.translatesAutoresizingMaskIntoConstraints = false
+        emptyPlacesLabel.tag = 101 // 태그로 식별
+        
+        placesCollectionView.backgroundView = emptyPlacesLabel
+    }
+    
+    private func removeEmptyPlacesMessage() {
+        placesCollectionView.backgroundView = nil
     }
     
     private func loadDetailIntro(contentId: String, completion: @escaping (CourseDetailIntro?) -> Void) {
@@ -293,7 +392,7 @@ class HomeViewController: UIViewController {
     private func updateDetailUI(for index: Int) {
         // 안전 체크
         guard !courses.isEmpty, index >= 0, index < courses.count else {
-            descriptionLabel.text = "코스 정보가 없습니다."
+            showEmptyStateMessage("코스 정보가 없습니다.")
             courseInfoContainer.isHidden = true
             return
         }
@@ -319,24 +418,28 @@ class HomeViewController: UIViewController {
             courseImage.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
         }
         
-    // DetailIntro 정보 업데이트 부분 수정
-    if let detailIntro = course.detailIntro {
-        courseDistance.text = "🚶 코스 길이: \(detailIntro.distance)"
-        courseTaketime.text = "⏱ 소요시간: \(detailIntro.taketime)"
-    
-        // cat2 코드로 코스 유형 결정
-        let courseType = getCourseTypeText(cat2: course.cat2)
-        courseTheme.text = "   \(courseType)   "
-    } else {
-        courseDistance.text = "🚶 거리: 정보 없음"
-        courseTaketime.text = "⏱ 소요시간: 정보 없음"
-        courseTheme.text = "   추천코스   "
+        // DetailIntro 정보 업데이트
+        if let detailIntro = course.detailIntro {
+            courseDistance.text = "🚶 코스 길이: \(detailIntro.distance)"
+            courseTaketime.text = "⏱ 소요시간: \(detailIntro.taketime)"
+            
+            // cat2 코드로 코스 유형 결정
+            let courseType = getCourseTypeText(cat2: course.cat2)
+            courseTheme.text = "   \(courseType)   "
+            
+            // 디버그 정보 출력
+            print("Course cat2: \(course.cat2 ?? "없음")")
+        } else {
+            courseDistance.text = "🚶 거리: 정보 없음"
+            courseTaketime.text = "⏱ 소요시간: 정보 없음"
+            courseTheme.text = "   추천코스   "
+        }
     }
-
-    // 코스 유형 변환 함수 추가
-    func getCourseTypeText(cat2: String?) -> String {
-        guard let cat2 = cat2 else { return "추천코스" }
     
+    // 코스 유형 변환 함수
+    private func getCourseTypeText(cat2: String?) -> String {
+        guard let cat2 = cat2 else { return "추천코스" }
+        
         switch cat2 {
         case "C0112": return "가족코스"
         case "C0113": return "나홀로코스"
@@ -346,29 +449,6 @@ class HomeViewController: UIViewController {
         case "C0117": return "맛코스"
         default: return "추천코스"
         }
-    }
-        
-        // 주소 및 기타 정보로 설명 레이블 업데이트
-        var addressInfo = ""
-        if let addr1 = course.addr1, !addr1.isEmpty {
-            addressInfo += "📍 주소: \(addr1)"
-            
-            if let addr2 = course.addr2, !addr2.isEmpty {
-                addressInfo += " \(addr2)"
-            }
-        }
-        
-        if let tel = course.tel, !tel.isEmpty {
-            addressInfo += "\n☎️ 연락처: \(tel)"
-        }
-        
-        // 서브 플레이스 개수 정보 추가
-        let placeCount = course.subPlaces?.count ?? 0
-        let placeCountText = placeCount > 0 ? 
-            "\n🔍 이 코스에는 \(placeCount)개의 장소가 포함되어 있습니다." : 
-            "\n🔍 이 코스의 세부 장소 정보가 없습니다."
-        
-        descriptionLabel.text = addressInfo.isEmpty ? placeCountText : addressInfo + placeCountText
     }
 }
 
@@ -414,6 +494,16 @@ extension HomeViewController: UIPickerViewDelegate {
         nameLabel.numberOfLines = 2
         nameLabel.textColor = .darkText
         
+        // 코스 유형 태그 추가
+        let tagLabel = UILabel(frame: CGRect(x: 15, y: 15, width: 80, height: 24))
+        tagLabel.text = "  " + getCourseTypeText(cat2: courses[row].cat2) + "  "
+        tagLabel.backgroundColor = UITheme.lightOrange
+        tagLabel.textColor = UITheme.primaryOrange
+        tagLabel.font = UIFont.boldSystemFont(ofSize: 12)
+        tagLabel.textAlignment = .center
+        tagLabel.layer.cornerRadius = 12
+        tagLabel.clipsToBounds = true
+        
         // 이미지 로드
         if let urlStr = courses[row].firstimage, !urlStr.isEmpty, let url = URL(string: urlStr) {
             imageView.image = UIImage(named: "placeholder") ?? UIImage(systemName: "photo")
@@ -432,6 +522,7 @@ extension HomeViewController: UIPickerViewDelegate {
         
         cardView.addSubview(imageView)
         cardView.addSubview(nameLabel)
+        imageView.addSubview(tagLabel)
         containerView.addSubview(cardView)
         
         return containerView
@@ -701,7 +792,7 @@ class CourseSubPlaceCell: UICollectionViewCell {
             imageView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 10),
             imageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 10),
             imageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -10),
-            imageView.heightAnchor.constraint(equalToConstant: 120),
+            imageView.heightAnchor.constraint(equalToConstant: 140),
             
             numberLabel.topAnchor.constraint(equalTo: imageView.topAnchor, constant: 5),
             numberLabel.leadingAnchor.constraint(equalTo: imageView.leadingAnchor, constant: 5),
