@@ -96,19 +96,27 @@ class HomeViewController: UIViewController {
         view.backgroundColor = UIColor(white: 0.98, alpha: 1.0)
     }
     
- private func setupPickerView() {
+private func setupPickerView() {
     // 피커뷰 자체는 완전히 투명하게 설정
     cityPickerView.backgroundColor = .clear
     
-    // 피커뷰의 모든 서브뷰를 투명하게 처리하여 기본 iOS 스타일 유지
-    for subview in cityPickerView.subviews {
-        subview.backgroundColor = .clear
+    // 피커뷰가 여러 항목을 보여줄 수 있도록 설정
+    cityPickerView.clipsToBounds = false
+    cityPickerView.layer.masksToBounds = false
+    
+    // 피커뷰 내부 스타일 변경 - 선택기 바퀴 숨기기
+    cityPickerView.subviews.forEach { view in
+        view.backgroundColor = .clear
+        if view.bounds.height <= 1 { // 구분선은 보이지 않게
+            view.isHidden = true
+        }
     }
     
-    // 피커뷰의 부모 컨테이너에 스타일 적용 (스토리보드에서 추가한 경우)
+    // 피커뷰 부모 컨테이너 스타일 변경
     if let containerView = cityPickerView.superview {
-        containerView.backgroundColor = UIColor.white.withAlphaComponent(0.9)
+        containerView.backgroundColor = UIColor.white.withAlphaComponent(0.7)
         containerView.layer.cornerRadius = 15
+        containerView.clipsToBounds = false
         UITheme.applyShadow(to: containerView, opacity: 0.15, radius: 8)
     }
 }
@@ -464,65 +472,66 @@ extension HomeViewController: UIPickerViewDataSource {
 }
 
 extension HomeViewController: UIPickerViewDelegate {
-    // 피커뷰 행 높이 증가 - 더 넓은 공간 확보
+       // 피커뷰 행 높이 설정 - 더 작게 만들어 이전/다음 항목이 보이게 함
     func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
-        return 220
+        return 140 // 기존 180에서 줄임
     }
     
-    // 커스텀 뷰에서 수정
+    // 커스텀 뷰 개선
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         // 안전 체크
         guard !courses.isEmpty, row < courses.count else {
-            let emptyView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.8, height: 200))
+            let emptyView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.8, height: 120))
             emptyView.backgroundColor = .clear
             return emptyView
         }
         
-        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.9, height: 200))
+        // 컨테이너 뷰 크기 축소
+        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.8, height: 120))
         containerView.backgroundColor = .clear
         
-        // 카드 효과를 위한 배경 뷰
-        let cardView = UIView(frame: CGRect(x: 10, y: 10, width: containerView.frame.width - 20, height: containerView.frame.height - 20))
+        // 카드 크기도 축소
+        let cardView = UIView(frame: CGRect(x: 10, y: 5, width: containerView.frame.width - 20, height: 110))
         cardView.backgroundColor = .white
         cardView.layer.cornerRadius = 15
         
-        // 선택된 행만 그림자 표시
+        // 선택된 행만 그림자 표시, 투명도 조정
         if pickerView.selectedRow(inComponent: 0) == row {
-            UITheme.applyShadow(to: cardView, opacity: 0.2, radius: 10)
+            UITheme.applyShadow(to: cardView, opacity: 0.3, radius: 10)
+            cardView.alpha = 1.0
         } else {
             cardView.layer.shadowOpacity = 0
-            // 선택되지 않은 행은 약간 투명하게
-            cardView.alpha = 0.7
+            cardView.alpha = 0.5 // 더 투명하게 설정
         }
         
-        // 이미지뷰
-        let imageView = UIImageView(frame: CGRect(x: 10, y: 10, width: cardView.frame.width - 20, height: 130))
+        // 이미지뷰 - 높이 크게 축소 (카드의 80%만 차지하도록)
+        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: cardView.frame.width, height: 85))
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 10
-        
-        // 제목 레이블
-        let nameLabel = UILabel(frame: CGRect(x: 10, y: imageView.frame.maxY + 5, width: cardView.frame.width - 20, height: 40))
-        nameLabel.text = courses[row].title
-        nameLabel.textAlignment = .center
-        nameLabel.font = UIFont.boldSystemFont(ofSize: 14)
-        nameLabel.numberOfLines = 2
-        nameLabel.textColor = .darkText
+        imageView.layer.cornerRadius = 15
+        imageView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner] // 상단만 둥글게
         
         // 코스 유형 태그 추가
-        let tagLabel = UILabel(frame: CGRect(x: 15, y: 15, width: 80, height: 24))
+        let tagLabel = UILabel(frame: CGRect(x: 10, y: 10, width: 70, height: 22))
         tagLabel.text = "  " + getCourseTypeText(cat2: courses[row].cat2) + "  "
         tagLabel.backgroundColor = UITheme.lightOrange
         tagLabel.textColor = UITheme.primaryOrange
-        tagLabel.font = UIFont.boldSystemFont(ofSize: 12)
+        tagLabel.font = UIFont.boldSystemFont(ofSize: 11)
         tagLabel.textAlignment = .center
-        tagLabel.layer.cornerRadius = 12
+        tagLabel.layer.cornerRadius = 11
         tagLabel.clipsToBounds = true
+        
+        // 간단한 제목 레이블
+        let titleLabel = UILabel(frame: CGRect(x: 5, y: imageView.frame.maxY, width: cardView.frame.width - 10, height: 25))
+        titleLabel.text = courses[row].title
+        titleLabel.textAlignment = .center
+        titleLabel.font = UIFont.systemFont(ofSize: 10)
+        titleLabel.textColor = .darkGray
+        titleLabel.numberOfLines = 1
+        titleLabel.lineBreakMode = .byTruncatingTail
         
         // 이미지 로드
         if let urlStr = courses[row].firstimage, !urlStr.isEmpty, let url = URL(string: urlStr) {
-            imageView.image = UIImage(named: "placeholder") ?? UIImage(systemName: "photo")
-            
             URLSession.shared.dataTask(with: url) { data, _, _ in
                 if let d = data, let img = UIImage(data: d) {
                     DispatchQueue.main.async {
@@ -531,12 +540,11 @@ extension HomeViewController: UIPickerViewDelegate {
                 }
             }.resume()
         } else {
-            imageView.image = UIImage(named: "placeholder") ?? UIImage(systemName: "photo")
             imageView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
         }
         
         cardView.addSubview(imageView)
-        cardView.addSubview(nameLabel)
+        cardView.addSubview(titleLabel)
         imageView.addSubview(tagLabel)
         containerView.addSubview(cardView)
         
