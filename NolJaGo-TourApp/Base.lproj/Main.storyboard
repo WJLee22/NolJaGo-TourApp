@@ -130,6 +130,7 @@
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
+                                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="HMa-qJ-hf4" secondAttribute="trailing" constant="20" symbolic="YES" id="Jfv-T5-kr0"/>
                                     <constraint firstItem="nt5-LS-Bx3" firstAttribute="centerY" secondItem="Hp1-3j-pMX" secondAttribute="centerY" id="Vxg-8X-9w7"/>
                                     <constraint firstItem="HMa-qJ-hf4" firstAttribute="leading" secondItem="nt5-LS-Bx3" secondAttribute="trailing" constant="10" id="dBE-5W-XOG"/>
                                     <constraint firstItem="nt5-LS-Bx3" firstAttribute="leading" secondItem="Hp1-3j-pMX" secondAttribute="leading" constant="20" id="hie-fz-dDn"/>
@@ -245,6 +246,7 @@
                                             <constraint firstAttribute="trailing" secondItem="NaA-Xw-i4T" secondAttribute="trailing" constant="15" id="fNe-M1-xM6"/>
                                             <constraint firstItem="hB2-fW-yPD" firstAttribute="top" secondItem="fTD-BG-z1T" secondAttribute="top" constant="15" id="kc2-Wf-sBL"/>
                                             <constraint firstAttribute="trailing" secondItem="yA2-r9-fje" secondAttribute="trailing" constant="15" id="mJH-4g-MXt"/>
+                                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="RAs-cE-j34" secondAttribute="trailing" constant="20" symbolic="YES" id="sJq-kC-zGR"/>
                                             <constraint firstItem="NaA-Xw-i4T" firstAttribute="leading" secondItem="bXU-Yt-tOy" secondAttribute="leading" id="yfj-EJ-axC"/>
                                         </constraints>
                                         <userDefinedRuntimeAttributes>
