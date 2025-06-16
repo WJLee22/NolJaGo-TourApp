@@ -15,7 +15,6 @@ class HomeViewController: UIViewController {
     @IBOutlet weak var placesCollectionView: UICollectionView!
     @IBOutlet weak var courseInfoView: UIView!
     @IBOutlet weak var courseTitle: UILabel!
-    @IBOutlet weak var courseImage: UIImageView!
     @IBOutlet weak var courseDistance: UILabel!
     @IBOutlet weak var courseTaketime: UILabel!
     @IBOutlet weak var courseTheme: UILabel!
@@ -45,6 +44,7 @@ class HomeViewController: UIViewController {
         setupBranding()
         setupUI()
         setupCollectionView()
+        setupPickerView()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         
@@ -73,7 +73,14 @@ class HomeViewController: UIViewController {
         headerView.backgroundColor = UIColor.white
         UITheme.applyShadow(to: headerView, opacity: 0.1, radius: 4, offset: CGSize(width: 0, height: 2))
         
-        appLogoImageView.image = UIImage(named: "appLogo")
+        // 로고 이미지 명시적 설정 (Asset 카탈로그 확인)
+        if let logoImage = UIImage(named: "appLogo") {
+            appLogoImageView.image = logoImage
+        } else {
+            print("Warning: appLogo image not found in asset catalog")
+            appLogoImageView.backgroundColor = UITheme.lightOrange
+        }
+        
         appLogoImageView.contentMode = .scaleAspectFit
         appLogoImageView.layer.cornerRadius = 15
         appLogoImageView.clipsToBounds = true
@@ -87,6 +94,18 @@ class HomeViewController: UIViewController {
         
         // 배경색 설정
         view.backgroundColor = UIColor(white: 0.98, alpha: 1.0)
+    }
+    
+    private func setupPickerView() {
+        // 피커뷰 배경을 투명하게 설정하여 이전/다음 항목이 보이도록 함
+        if let pickerSubview = cityPickerView.subviews.first {
+            pickerSubview.backgroundColor = .clear
+        }
+        
+        // 피커뷰 스타일 설정
+        cityPickerView.layer.cornerRadius = 15
+        cityPickerView.backgroundColor = UIColor(red: 1.0, green: 0.95, blue: 0.9, alpha: 0.7) // 배경 투명도 낮춤
+        UITheme.applyShadow(to: cityPickerView, opacity: 0.1, radius: 5)
     }
     
     private func setupCollectionView() {
@@ -123,12 +142,7 @@ class HomeViewController: UIViewController {
         nearbyCoursesTitleLabel.font = UIFont.boldSystemFont(ofSize: 18)
         nearbyCoursesTitleLabel.textColor = UITheme.textGray
         
-        // 피커뷰 스타일 설정
-        cityPickerView.layer.cornerRadius = 15
-        cityPickerView.backgroundColor = UIColor(red: 1.0, green: 0.95, blue: 0.9, alpha: 1.0)
-        UITheme.applyShadow(to: cityPickerView, opacity: 0.1, radius: 5)
-        
-        // 상세 정보 컨테이너 스타일링
+        // 상세 정보 컨테이너 스타일링 (이미지 제거로 높이 감소)
         courseInfoContainer.layer.cornerRadius = 20
         courseInfoContainer.clipsToBounds = true
         UITheme.applyShadow(to: courseInfoContainer, opacity: 0.2, radius: 8)
@@ -138,14 +152,10 @@ class HomeViewController: UIViewController {
         courseInfoView.clipsToBounds = true
         courseInfoView.backgroundColor = .white
         
-        // 코스 이미지 스타일링
-        courseImage.layer.cornerRadius = 10
-        courseImage.clipsToBounds = true
-        courseImage.contentMode = .scaleAspectFill
-        
         // 레이블 스타일링
         courseTitle.font = UITheme.titleFont
         courseTitle.textColor = UITheme.textGray
+        courseTitle.numberOfLines = 2
         
         courseDistance.font = UITheme.captionFont
         courseDistance.textColor = UITheme.primaryOrange
@@ -401,22 +411,6 @@ class HomeViewController: UIViewController {
         
         // 코스 기본 정보 업데이트
         courseTitle.text = course.title
-        
-        // 이미지 설정
-        if let urlStr = course.firstimage, !urlStr.isEmpty, let url = URL(string: urlStr) {
-            courseImage.image = UIImage(named: "placeholder") ?? UIImage(systemName: "photo")
-            
-            URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
-                if let d = data, let img = UIImage(data: d) {
-                    DispatchQueue.main.async {
-                        self?.courseImage.image = img
-                    }
-                }
-            }.resume()
-        } else {
-            courseImage.image = UIImage(named: "placeholder") ?? UIImage(systemName: "photo")
-            courseImage.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
-        }
         
         // DetailIntro 정보 업데이트
         if let detailIntro = course.detailIntro {
