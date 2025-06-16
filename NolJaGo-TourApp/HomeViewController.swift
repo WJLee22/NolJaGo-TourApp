@@ -97,10 +97,10 @@ class HomeViewController: UIViewController {
     }
     
 private func setupPickerView() {
-    // 피커뷰 자체는 완전히 투명하게 설정
+    // 피커뷰 자체는 투명하게 설정
     cityPickerView.backgroundColor = .clear
     
-    // 피커뷰가 여러 항목을 보여줄 수 있도록 설정
+    // 여러 항목을 보여줄 수 있도록 설정
     cityPickerView.clipsToBounds = false
     cityPickerView.layer.masksToBounds = false
     
@@ -114,7 +114,7 @@ private func setupPickerView() {
     
     // 피커뷰 부모 컨테이너 스타일 변경
     if let containerView = cityPickerView.superview {
-        containerView.backgroundColor = UIColor.white.withAlphaComponent(0.7)
+        containerView.backgroundColor = .white // 투명도 없이 완전 흰색으로
         containerView.layer.cornerRadius = 15
         containerView.clipsToBounds = false
         UITheme.applyShadow(to: containerView, opacity: 0.15, radius: 8)
@@ -472,12 +472,12 @@ extension HomeViewController: UIPickerViewDataSource {
 }
 
 extension HomeViewController: UIPickerViewDelegate {
-       // 피커뷰 행 높이 설정 - 더 작게 만들어 이전/다음 항목이 보이게 함
+  // 피커뷰 행 높이 설정 - 더 작게 만들어 이전/다음 항목이 보이게 함
     func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
-        return 140 // 기존 180에서 줄임
+        return 140 // 이전/다음 카드가 보이는 높이 유지
     }
     
-    // 커스텀 뷰 개선
+    // 커스텀 뷰 개선 - 투명도 제거
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         // 안전 체크
         guard !courses.isEmpty, row < courses.count else {
@@ -486,25 +486,29 @@ extension HomeViewController: UIPickerViewDelegate {
             return emptyView
         }
         
-        // 컨테이너 뷰 크기 축소
+        // 컨테이너 뷰 크기 유지
         let containerView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.8, height: 120))
         containerView.backgroundColor = .clear
         
-        // 카드 크기도 축소
+        // 카드 크기 유지
         let cardView = UIView(frame: CGRect(x: 10, y: 5, width: containerView.frame.width - 20, height: 110))
         cardView.backgroundColor = .white
         cardView.layer.cornerRadius = 15
         
-        // 선택된 행만 그림자 표시, 투명도 조정
+        // 투명도 없이 선택된 행만 강조
         if pickerView.selectedRow(inComponent: 0) == row {
+            // 선택된 카드는 그림자로 강조
             UITheme.applyShadow(to: cardView, opacity: 0.3, radius: 10)
-            cardView.alpha = 1.0
+            // 선택된 카드는 테두리 추가
+            cardView.layer.borderWidth = 2.0
+            cardView.layer.borderColor = UITheme.primaryOrange.cgColor
         } else {
-            cardView.layer.shadowOpacity = 0
-            cardView.alpha = 0.5 // 더 투명하게 설정
+            // 선택되지 않은 카드도 살짝 그림자 추가
+            UITheme.applyShadow(to: cardView, opacity: 0.1, radius: 5)
+            cardView.layer.borderWidth = 0
         }
         
-        // 이미지뷰 - 높이 크게 축소 (카드의 80%만 차지하도록)
+        // 이미지뷰 - 높이 유지 (카드의 80%만 차지하도록)
         let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: cardView.frame.width, height: 85))
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
@@ -550,7 +554,6 @@ extension HomeViewController: UIPickerViewDelegate {
         
         return containerView
     }
-
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         // 안전 체크
