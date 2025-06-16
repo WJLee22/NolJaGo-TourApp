@@ -97,27 +97,28 @@ class HomeViewController: UIViewController {
     }
     
 private func setupPickerView() {
-    // 피커뷰 자체는 투명하게 설정
+    // 피커뷰 배경 설정
     cityPickerView.backgroundColor = .clear
     
     // 여러 항목을 보여줄 수 있도록 설정
     cityPickerView.clipsToBounds = false
     cityPickerView.layer.masksToBounds = false
     
-    // 피커뷰 내부 스타일 변경 - 선택기 바퀴 숨기기
-    cityPickerView.subviews.forEach { view in
-        view.backgroundColor = .clear
-        if view.bounds.height <= 1 { // 구분선은 보이지 않게
-            view.isHidden = true
+    // 피커뷰 내부 스타일 변경
+    cityPickerView.subviews.forEach { subview in
+        subview.backgroundColor = .clear
+        // 구분선 숨기기
+        if subview.bounds.height <= 1 {
+            subview.isHidden = true
         }
     }
     
     // 피커뷰 부모 컨테이너 스타일 변경
     if let containerView = cityPickerView.superview {
-        containerView.backgroundColor = .white // 투명도 없이 완전 흰색으로
+        containerView.backgroundColor = .white
         containerView.layer.cornerRadius = 15
         containerView.clipsToBounds = false
-        UITheme.applyShadow(to: containerView, opacity: 0.15, radius: 8)
+        UITheme.applyShadow(to: containerView, opacity: 0.2, radius: 8)
     }
 }
     
@@ -460,7 +461,6 @@ private func setupPickerView() {
     }
 }
 
-// MARK: - UIPickerViewDataSource & UIPickerViewDelegate
 extension HomeViewController: UIPickerViewDataSource {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
@@ -471,90 +471,94 @@ extension HomeViewController: UIPickerViewDataSource {
     }
 }
 
+// MARK: - UIPickerViewDataSource & UIPickerViewDelegate
 extension HomeViewController: UIPickerViewDelegate {
-  // 피커뷰 행 높이 설정 - 더 작게 만들어 이전/다음 항목이 보이게 함
+    // 피커뷰 행 높이 설정
     func pickerView(_ pickerView: UIPickerView, rowHeightForComponent component: Int) -> CGFloat {
-        return 140 // 이전/다음 카드가 보이는 높이 유지
+        return 140
     }
     
-    // 커스텀 뷰 개선 - 투명도 제거
-    func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
-        // 안전 체크
-        guard !courses.isEmpty, row < courses.count else {
-            let emptyView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.8, height: 120))
-            emptyView.backgroundColor = .clear
-            return emptyView
-        }
+    // 커스텀 뷰 개선 - 선택 표시 방식 변경
+func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
+    // 안전 체크
+    guard !courses.isEmpty, row < courses.count else {
+        let emptyView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.8, height: 120))
+        emptyView.backgroundColor = .clear
+        return emptyView
+    }
+    
+    // 컨테이너 뷰 크기 유지
+    let containerView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.8, height: 120))
+    containerView.backgroundColor = .clear
+    
+    // 카드 크기 유지
+    let cardView = UIView(frame: CGRect(x: 10, y: 5, width: containerView.frame.width - 20, height: 110))
+    cardView.backgroundColor = .white
+    cardView.layer.cornerRadius = 15
+    
+    // 선택 여부에 따른 스타일 변경 (테두리 대신 그림자 차별화)
+    if pickerView.selectedRow(inComponent: 0) == row {
+        // 선택된 카드는 더 강한 그림자와 약간 확대
+        UITheme.applyShadow(to: cardView, opacity: 0.3, radius: 8, offset: CGSize(width: 0, height: 2))
         
-        // 컨테이너 뷰 크기 유지
-        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.8, height: 120))
-        containerView.backgroundColor = .clear
-        
-        // 카드 크기 유지
-        let cardView = UIView(frame: CGRect(x: 10, y: 5, width: containerView.frame.width - 20, height: 110))
-        cardView.backgroundColor = .white
-        cardView.layer.cornerRadius = 15
-        
-        // 투명도 없이 선택된 행만 강조
-        if pickerView.selectedRow(inComponent: 0) == row {
-            // 선택된 카드는 그림자로 강조
-            UITheme.applyShadow(to: cardView, opacity: 0.3, radius: 10)
-            // 선택된 카드는 테두리 추가
-            cardView.layer.borderWidth = 2.0
-            cardView.layer.borderColor = UITheme.primaryOrange.cgColor
-        } else {
-            // 선택되지 않은 카드도 살짝 그림자 추가
-            UITheme.applyShadow(to: cardView, opacity: 0.1, radius: 5)
-            cardView.layer.borderWidth = 0
-        }
-        
-        // 이미지뷰 - 높이 유지 (카드의 80%만 차지하도록)
-        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: cardView.frame.width, height: 85))
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 15
-        imageView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner] // 상단만 둥글게
-        
-        // 코스 유형 태그 추가
-        let tagLabel = UILabel(frame: CGRect(x: 10, y: 10, width: 70, height: 22))
-        tagLabel.text = "  " + getCourseTypeText(cat2: courses[row].cat2) + "  "
-        tagLabel.backgroundColor = UITheme.lightOrange
-        tagLabel.textColor = UITheme.primaryOrange
-        tagLabel.font = UIFont.boldSystemFont(ofSize: 11)
-        tagLabel.textAlignment = .center
-        tagLabel.layer.cornerRadius = 11
-        tagLabel.clipsToBounds = true
-        
-        // 간단한 제목 레이블
-        let titleLabel = UILabel(frame: CGRect(x: 5, y: imageView.frame.maxY, width: cardView.frame.width - 10, height: 25))
-        titleLabel.text = courses[row].title
-        titleLabel.textAlignment = .center
-        titleLabel.font = UIFont.systemFont(ofSize: 10)
-        titleLabel.textColor = .darkGray
-        titleLabel.numberOfLines = 1
-        titleLabel.lineBreakMode = .byTruncatingTail
-        
-        // 이미지 로드
-        if let urlStr = courses[row].firstimage, !urlStr.isEmpty, let url = URL(string: urlStr) {
-            URLSession.shared.dataTask(with: url) { data, _, _ in
-                if let d = data, let img = UIImage(data: d) {
-                    DispatchQueue.main.async {
-                        imageView.image = img
-                    }
+        // 약간 위로 올라온 효과 (Y축 위치 조정)
+        cardView.frame.origin.y = 2
+    } else {
+        // 선택되지 않은 카드는 약한 그림자
+        UITheme.applyShadow(to: cardView, opacity: 0.15, radius: 4)
+    }
+    
+    // 이미지뷰 설정
+    let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: cardView.frame.width, height: 85))
+    imageView.contentMode = .scaleAspectFill
+    imageView.clipsToBounds = true
+    imageView.layer.cornerRadius = 15
+    imageView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+    
+    // 기본 이미지 설정
+    let defaultImage = UIImage(named: "placeholder") ?? UIImage(systemName: "photo.fill")
+    imageView.image = defaultImage
+    imageView.backgroundColor = UIColor(white: 0.95, alpha: 1.0)
+    
+    // 코스 유형 태그 추가
+    let tagLabel = UILabel(frame: CGRect(x: 10, y: 10, width: 70, height: 22))
+    tagLabel.text = "  " + getCourseTypeText(cat2: courses[row].cat2) + "  "
+    tagLabel.backgroundColor = UITheme.lightOrange
+    tagLabel.textColor = UITheme.primaryOrange
+    tagLabel.font = UIFont.boldSystemFont(ofSize: 11)
+    tagLabel.textAlignment = .center
+    tagLabel.layer.cornerRadius = 11
+    tagLabel.clipsToBounds = true
+    
+    // 제목 레이블 - 가독성 개선
+    let titleLabel = UILabel(frame: CGRect(x: 5, y: imageView.frame.maxY, width: cardView.frame.width - 10, height: 25))
+    titleLabel.text = courses[row].title
+    titleLabel.textAlignment = .center
+    titleLabel.font = UIFont.boldSystemFont(ofSize: 11) 
+    titleLabel.textColor = .black
+    titleLabel.numberOfLines = 1
+    titleLabel.lineBreakMode = .byTruncatingTail
+    
+    // 이미지 로드
+    if let urlStr = courses[row].firstimage, !urlStr.isEmpty, let url = URL(string: urlStr) {
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            if let d = data, let img = UIImage(data: d) {
+                DispatchQueue.main.async {
+                    imageView.image = img
                 }
-            }.resume()
-        } else {
-            imageView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
-        }
-        
-        cardView.addSubview(imageView)
-        cardView.addSubview(titleLabel)
-        imageView.addSubview(tagLabel)
-        containerView.addSubview(cardView)
-        
-        return containerView
+            }
+        }.resume()
     }
     
+    cardView.addSubview(imageView)
+    cardView.addSubview(titleLabel)
+    imageView.addSubview(tagLabel)
+    containerView.addSubview(cardView)
+    
+    return containerView
+}
+    
+    // 피커뷰 선택 이벤트 처리 - 선택된 카드 스타일 업데이트 추가
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         // 안전 체크
         guard !courses.isEmpty, row < courses.count else { return }
@@ -563,6 +567,7 @@ extension HomeViewController: UIPickerViewDelegate {
         loadingIndicator.startAnimating()
         courseInfoContainer.isHidden = true
         loadCourseDetails(for: row)
+  
     }
 }
 
