@@ -1,2 +1,128 @@
-# NolJaGo-TourApp
-iOS app that helps users explore nearby tourist spots, accommodations, and restaurants in Korea using TourAPI
+# NolJaGo (놀자고)
+
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=FF8C00&height=200&section=header&text=NolJaGo:%20iOS%20%EA%B5%AD%EB%82%B4%EC%97%AC%ED%96%89%20%EC%95%A0%ED%94%8C%EB%A6%AC%EC%BC%80%EC%9D%B4%EC%85%98&fontSize=34&fontColor=ffffff&fontAlignY=40&animation=fadeIn" />
+</p>
+
+
+> **지금 여기, 바로 떠나는 여행. ‘놀고, 먹고, 자고’를 한 번에 실현할 수 있는 국내 여행 정보 iOS 에플리케이션**   
+> **No Plans? NolJaGo!**
+
+
+<br>
+
+## 📋 프로젝트 개요
+
+### 🙋‍♂️ 프로젝트 배경 및 문제 제기
+
+최근 해외여행 수요가 급증하면서 국내여행에 대한 관심이 점차 줄어들고 있는 추세이다.    
+
+하지만 즉흥적 소비와 경험을 중시하는 MZ세대를 중심으로 “YOLO(You Only Live Once)” 트렌드가 확산됨에 따라    
+국내에서도 즉시 출발 가능한 여행 콘텐츠에 대한 수요가 높아지고 있다.    
+
+기존의 여행 앱들은 다수의 정보를 분산된 형태로 제공하며,    
+별도의 경로 탐색 앱이나 메모 앱을 활용해야 하는 불편함이 존재한다.  
+
+<br>
+
+### 💡 개발 동기 및 목적
+
+NolJaGo는 ‘여행 코스, 관광지, 숙박, 음식, 축제/행사’라는 여행의 핵심 요소를 한데 통합하여  
+현재 위치 기반으로 한눈에 실시간 탐색할 수 있도록 구현된 통합 여행 도우미 앱이다.  
+
+- CoreLocation 기반 현재 위치 탐색  
+- 공공데이터 기반의 신뢰도 높은 관광 콘텐츠 제공  
+- Apple 지도와 연동된 길찾기 기능  
+- 관심 장소 저장 및 관리(찜) 기능  
+
+<br>
+
+## 🎯 프로젝트 목표
+
+- CoreLocation을 활용한 현재 위치 기반 주변 여행 정보 탐색  
+- TourAPI 4.0의 다양한 contentTypeId 연동 (관광지, 숙박, 음식, 행사/축제 등)  
+- Apple Maps 연계 길찾기 기능 제공  
+- 사용자의 찜 목록(즐겨찾기) 관리 기능  
+- 직관적인 UI/UX 구성으로 사용 편의성 극대화  
+
+<br>
+
+## ✨ 주요 기능 설명
+
+### 1️⃣ 스플래시 화면
+
+- 앱 실행 시 NolJaGo 로고와 함께 인트로 애니메이션 제공
+- 사용자에게 깔끔한 첫인상 제공
+
+### 2️⃣ 홈 화면 (여행 코스 정보 탐색)
+
+- TourAPI의 contentTypeId=25 데이터를 활용하여 여행 코스를 PickerView로 탐색 가능
+- 선택된 코스에 대한 정보(코스유형, 거리, 시간, 장소 리스트) 시각화
+- 코스에 포함된 장소는 CollectionView 형태로 나열되며 클릭 시 상세 소개 안내창 표시
+
+### 3️⃣ 지도 화면
+
+- CoreLocation으로 사용자 위치 추적
+- 관광지(contentTypeId=12), 숙박(contentTypeId=32), 음식(contentTypeId=39), 행사(contentTypeId=15) 등 다양한 카테고리 탐색
+- 선택된 카테고리의 주변 장소들을 지도 마커로 표시
+- 마커 클릭 시 상세 카드 UI 표시 (장소명, 주소, 거리, 전화번호, 찜/길찾기 버튼 포함)
+- 길찾기 버튼 클릭 시 Apple Maps 연동하여 경로 안내
+
+### 4️⃣ 찜한 장소 화면
+
+- 사용자가 찜한 장소를 TableView로 표시 및 관리
+- 각 장소 클릭 시 상세정보 카드 제공
+- 장소 삭제 및 순서 변경 가능
+- '지도에서 보기' 버튼 클릭 시 해당 장소로 지도가 이동하여 포커싱
+- '길찾기' 버튼 클릭 시 Apple 지도 연동
+
+---
+
+## 🗺️ 주요 화면 구성
+
+| 스플래시 화면      | 홈 화면                     | 지도 화면                  | 찜한 장소 화면                |
+| ------------------ | --------------------------- | -------------------------- | ----------------------------- |
+| 앱 로고 애니메이션 | 여행 코스 탐색 및 장소 정보 | 위치 기반 관광지 마커 표시 | 찜한 장소 리스트 및 상세 정보 |
+
+> 📌 스크린샷은 추후 README에 삽입 예정 (`/screenshots` 디렉토리 또는 이미지 링크 활용)
+
+---
+
+## ⚙️ 사용 기술 및 외부 API
+
+| 항목        | 기술                       |
+| ----------- | -------------------------- |
+| 개발 언어   | Swift 5.0                  |
+| UI 구성     | UIKit, Storyboard          |
+| 위치 서비스 | CoreLocation               |
+| 지도 서비스 | MapKit, Apple 지도 연동    |
+| REST API    | TourAPI 4.0 (한국관광공사) |
+
+---
+
+## 🎯 기대 효과
+
+- **즉시 실행 가능한 여행**: 현재 위치 기반 여행 콘텐츠 탐색으로 계획 없는 즉흥 여행 지원
+- **공공 데이터를 통한 신뢰도 확보**: TourAPI 기반으로 정확한 장소 정보 제공
+- **사용 편의성 강화**: 직관적 UI와 간결한 인터페이스로 연령 불문 누구나 쉽게 사용 가능
+- **여행 동선 최적화**: 찜하기/길찾기 기능으로 개인화된 여행 플래닝 가능
+
+---
+
+<br>
+
+## 🎬 시연 영상
+
+> 🔗 [시연 영상 바로가기](https://youtu.be/YOUR_VIDEO_ID)
+
+<p align="center">
+  <a href="https://youtu.be/YOUR_VIDEO_ID">
+    <img src="https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg" alt="시연 영상 썸네일" width="600"/>
+  </a>
+</p>
+
+<br>
+
+> ⏰ 개발 기간: 2025년 5월 20일 ~ 6월 17일  
+> © 2025 NolJaGo | All Rights Reserved
+
