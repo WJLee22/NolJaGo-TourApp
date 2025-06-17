@@ -438,22 +438,40 @@ class HomeViewController: UIViewController {
         courseTitle.text = course.title
         
         // DetailIntro 정보 업데이트
-        if let detailIntro = course.detailIntro {
-            courseDistance.text = "🥾 코스 길이: \(detailIntro.distance)"
-            courseTaketime.text = "⏱ 소요시간: \(detailIntro.taketime)"
-            
-            // cat2 코드로 코스 유형 결정
-            let courseType = getCourseTypeText(cat2: course.cat2)
-            courseTheme.text = "   \(courseType)   "
-            
-            // 디버그 정보 출력
-            print("Course cat2: \(course.cat2 ?? "없음")")
-        } else {
-            courseDistance.text = "🥾 코스 길이: 정보 없음"
-            courseTaketime.text = "⏱ 소요시간: 정보 없음"
-            courseTheme.text = "   추천코스   "
-        }
+
+    if let detailIntro = course.detailIntro {
+        // 정보가 없는 경우 기본값 제공
+        let distance = detailIntro.distance.isEmpty ? "5km" : detailIntro.distance
+        let taketime = detailIntro.taketime.isEmpty ? "3시간" : detailIntro.taketime
+
+        courseDistance.text = "🥾 코스 전체 거리: \(distance)"
+        courseTaketime.text = "⏱ 소요시간: \(taketime)"
+
+        // 코스 유형 태그 개선
+        let courseType = getCourseTypeText(cat2: course.cat2)
+        courseTheme.text = "      \(courseType)      " // 더 많은 공백 추가
+        courseTheme.backgroundColor = UIColor(red: 1.0, green: 0.7, blue: 0.3, alpha: 0.9)
+        courseTheme.textColor = .white
+        courseTheme.font = UIFont.boldSystemFont(ofSize: 14)
+        courseTheme.layer.cornerRadius = 10
+        courseTheme.clipsToBounds = true
+        courseTheme.textAlignment = .center
+        // padding 속성 제거
+    } else {
+        // 정보가 없는 경우 기본값 설정
+        courseDistance.text = "🥾 코스 전체 거리: 5km"
+        courseTaketime.text = "⏱ 소요시간: 3시간" 
+        courseTheme.text = "      추천코스      " // 더 많은 공백 추가
+        
+        // 태그 스타일 적용
+        courseTheme.backgroundColor = UIColor(red: 1.0, green: 0.7, blue: 0.3, alpha: 0.9)
+        courseTheme.textColor = .white
+        courseTheme.font = UIFont.boldSystemFont(ofSize: 14)
+        courseTheme.layer.cornerRadius = 10
+        courseTheme.clipsToBounds = true
+        courseTheme.textAlignment = .center
     }
+}
     
     // HTML 태그 제거 함수 추가
     func removeHTMLTags(from text: String?) -> String {
@@ -543,16 +561,16 @@ extension HomeViewController: UIPickerViewDelegate {
         imageView.image = defaultImage
         imageView.tintColor = UIColor.darkGray.withAlphaComponent(0.7)
         
-        // 코스 유형 태그 추가
-        let tagLabel = UILabel(frame: CGRect(x: 10, y: 10, width: 70, height: 22))
+        // 코스 유형 태그 개선 - 더 크고 더 진한 색상으로
+        let tagLabel = UILabel(frame: CGRect(x: 10, y: 10, width: 80, height: 26)) // 크기 증가
         tagLabel.text = "  " + getCourseTypeText(cat2: courses[row].cat2) + "  "
-        tagLabel.backgroundColor = UITheme.lightOrange
-        tagLabel.textColor = UITheme.primaryOrange
-        tagLabel.font = UIFont.boldSystemFont(ofSize: 11)
+        tagLabel.backgroundColor = UIColor(red: 1.0, green: 0.7, blue: 0.3, alpha: 0.9) // 더 진한 색상
+        tagLabel.textColor = .white // 흰색 텍스트로 가독성 향상
+        tagLabel.font = UIFont.boldSystemFont(ofSize: 12) // 글자 크기 약간 키움
         tagLabel.textAlignment = .center
-        tagLabel.layer.cornerRadius = 11
+        tagLabel.layer.cornerRadius = 13 // 더 둥근 모서리
         tagLabel.clipsToBounds = true
-        
+    
         // 제목 레이블 - 가독성 개선 & HTML 태그 제거
         let titleLabel = UILabel(frame: CGRect(x: 5, y: imageView.frame.maxY, width: cardView.frame.width - 10, height: 25))
         titleLabel.text = removeHTMLTags(from: courses[row].title)
