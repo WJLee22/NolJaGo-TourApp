@@ -209,7 +209,7 @@ private func showDetailView(for place: FavoritePlace) {
     hideDetailView()
 }
 
-private func hideDetailView() {
+@objc private func hideDetailView() {
     guard let cardView = detailCardView, let overlayView = backgroundOverlayView else { return }
     
     UIView.animate(withDuration: 0.25, animations: {
@@ -224,15 +224,12 @@ private func hideDetailView() {
     })
 }
 
-@objc private func closeDetailView(_ sender: UIButton) {
-    // 닫기 버튼을 통한 명시적 닫기 액션
-    hideDetailView()
-}
 
 // 완전히 개선된 상세 카드 뷰 생성 함수
 private func createDetailCardView(for place: FavoritePlace) -> UIView {
-    // 카드 컨테이너 생성 - 항상 일정한 높이 유지
-    let cardHeight: CGFloat = 400 // 더 충분한 높이 확보
+    // 전화번호 유무에 따라 카드 높이 동적 조정
+    let hasTel = !place.tel.isEmpty
+    let cardHeight: CGFloat = hasTel ? 400 : 370 // 전화번호 없으면 높이 줄임
     let cardWidth: CGFloat = view.bounds.width - 40
     
     // 카드의 Y 위치 계산 (화면 하단에서 적절한 간격)
@@ -315,7 +312,6 @@ private func createDetailCardView(for place: FavoritePlace) -> UIView {
     }
     
     // 전화번호 (있는 경우)
-    let hasTel = !place.tel.isEmpty
     if hasTel {
         let telIcon = UILabel(frame: CGRect(x: 20, y: yOffset, width: iconWidth, height: 20))
         telIcon.text = "📞"
@@ -400,24 +396,7 @@ private func createDetailCardView(for place: FavoritePlace) -> UIView {
     directionsButton.addTarget(self, action: #selector(getDirections), for: .touchUpInside)
     buttonContainer.addSubview(directionsButton)
     
-    // 닫기 버튼 - 중요: 수정된 부분
-    let closeButtonSize: CGFloat = 36
-    let closeButton = UIButton(type: .custom)
-    closeButton.frame = CGRect(x: cardWidth - closeButtonSize - 10, y: 10, width: closeButtonSize, height: closeButtonSize)
-    closeButton.setTitle("✕", for: .normal)
-    closeButton.setTitleColor(.white, for: .normal)
-    closeButton.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-    closeButton.layer.cornerRadius = closeButtonSize / 2
-    closeButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
-    closeButton.addTarget(self, action: #selector(closeDetailView(_:)), for: .touchUpInside)
-    
-    // 닫기 버튼에 그림자 효과 추가로 시인성 향상
-    closeButton.layer.shadowColor = UIColor.black.cgColor
-    closeButton.layer.shadowOffset = CGSize(width: 0, height: 2)
-    closeButton.layer.shadowRadius = 4
-    closeButton.layer.shadowOpacity = 0.3
-    
-    imageView.addSubview(closeButton)
+    // 닫기 버튼 제거 - 배경 탭으로만 닫히도록 함
     
     return cardView
 }
