@@ -226,17 +226,13 @@
 - **사용 편의성 강화**: 직관적 UI와 간결한 인터페이스로 연령 불문 누구나 쉽게 사용 가능  
 
 
+
 <br>
 
 ## 🎬 시연 영상
+ >  ### 🔗 아래 썸네일을 클릭하면 YouTube 시연 영상으로 이동합니다
 
-> 🔗 [시연 영상 바로가기](https://youtu.be/YOUR_VIDEO_ID)
-
-<p align="center">
-  <a href="https://youtu.be/YOUR_VIDEO_ID">
-    <img src="https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg" alt="시연 영상 썸네일" width="600"/>
-  </a>
-</p>
+[![Demonstration video](https://github.com/user-attachments/assets/dd163123-9af6-4a4f-b1e7-543bdceb7a1f)](https://youtu.be/6-nIDs3ufg4?si=Jhty8wuMLy_zPsFU)
 
 <br>
 
