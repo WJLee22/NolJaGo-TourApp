@@ -734,28 +734,36 @@ class MapViewController: UIViewController {
         hideInfoCardView()
     }
 
-    @objc private func saveFavorite(_ sender: UIButton) {
-        guard let course = selectedCourse else { return }
-        
-        // FavoritePlace 객체 생성
-        let favoritePlace = FavoritePlace(
-            id: course.contentid ?? UUID().uuidString,
-            title: course.title,
-            address: course.addr1 ?? "주소 정보 없음",
-            imageUrl: course.firstimage ?? "",
-            latitude: Double(course.mapy ?? "0") ?? 0,
-            longitude: Double(course.mapx ?? "0") ?? 0,
-            category: getCategoryName(for: selectedContentTypeId)
-        )
-        
-        // UserDefaults에 저장
-        saveFavoritePlaceToUserDefaults(favoritePlace)
-        
-        // 저장 확인 메시지
-        let alert = UIAlertController(title: "저장 완료", message: "'\(course.title)'이(가) 찜 목록에 추가되었습니다.", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "확인", style: .default))
-        present(alert, animated: true)
+@objc private func saveFavorite(_ sender: UIButton) {
+    guard let course = selectedCourse else { return }
+    
+    // 주소 형식 통일 - addr2가 있으면 포함
+    var fullAddress = course.addr1 ?? "주소 정보 없음"
+    if let addr2 = course.addr2, !addr2.isEmpty {
+        fullAddress += " " + addr2
     }
+    
+    // FavoritePlace 객체 생성
+    let favoritePlace = FavoritePlace(
+        id: course.contentid ?? UUID().uuidString,
+        title: course.title,
+        address: fullAddress,
+        imageUrl: course.firstimage ?? "",
+        latitude: Double(course.mapy ?? "0") ?? 0,
+        longitude: Double(course.mapx ?? "0") ?? 0,
+        category: getCategoryName(for: selectedContentTypeId),
+        tel: course.tel ?? "",
+        savedDate: Date()
+    )
+    
+    // UserDefaults에 저장
+    saveFavoritePlaceToUserDefaults(favoritePlace)
+    
+    // 저장 확인 메시지
+    let alert = UIAlertController(title: "저장 완료", message: "'\(course.title)'이(가) 찜 목록에 추가되었습니다.", preferredStyle: .alert)
+    alert.addAction(UIAlertAction(title: "확인", style: .default))
+    present(alert, animated: true)
+}
     
     private func getCategoryName(for contentTypeId: String) -> String {
         switch contentTypeId {
@@ -865,6 +873,7 @@ struct FavoritePlace: Codable {
     let latitude: Double
     let longitude: Double
     let category: String
-    let savedDate: Date = Date()
+    let tel: String // 전화번호 저장
+    let savedDate: Date
 }
 
