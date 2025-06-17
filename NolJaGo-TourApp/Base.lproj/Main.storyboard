@@ -386,62 +386,74 @@
         </scene>
         <!--Saved Places View Controller-->
         <scene sceneID="p4U-FP-Axg">
-            <objects>
-                <viewController id="neM-PY-scm" customClass="SavedPlacesViewController" customModule="NolJaGo_TourApp" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="H1r-ch-H80">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+    <objects>
+        <viewController id="neM-PY-scm" customClass="SavedPlacesViewController" customModule="NolJaGo_TourApp" customModuleProvider="target" sceneMemberID="viewController">
+            <view key="view" contentMode="scaleToFill" id="H1r-ch-H80">
+                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                <subviews>
+                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="xbB-eL-V3G">
+                        <rect key="frame" x="0.0" y="103" width="393" height="666"/>
+                        <color key="backgroundColor" red="0.97999999999999998" green="0.97999999999999998" blue="0.97999999999999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    </tableView>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="EmptyStateView">
+                        <rect key="frame" x="46.666666666666657" y="323" width="300" height="206"/>
                         <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="xbB-eL-V3G">
-                                <rect key="frame" x="20" y="119" width="353" height="500"/>
-                                <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="EmptyImageView">
+                                <rect key="frame" x="100" y="20" width="100" height="100"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="500" id="Abq-5b-bJi"/>
+                                    <constraint firstAttribute="width" constant="100" id="EGd-1z-6dc"/>
+                                    <constraint firstAttribute="height" constant="100" id="Vmg-YL-HN3"/>
                                 </constraints>
-                            </tableView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="찜한 장소를 선택하면 상세 정보가 표시됩니다." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4Sn-VZ-fxQ">
-                                <rect key="frame" x="20" y="639" width="353" height="140"/>
-                                <color key="backgroundColor" red="0.90000000000000002" green="1" blue="0.90000000000000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="140" id="tFe-JC-PG9"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                                <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="아직 찜한 장소가 없어요" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EmptyLabel">
+                                <rect key="frame" x="20" y="140" width="260" height="46"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="16"/>
+                                <color key="textColor" red="0.40000000000000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                        <integer key="value" value="15"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
                             </label>
                         </subviews>
-                        <viewLayoutGuide key="safeArea" id="biX-Lx-wPZ"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="biX-Lx-wPZ" firstAttribute="trailing" secondItem="xbB-eL-V3G" secondAttribute="trailing" constant="20" id="0fe-rF-3VO"/>
-                            <constraint firstItem="biX-Lx-wPZ" firstAttribute="trailing" secondItem="4Sn-VZ-fxQ" secondAttribute="trailing" constant="20" id="7SG-cE-p13"/>
-                            <constraint firstItem="xbB-eL-V3G" firstAttribute="top" secondItem="biX-Lx-wPZ" secondAttribute="top" constant="16" id="Bcm-fA-PzF"/>
-                            <constraint firstItem="4Sn-VZ-fxQ" firstAttribute="leading" secondItem="biX-Lx-wPZ" secondAttribute="leading" constant="20" id="I44-zG-4UH"/>
-                            <constraint firstItem="xbB-eL-V3G" firstAttribute="leading" secondItem="biX-Lx-wPZ" secondAttribute="leading" constant="20" id="Sof-hW-l0p"/>
-                            <constraint firstItem="4Sn-VZ-fxQ" firstAttribute="top" secondItem="xbB-eL-V3G" secondAttribute="bottom" constant="20" id="sqc-qB-O3y"/>
+                            <constraint firstItem="EmptyLabel" firstAttribute="top" secondItem="EmptyImageView" secondAttribute="bottom" constant="20" id="4qg-G5-p9n"/>
+                            <constraint firstAttribute="bottom" secondItem="EmptyLabel" secondAttribute="bottom" constant="20" id="GVw-WS-Vha"/>
+                            <constraint firstItem="EmptyImageView" firstAttribute="top" secondItem="EmptyStateView" secondAttribute="top" constant="20" id="Omq-gR-JOS"/>
+                            <constraint firstItem="EmptyLabel" firstAttribute="leading" secondItem="EmptyStateView" secondAttribute="leading" constant="20" id="UcS-Sb-pxz"/>
+                            <constraint firstAttribute="trailing" secondItem="EmptyLabel" secondAttribute="trailing" constant="20" id="Z87-Pc-9wU"/>
+                            <constraint firstItem="EmptyImageView" firstAttribute="centerX" secondItem="EmptyStateView" secondAttribute="centerX" id="gLb-u6-bve"/>
+                            <constraint firstAttribute="width" constant="300" id="qYz-cJ-kBL"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="1yh-mn-hWZ">
-                        <barButtonItem key="leftBarButtonItem" title="편집" id="eXs-kS-F1C">
-                            <connections>
-                                <action selector="editingTableViewRow:" destination="neM-PY-scm" id="HRL-fB-keg"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                </subviews>
+                <viewLayoutGuide key="safeArea" id="biX-Lx-wPZ"/>
+                <color key="backgroundColor" red="0.97999999999999998" green="0.97999999999999998" blue="0.97999999999999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                <constraints>
+                    <constraint firstItem="EmptyStateView" firstAttribute="centerY" secondItem="H1r-ch-H80" secondAttribute="centerY" id="0Vd-Pf-7lf"/>
+                    <constraint firstItem="biX-Lx-wPZ" firstAttribute="trailing" secondItem="xbB-eL-V3G" secondAttribute="trailing" id="0fe-rF-3VO"/>
+                    <constraint firstItem="EmptyStateView" firstAttribute="centerX" secondItem="H1r-ch-H80" secondAttribute="centerX" id="7Kb-8F-l13"/>
+                    <constraint firstItem="xbB-eL-V3G" firstAttribute="top" secondItem="biX-Lx-wPZ" secondAttribute="top" id="Bcm-fA-PzF"/>
+                    <constraint firstItem="xbB-eL-V3G" firstAttribute="leading" secondItem="biX-Lx-wPZ" secondAttribute="leading" id="Sof-hW-l0p"/>
+                    <constraint firstItem="biX-Lx-wPZ" firstAttribute="bottom" secondItem="xbB-eL-V3G" secondAttribute="bottom" id="tXG-P7-bN8"/>
+                </constraints>
+            </view>
+            <navigationItem key="navigationItem" title="찜한 장소" largeTitleDisplayMode="always" id="1yh-mn-hWZ">
+                <barButtonItem key="rightBarButtonItem" title="편집" id="eXs-kS-F1C">
                     <connections>
-                        <outlet property="cityTableView" destination="xbB-eL-V3G" id="8Xw-ci-EOI"/>
-                        <outlet property="descriptionLabel" destination="4Sn-VZ-fxQ" id="Y17-e1-d6t"/>
+                        <action selector="editingTableViewRow:" destination="neM-PY-scm" id="W5D-Vt-GFD"/>
                     </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="6YA-zc-aTQ" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="370" y="163"/>
-        </scene>
+                </barButtonItem>
+            </navigationItem>
+            <connections>
+                <outlet property="emptyStateImageView" destination="EmptyImageView" id="Sic-F7-qWx"/>
+                <outlet property="emptyStateLabel" destination="EmptyLabel" id="vdX-aV-M2z"/>
+                <outlet property="emptyStateView" destination="EmptyStateView" id="IZg-tZ-cXb"/>
+                <outlet property="favoriteTableView" destination="xbB-eL-V3G" id="Xww-ci-EOI"/>
+            </connections>
+        </viewController>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="6YA-zc-aTQ" sceneMemberID="firstResponder"/>
+    </objects>
+    <point key="canvasLocation" x="370" y="163"/>
+</scene>
         <!--찜한 장소-->
         <scene sceneID="5VD-MT-1JC">
             <objects>
