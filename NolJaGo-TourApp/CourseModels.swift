@@ -91,8 +91,8 @@ class XMLParserHelper: NSObject, XMLParserDelegate {
             //print("DetailIntro 파싱 결과: \(introResult)")
             
             return CourseDetailIntro(
-                distance: introResult["distance"] ?? "정보 없음",
-                taketime: introResult["taketime"] ?? "정보 없음",
+                distance: introResult["distance"] ?? "4km",
+                taketime: introResult["taketime"] ?? "5시간",
                 schedule: introResult["schedule"] ?? "정보 없음",
                 theme: introResult["theme"] ?? "정보 없음"
             )

@@ -441,36 +441,45 @@ class HomeViewController: UIViewController {
 
     if let detailIntro = course.detailIntro {
         // 정보가 없는 경우 기본값 제공
-        let distance = detailIntro.distance.isEmpty ? "5km" : detailIntro.distance
-        let taketime = detailIntro.taketime.isEmpty ? "3시간" : detailIntro.taketime
+        let distance = detailIntro.distance.isEmpty ? "4km" : detailIntro.distance
+        let taketime = detailIntro.taketime.isEmpty ? "5시간" : detailIntro.taketime
 
         courseDistance.text = "🥾 코스 전체 거리: \(distance)"
         courseTaketime.text = "⏱ 소요시간: \(taketime)"
 
-        // 코스 유형 태그 개선
+          // 코스 유형 태그 개선
         let courseType = getCourseTypeText(cat2: course.cat2)
-        courseTheme.text = "      \(courseType)      " // 더 많은 공백 추가
-        courseTheme.backgroundColor = UIColor(red: 1.0, green: 0.7, blue: 0.3, alpha: 0.9)
-        courseTheme.textColor = .white
-        courseTheme.font = UIFont.boldSystemFont(ofSize: 14)
-        courseTheme.layer.cornerRadius = 10
-        courseTheme.clipsToBounds = true
-        courseTheme.textAlignment = .center
-        // padding 속성 제거
+        setupCourseTypeTag(with: courseType)
     } else {
         // 정보가 없는 경우 기본값 설정
         courseDistance.text = "🥾 코스 전체 거리: 5km"
         courseTaketime.text = "⏱ 소요시간: 3시간" 
-        courseTheme.text = "      추천코스      " // 더 많은 공백 추가
         
-        // 태그 스타일 적용
-        courseTheme.backgroundColor = UIColor(red: 1.0, green: 0.7, blue: 0.3, alpha: 0.9)
-        courseTheme.textColor = .white
-        courseTheme.font = UIFont.boldSystemFont(ofSize: 14)
-        courseTheme.layer.cornerRadius = 10
-        courseTheme.clipsToBounds = true
-        courseTheme.textAlignment = .center
+        // 기본 태그 적용
+        setupCourseTypeTag(with: "추천코스")
     }
+}
+
+// 코스 유형 태그 스타일링을 위한 새 메소드
+private func setupCourseTypeTag(with text: String) {
+    courseTheme.text = text
+    courseTheme.backgroundColor = UITheme.primaryOrange
+    courseTheme.textColor = .white
+    courseTheme.font = UIFont.systemFont(ofSize: 13, weight: .bold)
+    courseTheme.layer.cornerRadius = 12
+    courseTheme.clipsToBounds = true
+    courseTheme.textAlignment = .center
+    
+    // 내부 패딩 추가
+    let padding = UIEdgeInsets(top: 4, left: 12, bottom: 4, right: 12)
+    courseTheme.frame.size.width = courseTheme.intrinsicContentSize.width + padding.left + padding.right
+    
+    // 그림자 추가로 시각적 깊이감 부여
+    courseTheme.layer.shadowColor = UIColor.black.cgColor
+    courseTheme.layer.shadowOffset = CGSize(width: 0, height: 2)
+    courseTheme.layer.shadowRadius = 3
+    courseTheme.layer.shadowOpacity = 0.2
+    courseTheme.layer.masksToBounds = false
 }
     
     // HTML 태그 제거 함수 추가
@@ -529,76 +538,86 @@ extension HomeViewController: UIPickerViewDelegate {
     
     // 커스텀 뷰 개선 - 선택 표시 방식 변경
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
-        // 안전 체크
-        guard !courses.isEmpty, row < courses.count else {
-            let emptyView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.8, height: 120))
-            emptyView.backgroundColor = .clear
-            return emptyView
-        }
-        
-        // 컨테이너 뷰 크기 유지
-        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.8, height: 120))
-        containerView.backgroundColor = .clear
-        
-        // 카드 크기 유지
-        let cardView = UIView(frame: CGRect(x: 10, y: 5, width: containerView.frame.width - 20, height: 110))
-        cardView.backgroundColor = .white
-        cardView.layer.cornerRadius = 15
-        
-        // 모든 카드에 동일한 기본 그림자만 적용 (특별한 강조 없음)
-        UITheme.applyShadow(to: cardView, opacity: 0.2, radius: 5)
-        
-        // 이미지뷰 설정
-        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: cardView.frame.width, height: 85))
-        imageView.contentMode = .scaleAspectFit // 이미지 비율 유지
-        imageView.backgroundColor = UIColor(white: 0.95, alpha: 1.0)
-        imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 15
-        imageView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-        
-        // 더 적합한 기본 이미지 설정
-        let defaultImage = UIImage(systemName: "photo.on.rectangle") ?? UIImage(systemName: "photo")
-        imageView.image = defaultImage
-        imageView.tintColor = UIColor.darkGray.withAlphaComponent(0.7)
-        
-        // 코스 유형 태그 개선 - 더 크고 더 진한 색상으로
-        let tagLabel = UILabel(frame: CGRect(x: 10, y: 10, width: 80, height: 26)) // 크기 증가
-        tagLabel.text = "  " + getCourseTypeText(cat2: courses[row].cat2) + "  "
-        tagLabel.backgroundColor = UIColor(red: 1.0, green: 0.7, blue: 0.3, alpha: 0.9) // 더 진한 색상
-        tagLabel.textColor = .white // 흰색 텍스트로 가독성 향상
-        tagLabel.font = UIFont.boldSystemFont(ofSize: 12) // 글자 크기 약간 키움
-        tagLabel.textAlignment = .center
-        tagLabel.layer.cornerRadius = 13 // 더 둥근 모서리
-        tagLabel.clipsToBounds = true
-    
-        // 제목 레이블 - 가독성 개선 & HTML 태그 제거
-        let titleLabel = UILabel(frame: CGRect(x: 5, y: imageView.frame.maxY, width: cardView.frame.width - 10, height: 25))
-        titleLabel.text = removeHTMLTags(from: courses[row].title)
-        titleLabel.textAlignment = .center
-        titleLabel.font = UIFont.boldSystemFont(ofSize: 12) // 글자 크기 약간 키움
-        titleLabel.textColor = .black
-        titleLabel.numberOfLines = 1
-        titleLabel.lineBreakMode = .byTruncatingTail
-        
-        // 이미지 로드
-        if let urlStr = courses[row].firstimage, !urlStr.isEmpty, let url = URL(string: urlStr) {
-            URLSession.shared.dataTask(with: url) { data, _, _ in
-                if let d = data, let img = UIImage(data: d) {
-                    DispatchQueue.main.async {
-                        imageView.image = img
-                        imageView.contentMode = .scaleAspectFill // 이미지 로드 후 채우기 모드로 변경
-                    }
-                }
-            }.resume()
-        }
-        
-        cardView.addSubview(imageView)
-        cardView.addSubview(titleLabel)
-        imageView.addSubview(tagLabel)
-        containerView.addSubview(cardView)
-        
-        return containerView
+         // 안전 체크
+    guard !courses.isEmpty, row < courses.count else {
+        let emptyView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.8, height: 120))
+        emptyView.backgroundColor = .clear
+        return emptyView
     }
+    
+    // 컨테이너 뷰 크기 유지
+    let containerView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.8, height: 120))
+    containerView.backgroundColor = .clear
+    
+    // 카드 크기 유지
+    let cardView = UIView(frame: CGRect(x: 10, y: 5, width: containerView.frame.width - 20, height: 110))
+    cardView.backgroundColor = .white
+    cardView.layer.cornerRadius = 15
+    
+    // 그림자 효과 개선
+    UITheme.applyShadow(to: cardView, opacity: 0.2, radius: 5)
+    
+    // 이미지뷰 설정
+    let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: cardView.frame.width, height: 85))
+    imageView.contentMode = .scaleAspectFill // 이미지 비율 유지하며 채우기
+    imageView.backgroundColor = UIColor(white: 0.95, alpha: 1.0)
+    imageView.clipsToBounds = true
+    imageView.layer.cornerRadius = 15
+    imageView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+    
+    // 더 적합한 기본 이미지 설정
+    let defaultImage = UIImage(systemName: "photo.on.rectangle") ?? UIImage(systemName: "photo")
+    imageView.image = defaultImage
+    imageView.tintColor = UIColor.darkGray.withAlphaComponent(0.7)
+    
+    // 코스 유형 태그 개선 - 향상된 디자인
+    let tagLabel = UILabel()
+    tagLabel.text = getCourseTypeText(cat2: courses[row].cat2)
+    tagLabel.backgroundColor = UITheme.primaryOrange
+    tagLabel.textColor = .white
+    tagLabel.font = UIFont.boldSystemFont(ofSize: 12)
+    tagLabel.textAlignment = .center
+    tagLabel.layer.cornerRadius = 10
+    tagLabel.clipsToBounds = true
+    
+    // 태그 크기 동적 계산 (내용에 맞게)
+    let paddingHorizontal: CGFloat = 12
+    let paddingVertical: CGFloat = 6
+    let tagSize = tagLabel.sizeThatFits(CGSize(width: 200, height: 30))
+    tagLabel.frame = CGRect(
+        x: 10, 
+        y: 10, 
+        width: tagSize.width + paddingHorizontal * 2, 
+        height: 20 + paddingVertical
+    )
+    
+    // 제목 레이블 - 가독성 개선 & HTML 태그 제거
+    let titleLabel = UILabel(frame: CGRect(x: 5, y: imageView.frame.maxY, width: cardView.frame.width - 10, height: 25))
+    titleLabel.text = removeHTMLTags(from: courses[row].title)
+    titleLabel.textAlignment = .center
+    titleLabel.font = UIFont.boldSystemFont(ofSize: 12)
+    titleLabel.textColor = UITheme.primaryTextDark
+    titleLabel.numberOfLines = 1
+    titleLabel.lineBreakMode = .byTruncatingTail
+    
+    // 이미지 로드
+    if let urlStr = courses[row].firstimage, !urlStr.isEmpty, let url = URL(string: urlStr) {
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            if let data = data, let image = UIImage(data: data) {
+                DispatchQueue.main.async {
+                    imageView.image = image
+                }
+            }
+        }.resume()
+    }
+    
+    cardView.addSubview(imageView)
+    cardView.addSubview(titleLabel)
+    imageView.addSubview(tagLabel)
+    containerView.addSubview(cardView)
+    
+    return containerView
+}
     
     // 피커뷰 선택 이벤트 처리
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
