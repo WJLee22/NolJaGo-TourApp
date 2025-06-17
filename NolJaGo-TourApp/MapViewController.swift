@@ -449,12 +449,12 @@ class MapViewController: UIViewController {
                 }
             }
         }
-        // 마커가 아닌 배경을 탭한 경우 (기존 카드가 이미 위에서 제거됨)
+
     }
     
     // MARK: - 장소 정보 카드 표시
     private func showInfoCardForCourse(_ course: Course, at index: Int) {
-        // 카드 뷰 생성 - 더 세련된 디자인
+        // 카드 뷰 생성
         let cardView = UIView(frame: CGRect(x: 15, y: 140, width: view.frame.width - 30, height: 290))
         cardView.backgroundColor = .white
         cardView.layer.cornerRadius = 20
@@ -586,19 +586,19 @@ class MapViewController: UIViewController {
         infoLabel.textAlignment = .left
         infoContainer.addSubview(infoLabel)
         
-        // 구분선 - 더 세련된 스타일
+        // 구분선
         let separatorView = UIView(frame: CGRect(x: 20, y: 220, width: cardView.frame.width - 40, height: 1))
         separatorView.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 1.0)
         cardView.addSubview(separatorView)
         
-        // 버튼 컨테이너 - 더 큰 버튼들
+        // 버튼 컨테이너
         let buttonStackView = UIStackView(frame: CGRect(x: 20, y: 235, width: cardView.frame.width - 40, height: 45))
         buttonStackView.axis = .horizontal
         buttonStackView.distribution = .fillEqually
         buttonStackView.spacing = 15
         cardView.addSubview(buttonStackView)
         
-        // 즐겨찾기 버튼 - 더 매력적인 디자인
+        // 즐겨찾기 버튼
         let favoriteButton = UIButton()
         favoriteButton.setTitle("❤️ 찜하기", for: .normal)
         favoriteButton.setTitleColor(.white, for: .normal)
@@ -613,7 +613,7 @@ class MapViewController: UIViewController {
         favoriteButton.addTarget(self, action: #selector(saveFavorite(_:)), for: .touchUpInside)
         buttonStackView.addArrangedSubview(favoriteButton)
         
-        // 길찾기 버튼 - 더 매력적인 디자인
+        // 길찾기 버튼
         let directionButton = UIButton()
         directionButton.setTitle("🔎 길찾기", for: .normal)
         directionButton.setTitleColor(UIColor(red: 1.0, green: 0.6, blue: 0.2, alpha: 1.0), for: .normal)
@@ -629,7 +629,7 @@ class MapViewController: UIViewController {
         directionButton.addTarget(self, action: #selector(openDirections), for: .touchUpInside)
         buttonStackView.addArrangedSubview(directionButton)
         
-        // 닫기 버튼 - 더 우측 상단으로 이동하고 크기 조정
+        // 닫기 버튼
         let closeButton = UIButton(frame: CGRect(x: cardView.frame.width - 50, y: 10, width: 40, height: 40))
         closeButton.setTitle("✕", for: .normal)
         closeButton.setTitleColor(UIColor(red: 0.6, green: 0.6, blue: 0.6, alpha: 1.0), for: .normal)
@@ -643,7 +643,7 @@ class MapViewController: UIViewController {
         view.addSubview(cardView)
         infoCardView = cardView
         
-        // 이전 버전의 애니메이션으로 롤백 - 페이드 인 + 스케일 변화
+        // 애니메이션
         UIView.animate(withDuration: 0.25, delay: 0, options: [.curveEaseOut], animations: {
             cardView.alpha = 1.0
             cardView.transform = CGAffineTransform.identity
@@ -710,7 +710,7 @@ class MapViewController: UIViewController {
             return
         }
         
-        // 이전 버전의 퇴장 애니메이션으로 롤백
+        // 퇴장 애니메이션
         UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseIn], animations: {
             cardView.alpha = 0
             cardView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
@@ -770,7 +770,7 @@ class MapViewController: UIViewController {
         case "12": return "관광지"
         case "32": return "숙박"
         case "39": return "음식점"
-        case "15": return "축제/행사"  // 변경: 축제/공연/행사 → 축제/행사
+        case "15": return "축제/행사"  
         default: return "기타"
         }
     }
@@ -873,7 +873,7 @@ struct FavoritePlace: Codable {
     let latitude: Double
     let longitude: Double
     let category: String
-    let tel: String // 전화번호 저장
+    let tel: String
     let savedDate: Date
 }
 

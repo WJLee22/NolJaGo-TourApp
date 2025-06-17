@@ -32,10 +32,10 @@ class HomeViewController: UIViewController {
     // courses array populated from TourAPI
     var courses: [Course] = []
     private let locationManager = CLLocationManager()
-    private let xmlParser = XMLParserHelper() // XMLParserManager에서 XMLParserHelper로 변경
+    private let xmlParser = XMLParserHelper() 
     private var selectedCourseIndex = 0
     
-    // 현재 위치 정보를 앱 전역에서 공유할 수 있게 싱글톤 사용
+    // 현재 위치 정보를 앱 전역에서 공유할 수 있게 싱글톤패턴 사용
     static var sharedLocation: CLLocation?
     static var sharedLocationName: String?
     
@@ -74,7 +74,7 @@ class HomeViewController: UIViewController {
         UITheme.applyShadow(to: headerView, opacity: 0.1, radius: 4, offset: CGSize(width: 0, height: 2))
         
         // 로고 이미지 명시적 설정 (Asset 카탈로그 확인)
-        if let logoImage = UIImage(named: "AppLogo") { // 대소문자 수정
+        if let logoImage = UIImage(named: "AppLogo") { 
             appLogoImageView.image = logoImage
         } else {
             print("Warning: AppLogo image not found in asset catalog")
@@ -753,7 +753,7 @@ extension HomeViewController: CLLocationManagerDelegate {
         let fallbackLat = 37.582573
         let fallbackLon = 127.011159
         
-        // fallback 위치에 대해서도 역지오코딩 시도
+        // fallback 위치에 대해서도 역 지오코딩 시도
         let fallbackLocation = CLLocation(latitude: fallbackLat, longitude: fallbackLon)
         CLGeocoder().reverseGeocodeLocation(fallbackLocation) { [weak self] placemarks, error in
             guard let self = self else { return }

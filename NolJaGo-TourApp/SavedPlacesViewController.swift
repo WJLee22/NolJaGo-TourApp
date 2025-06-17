@@ -48,7 +48,7 @@ class SavedPlacesViewController: UIViewController {
             .font: UIFont.systemFont(ofSize: 30, weight: .bold)
         ]
         
-        // 편집 버튼 스타일 설정 - 색상 더 진하게
+        // 편집 버튼 스타일 설정
         let editButton = UIBarButtonItem(title: "편집", style: .plain, target: self, action: #selector(editingTableViewRow(_:)))
         editButton.tintColor = UIColor(red: 0.9, green: 0.4, blue: 0.0, alpha: 1.0) // 더 진한 오렌지색
         editButton.setTitleTextAttributes([

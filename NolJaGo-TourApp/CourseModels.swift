@@ -1,6 +1,6 @@
 import Foundation
 
-// 기본 코스 정보 모델 (기존 코드 확장)
+// 기본 코스 정보 모델
 struct Course: Decodable {
     let contentid: String?
     let title: String
@@ -24,7 +24,7 @@ struct Course: Decodable {
     }
 }
 
-// Tour API 응답 모델 (기존)
+// Tour API 응답 모델
 struct TourResponse: Decodable {
     let response: TourInnerResponse
 }
@@ -61,7 +61,6 @@ struct CourseSubPlace {
 }
 
 // XML 파싱 유틸리티 클래스
-// XML 파싱 유틸리티 클래스 전면 개선
 class XMLParserHelper: NSObject, XMLParserDelegate {
     // DetailIntro 파싱용 변수
     private var introResult = [String: String]()
