@@ -1,4 +1,4 @@
-# NolJaGo (놀자고)
+# 🗺️ NolJaGo (놀자고)
 
 <p align="center">
   <img src="https://capsule-render.vercel.app/api?type=waving&color=FF7A00&height=230&section=header&text=NolJaGo:%20iOS%20국내여행%20통합%20애플리케이션&fontSize=36&fontColor=ffffff&fontAlignY=40&animation=fadeIn" />
@@ -7,8 +7,9 @@
 
 
 > **지금 여기, 바로 떠나는 여행.**  
-> **No Plans? NolJaGo!**  
-> 여행코스, 관광, 음식, 숙소, 축제까지 - 국내여행에 필요한 모든 것을 하나의 앱으로.
+> **No Plans? NolJaGo! 🧳**  
+> 🗺️ 여행 코스, 관광, 음식, 숙소, 축제까지 –  
+> 국내 여행에 필요한 모든 것을 하나의 앱으로.
 
 <br><br>
 
