@@ -21,6 +21,7 @@ class SavedPlacesViewController: UIViewController {
     var favoritePlaces: [FavoritePlace] = []
     private var selectedPlace: FavoritePlace?
     private var detailCardView: UIView?
+    private var backgroundOverlayView: UIView?
     private let refreshControl = UIRefreshControl()
     
     // MARK: - Lifecycle Methods
@@ -47,10 +48,28 @@ class SavedPlacesViewController: UIViewController {
             .font: UIFont.systemFont(ofSize: 30, weight: .bold)
         ]
         
-        // 편집 버튼 스타일 설정
+        // 편집 버튼 스타일 설정 - 색상 더 진하게
         let editButton = UIBarButtonItem(title: "편집", style: .plain, target: self, action: #selector(editingTableViewRow(_:)))
-        editButton.tintColor = UITheme.primaryOrange
+        editButton.tintColor = UIColor(red: 0.9, green: 0.4, blue: 0.0, alpha: 1.0) // 더 진한 오렌지색
+        editButton.setTitleTextAttributes([
+            .font: UIFont.systemFont(ofSize: 17, weight: .semibold)
+        ], for: .normal)
         navigationItem.rightBarButtonItem = editButton
+        
+        // 알림 관찰자 등록
+        NotificationCenter.default.addObserver(self, 
+                                              selector: #selector(locationOnMapUpdated(_:)), 
+                                              name: NSNotification.Name("LocationOnMapUpdated"), 
+                                              object: nil)
+    }
+    
+    @objc private func locationOnMapUpdated(_ notification: Notification) {
+        // 맵 화면에서 마커가 선택되었을 때 상세 카드를 닫음
+        hideDetailView()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     private func setupTableView() {
@@ -145,6 +164,9 @@ class SavedPlacesViewController: UIViewController {
             sender.title = "완료"
             favoriteTableView.isEditing = true
         }
+        
+        // 편집 모드 전환 시 상세 카드 닫기
+        hideDetailView()
     }
     
     // MARK: - Detail View Methods
@@ -155,36 +177,56 @@ class SavedPlacesViewController: UIViewController {
         // 새 상세 카드 생성
         selectedPlace = place
         
+        // 반투명 배경 오버레이 추가 (탭하면 카드 닫히는 기능 위해)
+        let overlayView = UIView(frame: view.bounds)
+        overlayView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        overlayView.alpha = 0
+        
+        // 배경 탭 제스처 추가
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(backgroundTapped))
+        overlayView.addGestureRecognizer(tapGesture)
+        
+        view.addSubview(overlayView)
+        backgroundOverlayView = overlayView
+        
         // 상세 카드 생성
         let cardView = createDetailCardView(for: place)
         view.addSubview(cardView)
         detailCardView = cardView
         
-        // 애니메이션으로 표시
+        // 애니메이션으로 표시 (MapView와 유사하게)
+        cardView.transform = CGAffineTransform(translationX: 0, y: 100)
         cardView.alpha = 0
-        cardView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
         
         UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseOut], animations: {
-            cardView.alpha = 1
             cardView.transform = CGAffineTransform.identity
+            cardView.alpha = 1
+            overlayView.alpha = 1
         })
     }
     
+    @objc private func backgroundTapped() {
+        hideDetailView()
+    }
+    
     private func hideDetailView() {
-        guard let cardView = detailCardView else { return }
+        guard let cardView = detailCardView, let overlayView = backgroundOverlayView else { return }
         
-        UIView.animate(withDuration: 0.2, animations: {
+        UIView.animate(withDuration: 0.25, animations: {
+            cardView.transform = CGAffineTransform(translationX: 0, y: 100)
             cardView.alpha = 0
-            cardView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+            overlayView.alpha = 0
         }, completion: { _ in
             cardView.removeFromSuperview()
+            overlayView.removeFromSuperview()
             self.detailCardView = nil
+            self.backgroundOverlayView = nil
         })
     }
     
     private func createDetailCardView(for place: FavoritePlace) -> UIView {
         // 카드 컨테이너 생성
-        let cardHeight: CGFloat = 280
+        let cardHeight: CGFloat = 250 // 공유 버튼 제거로 높이 줄임
         let cardView = UIView(frame: CGRect(x: 20, y: view.bounds.height - cardHeight - 100, 
                                             width: view.bounds.width - 40, height: cardHeight))
         cardView.backgroundColor = .white
@@ -221,18 +263,9 @@ class SavedPlacesViewController: UIViewController {
         }
         cardView.addSubview(imageView)
         
-        // 카테고리 태그
-        let categoryTag = UILabel(frame: CGRect(x: 15, y: 15, width: 0, height: 26))
-        categoryTag.text = " \(place.category) "
-        categoryTag.font = UITheme.tagFont
-        categoryTag.textColor = .white
-        categoryTag.backgroundColor = getCategoryColor(place.category)
-        categoryTag.layer.cornerRadius = 13
-        categoryTag.clipsToBounds = true
-        categoryTag.sizeToFit()
-        categoryTag.frame.size.width += 20
-        categoryTag.textAlignment = .center
-        imageView.addSubview(categoryTag)
+        // 카테고리 태그 (개선된 디자인)
+        let categoryTagView = createCategoryTagView(with: place.category)
+        imageView.addSubview(categoryTagView)
         
         // 제목
         let titleLabel = UILabel(frame: CGRect(x: 20, y: imageHeight + 15, width: cardView.bounds.width - 40, height: 25))
@@ -271,12 +304,12 @@ class SavedPlacesViewController: UIViewController {
         dateLabel.textColor = UITheme.secondaryTextGray
         cardView.addSubview(dateLabel)
         
-        // 버튼 컨테이너
+        // 버튼 컨테이너 (공유 버튼 제거로 2개 버튼으로 변경)
         let buttonContainer = UIView(frame: CGRect(x: 15, y: imageHeight + 100, width: cardView.bounds.width - 30, height: 50))
         cardView.addSubview(buttonContainer)
         
-        // 액션 버튼들
-        let buttonWidth = (buttonContainer.bounds.width - 20) / 3
+        // 액션 버튼들 (공유 버튼 제거)
+        let buttonWidth = (buttonContainer.bounds.width - 10) / 2
         
         // 1. 지도에서 보기 버튼
         let mapButton = createActionButton(
@@ -298,26 +331,50 @@ class SavedPlacesViewController: UIViewController {
         directionsButton.addTarget(self, action: #selector(getDirections), for: .touchUpInside)
         buttonContainer.addSubview(directionsButton)
         
-        // 3. 공유하기 버튼
-        let shareButton = createActionButton(
-            frame: CGRect(x: (buttonWidth + 10) * 2, y: 0, width: buttonWidth, height: 40),
-            title: "공유하기",
-            icon: "square.and.arrow.up.fill",
-            color: UITheme.primaryOrange
-        )
-        shareButton.addTarget(self, action: #selector(sharePlace), for: .touchUpInside)
-        buttonContainer.addSubview(shareButton)
-        
         // 닫기 버튼
-        let closeButton = UIButton(frame: CGRect(x: cardView.bounds.width - 50, y: 10, width: 40, height: 40))
+        let closeButton = UIButton(frame: CGRect(x: cardView.bounds.width - 45, y: 10, width: 35, height: 35))
         closeButton.setTitle("✕", for: .normal)
         closeButton.setTitleColor(.white, for: .normal)
-        closeButton.backgroundColor = UIColor.black.withAlphaComponent(0.3)
-        closeButton.layer.cornerRadius = 20
+        closeButton.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        closeButton.layer.cornerRadius = 17.5
+        closeButton.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
         closeButton.addTarget(self, action: #selector(closeDetailView), for: .touchUpInside)
         imageView.addSubview(closeButton)
         
         return cardView
+    }
+    
+    private func createCategoryTagView(with category: String) -> UIView {
+        // 컨테이너 뷰
+        let containerView = UIView(frame: CGRect(x: 15, y: 15, width: 0, height: 28))
+        
+        // 레이블
+        let label = UILabel(frame: CGRect(x: 0, y: 0, width: 0, height: 28))
+        label.text = category
+        label.font = UIFont.systemFont(ofSize: 13, weight: .bold)
+        label.textColor = .white
+        label.textAlignment = .center
+        label.sizeToFit()
+        
+        // 패딩 추가
+        let width = label.frame.width + 24
+        containerView.frame.size.width = width
+        
+        // 라벨 위치 조정 (중앙 정렬)
+        label.frame = CGRect(x: 12, y: 0, width: width - 24, height: 28)
+        
+        // 스타일 적용
+        containerView.backgroundColor = getCategoryColor(category)
+        containerView.layer.cornerRadius = 14
+        containerView.addSubview(label)
+        
+        // 그림자 효과
+        containerView.layer.shadowColor = UIColor.black.cgColor
+        containerView.layer.shadowOffset = CGSize(width: 0, height: 1)
+        containerView.layer.shadowRadius = 2
+        containerView.layer.shadowOpacity = 0.2
+        
+        return containerView
     }
     
     private func createActionButton(frame: CGRect, title: String, icon: String, color: UIColor) -> UIButton {
@@ -331,7 +388,7 @@ class SavedPlacesViewController: UIViewController {
         
         // 타이틀 설정
         button.setTitle(" " + title, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .medium)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         
         // 스타일 설정
         button.backgroundColor = color
@@ -362,14 +419,27 @@ class SavedPlacesViewController: UIViewController {
         // 탭바에서 맵 화면으로 이동
         if let tabBarController = self.tabBarController,
            tabBarController.viewControllers?.count ?? 0 > 1 {
+            
+            // 먼저 상세 카드 닫기
+            hideDetailView()
+            
+            // 맵 탭으로 이동
             tabBarController.selectedIndex = 1 // 맵 탭 인덱스
             
-            // 해당 장소 위치로 이동하는 알림 전송
-            NotificationCenter.default.post(name: NSNotification.Name("ShowLocationOnMap"), 
-                                           object: nil, 
-                                           userInfo: ["latitude": place.latitude, 
-                                                     "longitude": place.longitude,
-                                                     "title": place.title])
+            // 약간 딜레이 후 장소 표시 (애니메이션 효과 위함)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                // 해당 장소 위치로 이동하는 알림 전송
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("ShowLocationOnMap"), 
+                    object: nil, 
+                    userInfo: [
+                        "latitude": place.latitude, 
+                        "longitude": place.longitude,
+                        "title": place.title,
+                        "category": place.category
+                    ]
+                )
+            }
         }
     }
     
@@ -385,17 +455,6 @@ class SavedPlacesViewController: UIViewController {
         
         // 현재 위치에서 목적지까지의 경로
         mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving])
-    }
-    
-    @objc private func sharePlace() {
-        guard let place = selectedPlace else { return }
-        
-        // 공유할 텍스트 생성
-        let shareText = "[\(place.category)] \(place.title)\n주소: \(place.address)\n\n🗺 NolJaGo 앱에서 확인해보세요!"
-        
-        // 공유 시트 표시
-        let activityViewController = UIActivityViewController(activityItems: [shareText], applicationActivities: nil)
-        present(activityViewController, animated: true)
     }
 }
 
@@ -464,7 +523,7 @@ extension SavedPlacesViewController: UITableViewDelegate {
         }
     }
     
-    // 스와이프 액션 추가
+    // 스와이프 액션 개선 (공유 제거)
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         // 삭제 액션
         let deleteAction = UIContextualAction(style: .destructive, title: "삭제") { (_, _, completion) in
@@ -474,19 +533,8 @@ extension SavedPlacesViewController: UITableViewDelegate {
         }
         deleteAction.backgroundColor = .systemRed
         
-        // 공유 액션
-        let shareAction = UIContextualAction(style: .normal, title: "공유") { (_, _, completion) in
-            let place = self.favoritePlaces[indexPath.row]
-            let shareText = "[\(place.category)] \(place.title)\n주소: \(place.address)\n\n🗺 NolJaGo 앱에서 확인해보세요!"
-            
-            let activityViewController = UIActivityViewController(activityItems: [shareText], applicationActivities: nil)
-            self.present(activityViewController, animated: true)
-            completion(true)
-        }
-        shareAction.backgroundColor = UITheme.primaryOrange
-        
-        // 액션 설정
-        let configuration = UISwipeActionsConfiguration(actions: [deleteAction, shareAction])
+        // 액션 설정 (공유 버튼 제거)
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
         return configuration
     }
 }
@@ -496,6 +544,7 @@ class FavoritePlaceCell: UITableViewCell {
     private let cardView = UIView()
     private let placeImageView = UIImageView()
     private let titleLabel = UILabel()
+    private let categoryTagView = UIView()
     private let categoryLabel = UILabel()
     private let addressLabel = UILabel()
     private let dateLabel = UILabel()
@@ -530,14 +579,18 @@ class FavoritePlaceCell: UITableViewCell {
         placeImageView.backgroundColor = UIColor(white: 0.95, alpha: 1.0)
         cardView.addSubview(placeImageView)
         
+        // 카테고리 태그 컨테이너 설정
+        categoryTagView.translatesAutoresizingMaskIntoConstraints = false
+        categoryTagView.layer.cornerRadius = 12
+        categoryTagView.clipsToBounds = true
+        cardView.addSubview(categoryTagView)
+        
         // 카테고리 레이블 설정
         categoryLabel.font = UITheme.tagFont
         categoryLabel.textColor = .white
         categoryLabel.textAlignment = .center
-        categoryLabel.layer.cornerRadius = 12
-        categoryLabel.clipsToBounds = true
         categoryLabel.translatesAutoresizingMaskIntoConstraints = false
-        cardView.addSubview(categoryLabel)
+        categoryTagView.addSubview(categoryLabel)
         
         // 제목 레이블 설정
         titleLabel.font = UITheme.subtitleFont
@@ -573,13 +626,19 @@ class FavoritePlaceCell: UITableViewCell {
             placeImageView.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -12),
             placeImageView.widthAnchor.constraint(equalToConstant: 120),
             
+            // 카테고리 태그 뷰
+            categoryTagView.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 14),
+            categoryTagView.leadingAnchor.constraint(equalTo: placeImageView.trailingAnchor, constant: 12),
+            categoryTagView.heightAnchor.constraint(equalToConstant: 24),
+            
             // 카테고리 레이블
-            categoryLabel.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 14),
-            categoryLabel.leadingAnchor.constraint(equalTo: placeImageView.trailingAnchor, constant: 12),
-            categoryLabel.heightAnchor.constraint(equalToConstant: 24),
+            categoryLabel.topAnchor.constraint(equalTo: categoryTagView.topAnchor),
+            categoryLabel.bottomAnchor.constraint(equalTo: categoryTagView.bottomAnchor),
+            categoryLabel.leadingAnchor.constraint(equalTo: categoryTagView.leadingAnchor, constant: 12),
+            categoryLabel.trailingAnchor.constraint(equalTo: categoryTagView.trailingAnchor, constant: -12),
             
             // 제목 레이블
-            titleLabel.topAnchor.constraint(equalTo: categoryLabel.bottomAnchor, constant: 8),
+            titleLabel.topAnchor.constraint(equalTo: categoryTagView.bottomAnchor, constant: 8),
             titleLabel.leadingAnchor.constraint(equalTo: placeImageView.trailingAnchor, constant: 12),
             titleLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -12),
             
@@ -598,24 +657,21 @@ class FavoritePlaceCell: UITableViewCell {
     func configure(with place: FavoritePlace) {
         titleLabel.text = place.title
         
-        // 카테고리 설정
-        categoryLabel.text = " \(place.category) "
-        categoryLabel.sizeToFit()
-        let categoryWidth = categoryLabel.frame.width + 16
-        categoryLabel.widthAnchor.constraint(equalToConstant: categoryWidth).isActive = true
+        // 카테고리 설정 (개선된 디자인)
+        categoryLabel.text = place.category
         
         // 카테고리별 색상 설정
         switch place.category {
         case "관광지":
-            categoryLabel.backgroundColor = UITheme.tourismBlue
+            categoryTagView.backgroundColor = UITheme.tourismBlue
         case "숙박":
-            categoryLabel.backgroundColor = UITheme.accommodationPurple
+            categoryTagView.backgroundColor = UITheme.accommodationPurple
         case "음식점":
-            categoryLabel.backgroundColor = UITheme.restaurantRed
+            categoryTagView.backgroundColor = UITheme.restaurantRed
         case "축제/행사":
-            categoryLabel.backgroundColor = UITheme.festivalGreen
+            categoryTagView.backgroundColor = UITheme.festivalGreen
         default:
-            categoryLabel.backgroundColor = UITheme.primaryOrange
+            categoryTagView.backgroundColor = UITheme.primaryOrange
         }
         
         // 주소 설정

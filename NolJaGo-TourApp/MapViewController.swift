@@ -45,7 +45,60 @@ class MapViewController: UIViewController {
         // 위치 레이블 업데이트 및 스타일 설정
         updateLocationLabel()
         setupLocationLabelStyle()
+
+            // 찜한 장소에서 위치 표시 요청 수신하기 위한 옵저버 등록
+    NotificationCenter.default.addObserver(
+        self, 
+        selector: #selector(showLocationFromFavorites(_:)),
+        name: NSNotification.Name("ShowLocationOnMap"), 
+        object: nil
+    )
     }
+
+    // 찜한 장소에서 위치 표시 요청 수신 처리
+@objc private func showLocationFromFavorites(_ notification: Notification) {
+    guard let userInfo = notification.userInfo,
+          let latitude = userInfo["latitude"] as? Double,
+          let longitude = userInfo["longitude"] as? Double,
+          let title = userInfo["title"] as? String,
+          let category = userInfo["category"] as? String else {
+        return
+    }
+    
+    // 이전 카드 닫기
+    hideInfoCardView()
+    
+    // 지도 이동
+    let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    moveToLocation(location: coordinate)
+    
+    // 해당 카테고리로 세그먼트 컨트롤 변경
+    switch category {
+    case "관광지":
+        categorySegmentedControl.selectedSegmentIndex = 0
+        selectedContentTypeId = "12"
+    case "숙박":
+        categorySegmentedControl.selectedSegmentIndex = 1
+        selectedContentTypeId = "32"
+    case "음식점":
+        categorySegmentedControl.selectedSegmentIndex = 2
+        selectedContentTypeId = "39"
+    case "축제/행사":
+        categorySegmentedControl.selectedSegmentIndex = 3
+        selectedContentTypeId = "15"
+    default:
+        break
+    }
+    
+    // 주변 장소 데이터 로드 후 마커 표시
+    loadNearbyPlaces()
+    
+    // 알림으로 마커 선택됨을 알림
+    NotificationCenter.default.post(
+        name: NSNotification.Name("LocationOnMapUpdated"),
+        object: nil
+    )
+}
     
     // 현재 위치로 이동하는 버튼 추가
     private func addCurrentLocationButton() {
