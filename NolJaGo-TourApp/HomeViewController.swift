@@ -193,7 +193,7 @@ class HomeViewController: UIViewController {
         loadingIndicator.hidesWhenStopped = true
         loadingIndicator.color = UITheme.primaryOrange
     }
-
+    
     private func checkLocationAuthorization() {
         switch locationManager.authorizationStatus {
         case .notDetermined:
@@ -222,9 +222,9 @@ class HomeViewController: UIViewController {
         
         // 옵셔널 안전하게 처리
         guard let encodedUrlStr = urlStr.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let url = URL(string: encodedUrlStr) else { 
+              let url = URL(string: encodedUrlStr) else {
             print("Invalid URL")
-            return 
+            return
         }
         
         URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
@@ -298,10 +298,10 @@ class HomeViewController: UIViewController {
     // MARK: - Load Course Details
     private func loadCourseDetails(for index: Int) {
         // 안전 체크
-        guard !courses.isEmpty, 
-              index >= 0, 
-              index < courses.count, 
-              let contentId = courses[index].contentid else {
+        guard !courses.isEmpty,
+                index >= 0,
+                index < courses.count,
+                let contentId = courses[index].contentid else {
             DispatchQueue.main.async {
                 self.loadingIndicator.stopAnimating()
                 self.courseInfoContainer.isHidden = true
@@ -336,10 +336,10 @@ class HomeViewController: UIViewController {
         
         // 모든 API 호출이 완료되면 UI 업데이트
         group.notify(queue: .main) { [weak self] in
-            guard let self = self, !self.courses.isEmpty, index < self.courses.count else { 
+            guard let self = self, !self.courses.isEmpty, index < self.courses.count else {
                 self?.loadingIndicator.stopAnimating()
                 self?.courseInfoContainer.isHidden = true
-                return 
+                return
             }
             
             self.removeEmptyStateMessage()
@@ -438,49 +438,49 @@ class HomeViewController: UIViewController {
         courseTitle.text = course.title
         
         // DetailIntro 정보 업데이트
-
-    if let detailIntro = course.detailIntro {
-        // 정보가 없는 경우 기본값 제공
-        let distance = detailIntro.distance.isEmpty ? "4km" : detailIntro.distance
-        let taketime = detailIntro.taketime.isEmpty ? "5시간" : detailIntro.taketime
-
-        courseDistance.text = "🥾 코스 전체 거리: \(distance)"
-        courseTaketime.text = "⏱ 소요시간: \(taketime)"
-
-          // 코스 유형 태그 개선
-        let courseType = getCourseTypeText(cat2: course.cat2)
-        setupCourseTypeTag(with: courseType)
-    } else {
-        // 정보가 없는 경우 기본값 설정
-        courseDistance.text = "🥾 코스 전체 거리: 5km"
-        courseTaketime.text = "⏱ 소요시간: 3시간" 
         
-        // 기본 태그 적용
-        setupCourseTypeTag(with: "추천코스")
+        if let detailIntro = course.detailIntro {
+            // 정보가 없는 경우 기본값 제공
+            let distance = detailIntro.distance.isEmpty ? "4km" : detailIntro.distance
+            let taketime = detailIntro.taketime.isEmpty ? "5시간" : detailIntro.taketime
+            
+            courseDistance.text = "🥾 코스 전체 거리: \(distance)"
+            courseTaketime.text = "⏱ 소요시간: \(taketime)"
+            
+            // 코스 유형 태그 개선
+            let courseType = getCourseTypeText(cat2: course.cat2)
+            setupCourseTypeTag(with: courseType)
+        } else {
+            // 정보가 없는 경우 기본값 설정
+            courseDistance.text = "🥾 코스 전체 거리: 5km"
+            courseTaketime.text = "⏱ 소요시간: 3시간"
+            
+            // 기본 태그 적용
+            setupCourseTypeTag(with: "추천코스")
+        }
     }
-}
-
-// 코스 유형 태그 스타일링을 위한 새 메소드
-private func setupCourseTypeTag(with text: String) {
-    courseTheme.text = text
-    courseTheme.backgroundColor = UITheme.primaryOrange
-    courseTheme.textColor = .white
-    courseTheme.font = UIFont.systemFont(ofSize: 13, weight: .bold)
-    courseTheme.layer.cornerRadius = 12
-    courseTheme.clipsToBounds = true
-    courseTheme.textAlignment = .center
     
-    // 내부 패딩 추가
-    let padding = UIEdgeInsets(top: 4, left: 12, bottom: 4, right: 12)
-    courseTheme.frame.size.width = courseTheme.intrinsicContentSize.width + padding.left + padding.right
-    
-    // 그림자 추가로 시각적 깊이감 부여
-    courseTheme.layer.shadowColor = UIColor.black.cgColor
-    courseTheme.layer.shadowOffset = CGSize(width: 0, height: 2)
-    courseTheme.layer.shadowRadius = 3
-    courseTheme.layer.shadowOpacity = 0.2
-    courseTheme.layer.masksToBounds = false
-}
+    // 코스 유형 태그 스타일링을 위한 새 메소드
+    private func setupCourseTypeTag(with text: String) {
+        courseTheme.text = text
+        courseTheme.backgroundColor = UITheme.primaryOrange
+        courseTheme.textColor = .white
+        courseTheme.font = UIFont.systemFont(ofSize: 13, weight: .bold)
+        courseTheme.layer.cornerRadius = 12
+        courseTheme.clipsToBounds = true
+        courseTheme.textAlignment = .center
+        
+        // 내부 패딩 추가
+        let padding = UIEdgeInsets(top: 4, left: 12, bottom: 4, right: 12)
+        courseTheme.frame.size.width = courseTheme.intrinsicContentSize.width + padding.left + padding.right
+        
+        // 그림자 추가로 시각적 깊이감 부여
+        courseTheme.layer.shadowColor = UIColor.black.cgColor
+        courseTheme.layer.shadowOffset = CGSize(width: 0, height: 2)
+        courseTheme.layer.shadowRadius = 3
+        courseTheme.layer.shadowOpacity = 0.2
+        courseTheme.layer.masksToBounds = false
+    }
     
     // HTML 태그 제거 함수 추가
     func removeHTMLTags(from text: String?) -> String {
@@ -512,7 +512,7 @@ private func setupCourseTypeTag(with text: String) {
         case "C0113": return "나홀로코스"
         case "C0114": return "힐링코스"
         case "C0115": return "도보코스"
-        case "C0116": return "캠핑코스" 
+        case "C0116": return "캠핑코스"
         case "C0117": return "맛코스"
         default: return "추천코스"
         }
@@ -538,86 +538,86 @@ extension HomeViewController: UIPickerViewDelegate {
     
     // 커스텀 뷰 개선 - 선택 표시 방식 변경
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
-         // 안전 체크
-    guard !courses.isEmpty, row < courses.count else {
-        let emptyView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.8, height: 120))
-        emptyView.backgroundColor = .clear
-        return emptyView
-    }
-    
-    // 컨테이너 뷰 크기 유지
-    let containerView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.8, height: 120))
-    containerView.backgroundColor = .clear
-    
-    // 카드 크기 유지
-    let cardView = UIView(frame: CGRect(x: 10, y: 5, width: containerView.frame.width - 20, height: 110))
-    cardView.backgroundColor = .white
-    cardView.layer.cornerRadius = 15
-    
-    // 그림자 효과 개선
-    UITheme.applyShadow(to: cardView, opacity: 0.2, radius: 5)
-    
-    // 이미지뷰 설정
-    let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: cardView.frame.width, height: 85))
-    imageView.contentMode = .scaleAspectFill // 이미지 비율 유지하며 채우기
-    imageView.backgroundColor = UIColor(white: 0.95, alpha: 1.0)
-    imageView.clipsToBounds = true
-    imageView.layer.cornerRadius = 15
-    imageView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
-    
-    // 더 적합한 기본 이미지 설정
-    let defaultImage = UIImage(systemName: "photo.on.rectangle") ?? UIImage(systemName: "photo")
-    imageView.image = defaultImage
-    imageView.tintColor = UIColor.darkGray.withAlphaComponent(0.7)
-    
-    // 코스 유형 태그 개선 - 향상된 디자인
-    let tagLabel = UILabel()
-    tagLabel.text = getCourseTypeText(cat2: courses[row].cat2)
-    tagLabel.backgroundColor = UITheme.primaryOrange
-    tagLabel.textColor = .white
-    tagLabel.font = UIFont.boldSystemFont(ofSize: 12)
-    tagLabel.textAlignment = .center
-    tagLabel.layer.cornerRadius = 10
-    tagLabel.clipsToBounds = true
-    
-    // 태그 크기 동적 계산 (내용에 맞게)
-    let paddingHorizontal: CGFloat = 12
-    let paddingVertical: CGFloat = 6
-    let tagSize = tagLabel.sizeThatFits(CGSize(width: 200, height: 30))
-    tagLabel.frame = CGRect(
-        x: 10, 
-        y: 10, 
-        width: tagSize.width + paddingHorizontal * 2, 
-        height: 20 + paddingVertical
-    )
-    
-    // 제목 레이블 - 가독성 개선 & HTML 태그 제거
-    let titleLabel = UILabel(frame: CGRect(x: 5, y: imageView.frame.maxY, width: cardView.frame.width - 10, height: 25))
-    titleLabel.text = removeHTMLTags(from: courses[row].title)
-    titleLabel.textAlignment = .center
-    titleLabel.font = UIFont.boldSystemFont(ofSize: 12)
-    titleLabel.textColor = UITheme.primaryTextDark
-    titleLabel.numberOfLines = 1
-    titleLabel.lineBreakMode = .byTruncatingTail
-    
-    // 이미지 로드
-    if let urlStr = courses[row].firstimage, !urlStr.isEmpty, let url = URL(string: urlStr) {
-        URLSession.shared.dataTask(with: url) { data, _, _ in
-            if let data = data, let image = UIImage(data: data) {
-                DispatchQueue.main.async {
-                    imageView.image = image
+        // 안전 체크
+        guard !courses.isEmpty, row < courses.count else {
+            let emptyView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.8, height: 120))
+            emptyView.backgroundColor = .clear
+            return emptyView
+        }
+        
+        // 컨테이너 뷰 크기 유지
+        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: pickerView.frame.width * 0.8, height: 120))
+        containerView.backgroundColor = .clear
+        
+        // 카드 크기 유지
+        let cardView = UIView(frame: CGRect(x: 10, y: 5, width: containerView.frame.width - 20, height: 110))
+        cardView.backgroundColor = .white
+        cardView.layer.cornerRadius = 15
+        
+        // 그림자 효과 개선
+        UITheme.applyShadow(to: cardView, opacity: 0.2, radius: 5)
+        
+        // 이미지뷰 설정
+        let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: cardView.frame.width, height: 85))
+        imageView.contentMode = .scaleAspectFill // 이미지 비율 유지하며 채우기
+        imageView.backgroundColor = UIColor(white: 0.95, alpha: 1.0)
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 15
+        imageView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        
+        // 더 적합한 기본 이미지 설정
+        let defaultImage = UIImage(systemName: "photo.on.rectangle") ?? UIImage(systemName: "photo")
+        imageView.image = defaultImage
+        imageView.tintColor = UIColor.darkGray.withAlphaComponent(0.7)
+        
+        // 코스 유형 태그 개선 - 향상된 디자인
+        let tagLabel = UILabel()
+        tagLabel.text = getCourseTypeText(cat2: courses[row].cat2)
+        tagLabel.backgroundColor = UITheme.primaryOrange
+        tagLabel.textColor = .white
+        tagLabel.font = UIFont.boldSystemFont(ofSize: 12)
+        tagLabel.textAlignment = .center
+        tagLabel.layer.cornerRadius = 10
+        tagLabel.clipsToBounds = true
+        
+        // 태그 크기 동적 계산 (내용에 맞게)
+        let paddingHorizontal: CGFloat = 12
+        let paddingVertical: CGFloat = 6
+        let tagSize = tagLabel.sizeThatFits(CGSize(width: 200, height: 30))
+        tagLabel.frame = CGRect(
+            x: 10,
+            y: 10,
+            width: tagSize.width + paddingHorizontal * 2,
+            height: 20 + paddingVertical
+        )
+        
+        // 제목 레이블 - 가독성 개선 & HTML 태그 제거
+        let titleLabel = UILabel(frame: CGRect(x: 5, y: imageView.frame.maxY, width: cardView.frame.width - 10, height: 25))
+        titleLabel.text = removeHTMLTags(from: courses[row].title)
+        titleLabel.textAlignment = .center
+        titleLabel.font = UIFont.boldSystemFont(ofSize: 12)
+        titleLabel.textColor = UITheme.primaryTextDark
+        titleLabel.numberOfLines = 1
+        titleLabel.lineBreakMode = .byTruncatingTail
+        
+        // 이미지 로드
+        if let urlStr = courses[row].firstimage, !urlStr.isEmpty, let url = URL(string: urlStr) {
+            URLSession.shared.dataTask(with: url) { data, _, _ in
+                if let data = data, let image = UIImage(data: data) {
+                    DispatchQueue.main.async {
+                        imageView.image = image
+                    }
                 }
-            }
-        }.resume()
+            }.resume()
+        }
+        
+        cardView.addSubview(imageView)
+        cardView.addSubview(titleLabel)
+        imageView.addSubview(tagLabel)
+        containerView.addSubview(cardView)
+        
+        return containerView
     }
-    
-    cardView.addSubview(imageView)
-    cardView.addSubview(titleLabel)
-    imageView.addSubview(tagLabel)
-    containerView.addSubview(cardView)
-    
-    return containerView
-}
     
     // 피커뷰 선택 이벤트 처리
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
@@ -645,8 +645,8 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CourseSubPlaceCell", for: indexPath) as! CourseSubPlaceCell
         
         // 안전 체크
-        guard !courses.isEmpty, 
-              selectedCourseIndex < courses.count,
+        guard !courses.isEmpty,
+                selectedCourseIndex < courses.count,
               let subPlaces = courses[selectedCourseIndex].subPlaces,
               indexPath.item < subPlaces.count else {
             return cell
@@ -673,8 +673,8 @@ extension HomeViewController: UICollectionViewDataSource, UICollectionViewDelega
     
     private func showSubPlaceDetail(_ subPlace: CourseSubPlace) {
         // 장소 상세 정보를 보여주는 팝업 또는 알림 표시
-        let alert = UIAlertController(title: removeHTMLTags(from: subPlace.subname), 
-                                      message: removeHTMLTags(from: subPlace.subdetailoverview), 
+        let alert = UIAlertController(title: removeHTMLTags(from: subPlace.subname),
+                                      message: removeHTMLTags(from: subPlace.subdetailoverview),
                                       preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "확인", style: .default))
         present(alert, animated: true)
@@ -690,7 +690,7 @@ extension HomeViewController: CLLocationManagerDelegate {
         
         // 전역 위치 저장
         HomeViewController.sharedLocation = loc
-
+        
         CLGeocoder().reverseGeocodeLocation(loc) { [weak self] placemarks, error in
             guard let self = self else { return }
             
@@ -742,13 +742,13 @@ extension HomeViewController: CLLocationManagerDelegate {
                 }
             }
         }
-
+        
         loadCourses(longitude: lon, latitude: lat)
     }
-
+    
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("위치 가져오기 실패: \(error.localizedDescription)")
-
+        
         // 한성대 상상빌리지 fallback
         let fallbackLat = 37.582573
         let fallbackLon = 127.011159
@@ -801,14 +801,14 @@ extension HomeViewController: CLLocationManagerDelegate {
                 self.locationLabel.text = "🌏 현재 위치: \(fallbackAddress)"
             }
         }
-
+        
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.locationLabel.text = "🌏 현재 위치: 위치 확인 중..."
             self.loadCourses(longitude: fallbackLon, latitude: fallbackLat)
         }
     }
-
+    
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         checkLocationAuthorization()
     }

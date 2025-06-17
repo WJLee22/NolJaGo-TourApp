@@ -154,7 +154,7 @@ class XMLParserHelper: NSObject, XMLParserDelegate {
                 
                 // subPlace 객체 생성 및 추가
                 if let subnumStr = currentSubPlace["subnum"], 
-                   let subnum = Int(subnumStr),
+                    let subnum = Int(subnumStr),
                    let subname = currentSubPlace["subname"] {
                     
                     let subPlace = CourseSubPlace(
