@@ -232,7 +232,7 @@ private func hideDetailView() {
 // 완전히 개선된 상세 카드 뷰 생성 함수
 private func createDetailCardView(for place: FavoritePlace) -> UIView {
     // 카드 컨테이너 생성 - 항상 일정한 높이 유지
-    let cardHeight: CGFloat = 350 // 충분히 큰 고정 높이
+    let cardHeight: CGFloat = 400 // 더 충분한 높이 확보
     let cardWidth: CGFloat = view.bounds.width - 40
     
     // 카드의 Y 위치 계산 (화면 하단에서 적절한 간격)
@@ -315,7 +315,8 @@ private func createDetailCardView(for place: FavoritePlace) -> UIView {
     }
     
     // 전화번호 (있는 경우)
-    if !place.tel.isEmpty {
+    let hasTel = !place.tel.isEmpty
+    if hasTel {
         let telIcon = UILabel(frame: CGRect(x: 20, y: yOffset, width: iconWidth, height: 20))
         telIcon.text = "📞"
         cardView.addSubview(telIcon)
@@ -344,8 +345,10 @@ private func createDetailCardView(for place: FavoritePlace) -> UIView {
     dateLabel.textColor = UITheme.secondaryTextGray
     cardView.addSubview(dateLabel)
     
-    // 정보 제공 출처 
+    // 다음 요소 위치 설정
     yOffset += 35
+    
+    // 정보 제공 출처 
     let infoContainer = UIView(frame: CGRect(x: 20, y: yOffset, width: cardWidth - 40, height: 22))
     infoContainer.backgroundColor = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0)
     infoContainer.layer.cornerRadius = 11
@@ -363,15 +366,15 @@ private func createDetailCardView(for place: FavoritePlace) -> UIView {
     infoLabel.textAlignment = .left
     infoContainer.addSubview(infoLabel)
     
-    // 구분선
+    // 구분선 위치 조정 - 정보 제공 출처 아래에 고정
     yOffset += 35
     let separatorView = UIView(frame: CGRect(x: 20, y: yOffset, width: cardWidth - 40, height: 1))
     separatorView.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 1.0)
     cardView.addSubview(separatorView)
     
-    // 버튼 컨테이너 - 카드 하단에 고정 배치
-    let buttonContainerY = cardHeight - 60 // 항상 카드 하단에서 60포인트 위에 배치
-    let buttonContainer = UIView(frame: CGRect(x: 15, y: buttonContainerY, width: cardWidth - 30, height: 45))
+    // 버튼 컨테이너 - 구분선 아래에 고정 배치
+    yOffset += 15 // 구분선과 버튼 사이 간격
+    let buttonContainer = UIView(frame: CGRect(x: 15, y: yOffset, width: cardWidth - 30, height: 45))
     cardView.addSubview(buttonContainer)
     
     // 액션 버튼들
@@ -397,22 +400,24 @@ private func createDetailCardView(for place: FavoritePlace) -> UIView {
     directionsButton.addTarget(self, action: #selector(getDirections), for: .touchUpInside)
     buttonContainer.addSubview(directionsButton)
     
-    // 닫기 버튼 - 수정된 부분
-    let closeButtonSize: CGFloat = 35
-    let closeButton = UIButton(frame: CGRect(x: cardWidth - closeButtonSize - 10, y: 10, width: closeButtonSize, height: closeButtonSize))
+    // 닫기 버튼 - 중요: 수정된 부분
+    let closeButtonSize: CGFloat = 36
+    let closeButton = UIButton(type: .custom)
+    closeButton.frame = CGRect(x: cardWidth - closeButtonSize - 10, y: 10, width: closeButtonSize, height: closeButtonSize)
     closeButton.setTitle("✕", for: .normal)
     closeButton.setTitleColor(.white, for: .normal)
-    closeButton.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+    closeButton.backgroundColor = UIColor.black.withAlphaComponent(0.5)
     closeButton.layer.cornerRadius = closeButtonSize / 2
-    closeButton.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
+    closeButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+    closeButton.addTarget(self, action: #selector(closeDetailView(_:)), for: .touchUpInside)
     
-    // 닫기 버튼에 액션 추가 - 명시적으로 타겟-액션 설정
-    closeButton.addTarget(self, action: #selector(self.closeDetailView(_:)), for: .touchUpInside)
+    // 닫기 버튼에 그림자 효과 추가로 시인성 향상
+    closeButton.layer.shadowColor = UIColor.black.cgColor
+    closeButton.layer.shadowOffset = CGSize(width: 0, height: 2)
+    closeButton.layer.shadowRadius = 4
+    closeButton.layer.shadowOpacity = 0.3
     
     imageView.addSubview(closeButton)
-    
-    // 버튼의 터치 영역 확장 (더 쉽게 탭할 수 있도록)
-    closeButton.contentEdgeInsets = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
     
     return cardView
 }
@@ -482,11 +487,6 @@ private func createActionButton(frame: CGRect, title: String, icon: String, colo
         case "축제/행사": return UITheme.festivalGreen
         default: return UITheme.primaryOrange
         }
-    }
-    
-    // MARK: - Button Actions
-    @objc private func closeDetailView() {
-        hideDetailView()
     }
     
     @objc private func openInMap() {
