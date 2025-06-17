@@ -84,7 +84,7 @@
 - 관광지(contentTypeId=12), 숙박(contentTypeId=32), 음식(contentTypeId=39), 행사(contentTypeId=15) 등 다양한 카테고리 탐색
 - 선택된 카테고리의 주변 장소들을 지도 마커로 표시
 - 마커 클릭 시 상세 카드 UI 표시 (장소명, 주소, 거리, 전화번호, 찜/길찾기 버튼 포함)
-- 길찾기 버튼 클릭 시 Apple Maps 연동하여 경로 안내
+- 길찾기 버튼 클릭 시 Apple Maps와 연동하여 디테일한 길찾기 기능 제공
 
 ### 4️⃣ 찜한 장소 화면
 
@@ -117,9 +117,9 @@
 
 - **현재 위치 접근 허용**: coreLocation 기반 현재 위치 접근을 허용하여 현재 위치 제공
   
-- **현재 위치**: 현재 주소를 상단에 표시
+- **현재 위치 표시**: 현재 위치에 대한 주소를 화면 상단에 표시
   
-- **피커 뷰: 추천 여행 코스**: 반경 10KM 이내의 여행 코스를 피커 뷰 형식으로 표시. 피커 뷰에는 해당 코스의 대표 이미지 & 코스 유형 & 코스 이름을 표시
+- **피커 뷰: 추천 여행 코스**: **`반경 10KM 이내의 여행 코스`** 를 피커 뷰 형식으로 표시. 피커 뷰에는 해당 코스의 대표 이미지 & 코스 유형 & 코스 이름을 표시
   
 - **코스 상세정보**: 피커 뷰 하단 코스 상세정보 컨테이너에는 **`해당 코스의 이름`** 과 **`코스의 전체 거리`** & **`코스 전체를 경험하는데 소요되는 시간`** & **`코스의 유형`** 을 표시
   
@@ -127,14 +127,25 @@
   
 <br>
 
-### 🗺 맵 화면
+### 🗺 맵 화면 <내 주변 여행컨텐츠>
 
-|<img width="195" alt="image" src="https://github.com/BetterJeong/heat-wave-shelter-app/assets/83108398/121909aa-8f19-490e-a05c-50caad1a31fd">|
-|---|
+| 관광지 | 숙박 시설 | 음식점 | 축제/행사 |
+| :----------: | :------------: | :-------: | :-------: |
+| <img width="250" alt="image" src="https://github.com/user-attachments/assets/2e176597-4c76-402f-a649-4dde3e852d9e"> | <img width="250" alt="image" src="https://github.com/user-attachments/assets/6fb0de74-aaee-4c27-8631-93fa3ab68b71"> | <img width="250" alt="image" src="https://github.com/user-attachments/assets/97402780-899c-423c-987a-1b0bd4d1d858"> | <img width="250" alt="image" src="https://github.com/user-attachments/assets/c294e451-dab0-4eeb-93a0-0993daad5e99"> |
 
-- **폭염 주의보 현황 확인**: 현재 폭염 주의보 발령 상태를 보여줍니다.
-- **현재 날씨 및 예보**: 현재 날씨와 앞으로의 시간별, 주간 날씨를 확인할 수 있습니다.
+| 장소 마커 클릭: 상세정보 카드 | 찜하기 버튼 클릭 | 길찾기 버튼 클릭1 | 길찾기 버튼 클릭2 |
+| :----------: | :------------: | :-------: | :-------: |
+| <img width="250" alt="image" src="https://github.com/user-attachments/assets/a2bbd099-0c25-47fc-a6cd-5ddfa3dd074e"> | <img width="250" alt="image" src="https://github.com/user-attachments/assets/40370922-4d86-4121-bc8b-14c4d78eeeee"> | <img width="250" alt="image" src="https://github.com/user-attachments/assets/92f1f423-63a1-40b6-a420-0e700e52ca4f"> | <img width="250" alt="image" src="https://github.com/user-attachments/assets/2daf4a9d-f07c-4033-b0e8-97632cef734f"> |
 
+- **세그먼트 컨트롤: 내 주변 여행컨텐츠 표시**: **`관광지 - 숙박 시설 - 음식점 - 축제/행사`** 버튼 클릭시, 현재 위치 기준 10KM 반경 이내의 해당 컨텐츠에 해당하는 장소들이 마커로 표시됨 
+  
+- **상세정보 카드**: 장소 마커 클릭 시, **`해당 장소의 이름 - 유형 - 주소 - 현 위치에서의 거리 - 연락처`** 와 같은 상세정보를 보여주는 카드가 등장. 추가로, 찜하기 버튼 & 길찾기 버튼도 제공 
+  
+- **찜하기 버튼**: 찜하기 버튼 클릭 시, 찜한 장소 화면에서 확인가능한 `찜목록에 해당 장소가 저장`됨
+  
+- **길찾기 버튼**: 찜하기 버튼 클릭 시, **Apple Maps 와 즉시 연계하여 현재 위치 <-> 해당 장소 간의 디테일한 길찾기 기능 제공: `추천 경로 - 최단 경로 - 도착 예정 시간 등 유용한 정보 제공`**
+
+  
 <br>
 
 ### ❤ 찜한 장소 화면
