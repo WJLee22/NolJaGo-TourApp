@@ -1,8 +1,9 @@
 # NolJaGo (놀자고)
 
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=FF8C00&height=200&section=header&text=NolJaGo:%20iOS%20%EA%B5%AD%EB%82%B4%EC%97%AC%ED%96%89%20%ED%86%B5%ED%95%A9%20%EC%95%A0%ED%94%8C%EB%A6%AC%EC%BC%80%EC%9D%B4%EC%85%98&fontSize=34&fontColor=ffffff&fontAlignY=40&animation=fadeIn" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=FF7A00&height=230&section=header&text=NolJaGo:%20iOS%20국내여행%20통합%20애플리케이션&fontSize=36&fontColor=ffffff&fontAlignY=40&animation=fadeIn" />
 </p>
+
 
 
 > **지금 여기, 바로 떠나는 여행.**  
