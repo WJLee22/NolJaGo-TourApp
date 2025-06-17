@@ -169,74 +169,83 @@ class SavedPlacesViewController: UIViewController {
         hideDetailView()
     }
     
-    // MARK: - Detail View Methods
-    private func showDetailView(for place: FavoritePlace) {
-        // 이전 상세 카드가 있으면 제거
-        hideDetailView()
-        
-        // 새 상세 카드 생성
-        selectedPlace = place
-        
-        // 반투명 배경 오버레이 추가 (탭하면 카드 닫히는 기능 위해)
-        let overlayView = UIView(frame: view.bounds)
-        overlayView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-        overlayView.alpha = 0
-        
-        // 배경 탭 제스처 추가
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(backgroundTapped))
-        overlayView.addGestureRecognizer(tapGesture)
-        
-        view.addSubview(overlayView)
-        backgroundOverlayView = overlayView
-        
-        // 상세 카드 생성
-        let cardView = createDetailCardView(for: place)
-        view.addSubview(cardView)
-        detailCardView = cardView
-        
-        // 애니메이션으로 표시 (MapView와 유사하게)
+// MARK: - Detail View Methods
+private func showDetailView(for place: FavoritePlace) {
+    // 이전 상세 카드가 있으면 제거
+    hideDetailView()
+    
+    // 새 상세 카드 생성
+    selectedPlace = place
+    
+    // 반투명 배경 오버레이 추가
+    let overlayView = UIView(frame: view.bounds)
+    overlayView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+    overlayView.alpha = 0
+    
+    // 배경 탭 제스처 추가
+    let tapGesture = UITapGestureRecognizer(target: self, action: #selector(backgroundTapped))
+    overlayView.addGestureRecognizer(tapGesture)
+    
+    view.addSubview(overlayView)
+    backgroundOverlayView = overlayView
+    
+    // 상세 카드 생성
+    let cardView = createDetailCardView(for: place)
+    view.addSubview(cardView)
+    detailCardView = cardView
+    
+    // 애니메이션으로 표시
+    cardView.transform = CGAffineTransform(translationX: 0, y: 100)
+    cardView.alpha = 0
+    
+    UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseOut], animations: {
+        cardView.transform = CGAffineTransform.identity
+        cardView.alpha = 1
+        overlayView.alpha = 1
+    })
+}
+
+@objc private func backgroundTapped() {
+    hideDetailView()
+}
+
+private func hideDetailView() {
+    guard let cardView = detailCardView, let overlayView = backgroundOverlayView else { return }
+    
+    UIView.animate(withDuration: 0.25, animations: {
         cardView.transform = CGAffineTransform(translationX: 0, y: 100)
         cardView.alpha = 0
-        
-        UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseOut], animations: {
-            cardView.transform = CGAffineTransform.identity
-            cardView.alpha = 1
-            overlayView.alpha = 1
-        })
-    }
-    
-    @objc private func backgroundTapped() {
-        hideDetailView()
-    }
-    
-    private func hideDetailView() {
-        guard let cardView = detailCardView, let overlayView = backgroundOverlayView else { return }
-        
-        UIView.animate(withDuration: 0.25, animations: {
-            cardView.transform = CGAffineTransform(translationX: 0, y: 100)
-            cardView.alpha = 0
-            overlayView.alpha = 0
-        }, completion: { _ in
-            cardView.removeFromSuperview()
-            overlayView.removeFromSuperview()
-            self.detailCardView = nil
-            self.backgroundOverlayView = nil
-        })
-    }
-    
-    // createDetailCardView 함수 수정
+        overlayView.alpha = 0
+    }, completion: { _ in
+        cardView.removeFromSuperview()
+        overlayView.removeFromSuperview()
+        self.detailCardView = nil
+        self.backgroundOverlayView = nil
+    })
+}
+
+@objc private func closeDetailView(_ sender: UIButton) {
+    // 닫기 버튼을 통한 명시적 닫기 액션
+    hideDetailView()
+}
+
+// 완전히 개선된 상세 카드 뷰 생성 함수
 private func createDetailCardView(for place: FavoritePlace) -> UIView {
-    // 카드 컨테이너 생성 - 높이 증가로 공간 확보
-    let cardHeight: CGFloat = 310 // 충분한 높이로 증가
-    let cardView = UIView(frame: CGRect(x: 20, y: view.bounds.height - cardHeight - 100, 
-                                      width: view.bounds.width - 40, height: cardHeight))
+    // 카드 컨테이너 생성 - 항상 일정한 높이 유지
+    let cardHeight: CGFloat = 350 // 충분히 큰 고정 높이
+    let cardWidth: CGFloat = view.bounds.width - 40
+    
+    // 카드의 Y 위치 계산 (화면 하단에서 적절한 간격)
+    let yPosition = view.bounds.height - cardHeight - 90
+    
+    let cardView = UIView(frame: CGRect(x: 20, y: yPosition, width: cardWidth, height: cardHeight))
     cardView.backgroundColor = .white
     cardView.layer.cornerRadius = 20
     UITheme.applyShadow(to: cardView, opacity: 0.2, radius: 8)
     
     // 상단 이미지 영역
     let imageHeight: CGFloat = 140
-    let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: cardView.bounds.width, height: imageHeight))
+    let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: cardWidth, height: imageHeight))
     imageView.contentMode = .scaleAspectFill
     imageView.clipsToBounds = true
     imageView.layer.cornerRadius = 20
@@ -264,12 +273,12 @@ private func createDetailCardView(for place: FavoritePlace) -> UIView {
     }
     cardView.addSubview(imageView)
     
-    // 카테고리 태그 (개선된 디자인)
+    // 카테고리 태그
     let categoryTagView = createCategoryTagView(with: place.category)
     imageView.addSubview(categoryTagView)
     
     // 제목
-    let titleLabel = UILabel(frame: CGRect(x: 20, y: imageHeight + 15, width: cardView.bounds.width - 40, height: 25))
+    let titleLabel = UILabel(frame: CGRect(x: 20, y: imageHeight + 15, width: cardWidth - 40, height: 25))
     titleLabel.text = place.title
     titleLabel.font = UITheme.titleFont
     titleLabel.textColor = UITheme.primaryTextDark
@@ -281,7 +290,7 @@ private func createDetailCardView(for place: FavoritePlace) -> UIView {
     var yOffset: CGFloat = imageHeight + 50
     let iconWidth: CGFloat = 20
     let contentX: CGFloat = 45
-    let contentWidth: CGFloat = cardView.bounds.width - 65
+    let contentWidth: CGFloat = cardWidth - 65
     
     // 주소
     let addressIcon = UILabel(frame: CGRect(x: 20, y: yOffset, width: iconWidth, height: 20))
@@ -296,7 +305,14 @@ private func createDetailCardView(for place: FavoritePlace) -> UIView {
     addressLabel.lineBreakMode = .byTruncatingTail
     cardView.addSubview(addressLabel)
     
-    yOffset += 30 // 다음 요소 위치 조정
+    // 주소가 긴 경우 두 줄로 표시될 수 있도록 사이즈 조정
+    let addressSize = addressLabel.sizeThatFits(CGSize(width: contentWidth, height: 40))
+    if addressSize.height > 20 {
+        addressLabel.frame.size.height = addressSize.height
+        yOffset += addressSize.height + 10 // 주소 높이에 따라 다음 요소 위치 조정
+    } else {
+        yOffset += 30 // 기본 간격
+    }
     
     // 전화번호 (있는 경우)
     if !place.tel.isEmpty {
@@ -330,7 +346,7 @@ private func createDetailCardView(for place: FavoritePlace) -> UIView {
     
     // 정보 제공 출처 
     yOffset += 35
-    let infoContainer = UIView(frame: CGRect(x: 20, y: yOffset, width: cardView.frame.width - 40, height: 22))
+    let infoContainer = UIView(frame: CGRect(x: 20, y: yOffset, width: cardWidth - 40, height: 22))
     infoContainer.backgroundColor = UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0)
     infoContainer.layer.cornerRadius = 11
     cardView.addSubview(infoContainer)
@@ -349,13 +365,13 @@ private func createDetailCardView(for place: FavoritePlace) -> UIView {
     
     // 구분선
     yOffset += 35
-    let separatorView = UIView(frame: CGRect(x: 20, y: yOffset, width: cardView.frame.width - 40, height: 1))
+    let separatorView = UIView(frame: CGRect(x: 20, y: yOffset, width: cardWidth - 40, height: 1))
     separatorView.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 1.0)
     cardView.addSubview(separatorView)
     
-    // 버튼 컨테이너 - 명확하게 하단에 배치
-    yOffset += 15
-    let buttonContainer = UIView(frame: CGRect(x: 15, y: yOffset, width: cardView.bounds.width - 30, height: 45))
+    // 버튼 컨테이너 - 카드 하단에 고정 배치
+    let buttonContainerY = cardHeight - 60 // 항상 카드 하단에서 60포인트 위에 배치
+    let buttonContainer = UIView(frame: CGRect(x: 15, y: buttonContainerY, width: cardWidth - 30, height: 45))
     cardView.addSubview(buttonContainer)
     
     // 액션 버튼들
@@ -381,19 +397,26 @@ private func createDetailCardView(for place: FavoritePlace) -> UIView {
     directionsButton.addTarget(self, action: #selector(getDirections), for: .touchUpInside)
     buttonContainer.addSubview(directionsButton)
     
-    // 닫기 버튼
-    let closeButton = UIButton(frame: CGRect(x: cardView.bounds.width - 45, y: 10, width: 35, height: 35))
+    // 닫기 버튼 - 수정된 부분
+    let closeButtonSize: CGFloat = 35
+    let closeButton = UIButton(frame: CGRect(x: cardWidth - closeButtonSize - 10, y: 10, width: closeButtonSize, height: closeButtonSize))
     closeButton.setTitle("✕", for: .normal)
     closeButton.setTitleColor(.white, for: .normal)
     closeButton.backgroundColor = UIColor.black.withAlphaComponent(0.4)
-    closeButton.layer.cornerRadius = 17.5
+    closeButton.layer.cornerRadius = closeButtonSize / 2
     closeButton.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-    closeButton.addTarget(self, action: #selector(closeDetailView), for: .touchUpInside)
+    
+    // 닫기 버튼에 액션 추가 - 명시적으로 타겟-액션 설정
+    closeButton.addTarget(self, action: #selector(self.closeDetailView(_:)), for: .touchUpInside)
+    
     imageView.addSubview(closeButton)
+    
+    // 버튼의 터치 영역 확장 (더 쉽게 탭할 수 있도록)
+    closeButton.contentEdgeInsets = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
     
     return cardView
 }
-    
+
     private func createCategoryTagView(with category: String) -> UIView {
         // 컨테이너 뷰
         let containerView = UIView(frame: CGRect(x: 15, y: 15, width: 0, height: 28))
@@ -427,26 +450,29 @@ private func createDetailCardView(for place: FavoritePlace) -> UIView {
         return containerView
     }
     
-    private func createActionButton(frame: CGRect, title: String, icon: String, color: UIColor) -> UIButton {
-        let button = UIButton(frame: frame)
-        
-        // 아이콘 이미지 설정
-        let config = UIImage.SymbolConfiguration(pointSize: 13, weight: .semibold)
-        let image = UIImage(systemName: icon, withConfiguration: config)
-        button.setImage(image, for: .normal)
-        button.tintColor = .white
-        
-        // 타이틀 설정
-        button.setTitle(" " + title, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
-        
-        // 스타일 설정
-        button.backgroundColor = color
-        button.layer.cornerRadius = 20
-        UITheme.applyShadow(to: button, opacity: 0.2, radius: 4)
-        
-        return button
-    }
+private func createActionButton(frame: CGRect, title: String, icon: String, color: UIColor) -> UIButton {
+    let button = UIButton(frame: frame)
+    
+    // 아이콘 이미지 설정
+    let config = UIImage.SymbolConfiguration(pointSize: 13, weight: .semibold)
+    let image = UIImage(systemName: icon, withConfiguration: config)
+    button.setImage(image, for: .normal)
+    button.tintColor = .white
+    
+    // 타이틀 설정
+    button.setTitle(" " + title, for: .normal)
+    button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
+    
+    // 스타일 설정
+    button.backgroundColor = color
+    button.layer.cornerRadius = 20
+    UITheme.applyShadow(to: button, opacity: 0.2, radius: 4)
+    
+    // 터치 영역 확장
+    button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
+    
+    return button
+}
     
     private func getCategoryColor(_ category: String) -> UIColor {
         switch category {
