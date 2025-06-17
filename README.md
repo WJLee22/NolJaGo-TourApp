@@ -1,4 +1,4 @@
-# 🗺️ NolJaGo (놀자고)
+# ✈️ NolJaGo (놀자고)
 
 <p align="center">
   <img src="https://capsule-render.vercel.app/api?type=waving&color=FF7A00&height=230&section=header&text=NolJaGo:%20iOS%20국내여행%20통합%20애플리케이션&fontSize=36&fontColor=ffffff&fontAlignY=40&animation=fadeIn" />
