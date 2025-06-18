@@ -236,7 +236,7 @@
 # 🎬 시연 영상
  >  ### 🔗 아래 썸네일을 클릭하면 YouTube 시연 영상으로 이동합니다
 
-<a href="https://youtu.be/MA74F45g4Pc" target="_blank">
+<a href="https://youtu.be/249X4zja_xE" target="_blank">
   <img src="https://github.com/user-attachments/assets/bef927e8-b6df-4945-91a7-696b7aae6464" width="300"/>
 </a>
 
