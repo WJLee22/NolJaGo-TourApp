@@ -231,14 +231,22 @@
 
 <br><br>
 
+<div align="center">
+  
 # 🎬 시연 영상
  >  ### 🔗 아래 썸네일을 클릭하면 YouTube 시연 영상으로 이동합니다
 
-[![Demonstration video](https://github.com/user-attachments/assets/dd163123-9af6-4a4f-b1e7-543bdceb7a1f)](https://youtu.be/6-nIDs3ufg4?si=Jhty8wuMLy_zPsFU)
+<a href="https://youtu.be/MA74F45g4Pc" target="_blank">
+  <img src="https://github.com/user-attachments/assets/bef927e8-b6df-4945-91a7-696b7aae6464" width="300"/>
+</a>
 
-<br>
+
+
+<br><br>
 
 > ⏰ 개발 기간: 2025년 5월 20일 ~ 6월 17일  
 > © 2025 NolJaGo | All Rights Reserved
+
+</div>
 
 <br>
